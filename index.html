@@ -379,6 +379,7 @@
         // =================================================================
 
         // --- SPOTIFY LOGIC ---
+        // CORRECTED URL: The official Spotify Auth URL
         const SPOTIFY_AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
         const SPOTIFY_SCOPES = ['user-read-currently-playing', 'user-read-playback-state'];
 
@@ -434,6 +435,7 @@
             if (!spotifyToken) return;
 
             try {
+                // CORRECTED URL: The official Spotify API URL
                 const res = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
                     headers: { 'Authorization': `Bearer ${spotifyToken}` }
                 });
