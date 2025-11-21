@@ -374,13 +374,12 @@
         const SPOTIFY_CLIENT_ID = '852950465a424a9fb4f2cb105a5089a5'; 
         // =================================================================
 
-// --- SPOTIFY LOGIC ---
+        // --- SPOTIFY LOGIC ---
         // FIXED: Official Spotify Endpoints
         const SPOTIFY_AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
         const SPOTIFY_SCOPES = ['user-read-currently-playing', 'user-read-playback-state'];
 
         // Auto-detect your Netlify URL for the Redirect URI
-        // IMPORTANT: Add "https://speedash.netlify.app/" to your Spotify Dashboard Redirect URIs
         const REDIRECT_URI = window.location.origin + window.location.pathname;
 
         let spotifyToken = null;
@@ -392,7 +391,7 @@
                 return;
             }
             if (!spotifyToken) {
-                // Start Login - Redirects to the REAL Spotify Login Page
+                // Start Login
                 const authUrl = `${SPOTIFY_AUTH_ENDPOINT}?client_id=${SPOTIFY_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SPOTIFY_SCOPES.join(' '))}&response_type=token&show_dialog=true`;
                 window.location.href = authUrl;
             }
@@ -457,6 +456,16 @@
                     // Update Art
                     const artUrl = data.item.album.images[0].url;
                     const artImg = document.getElementById('spotify-art');
+                    const icon = document.getElementById('spotify-icon');
+                    
+                    artImg.src = artUrl;
+                    artImg.classList.remove('hidden');
+                    icon.classList.add('hidden');
+                }
+            } catch (e) {
+                // Silent fail
+            }
+        }
 
         // --- DEBUG LOGIC ---
         function toggleDebug() {
