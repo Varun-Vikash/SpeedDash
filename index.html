@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Jazz 1200 Ultimate (Spotify Fixed)</title>
+    <title>Jazz 1200 Ultimate (Spotify Official)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -375,7 +375,7 @@
         // =================================================================
 
         // --- SPOTIFY LOGIC ---
-        // FIXED: Using Official Spotify Endpoints
+        // FIXED: Official Spotify Endpoints
         const SPOTIFY_AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
         const SPOTIFY_SCOPES = ['user-read-currently-playing', 'user-read-playback-state'];
 
@@ -431,7 +431,7 @@
             if (!spotifyToken) return;
 
             try {
-                // FIXED: Using Official Spotify API Endpoint
+                // FIXED: Official Spotify API Endpoint
                 const res = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
                     headers: { 'Authorization': `Bearer ${spotifyToken}` }
                 });
