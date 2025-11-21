@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jazz 1200 Ultimate</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Jazz 1200 Ultimate (Debug Mode)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -11,34 +13,30 @@
     
     <style>
         /* --- CORE STYLES --- */
-        body { font-family: 'Rajdhani', sans-serif; background-color: #050505; overflow: hidden; touch-action: none; user-select: none; }
+        body { font-family: 'Rajdhani', sans-serif; background-color: #050505; overflow: hidden; touch-action: none; user-select: none; -webkit-tap-highlight-color: transparent; }
         
         .gauge-transition { transition: stroke-dashoffset 0.1s linear; }
         
         /* --- ANIMATIONS --- */
-        
-        /* Background Circle Reveal - Using Clip Path for reliability */
         @keyframes circleExpand {
             0% { clip-path: circle(0% at 50% 50%); }
             100% { clip-path: circle(150% at 50% 50%); }
         }
         .anim-bg-reveal { animation: circleExpand 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
 
-        /* Eco Entry */
         @keyframes ecoEnter {
             0% { transform: translateY(50px) scale(0.9); opacity: 0; }
             100% { transform: translateY(0) scale(1); opacity: 1; }
         }
         .anim-eco-enter { animation: ecoEnter 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
 
-        /* Full Send Text Rapid Strobe (White-Red-White Sequence) */
         @keyframes introTextSequence {
             0% { color: white; }
-            10% { color: #dc2626; } /* RED */
-            20% { color: white; } /* WHITE */
-            30% { color: white; } /* PAUSE WHITE */
-            40% { color: #dc2626; } /* RED */
-            50% { color: white; } /* WHITE */
+            10% { color: #dc2626; }
+            20% { color: white; }
+            30% { color: white; }
+            40% { color: #dc2626; }
+            50% { color: white; }
             100% { color: white; }
         }
         .anim-text-strobe { animation: introTextSequence 0.8s steps(1) forwards; }
@@ -70,14 +68,74 @@
         .g-dot-smooth { transition: transform 0.2s cubic-bezier(0.1, 0.7, 1.0, 0.1); }
         
         .hidden-force { display: none !important; }
+
+        /* --- DEBUG STYLES (UPDATED) --- */
+        #debug-trigger {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9998;
+            background: rgba(30, 30, 30, 0.8);
+            border: 1px solid #444;
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: transform 0.1s;
+        }
+        #debug-trigger:active { transform: scale(0.9); }
+
+        #debug-overlay {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 280px;
+            background: rgba(5, 5, 5, 0.95);
+            border: 1px solid #333;
+            color: #0f0;
+            font-family: monospace;
+            font-size: 11px;
+            padding: 12px;
+            z-index: 9999;
+            border-radius: 10px;
+            display: none; /* Hidden by default */
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+        }
+        
+        #debug-logs {
+            white-space: pre-wrap;
+            max-height: 150px;
+            overflow-y: auto;
+            border-top: 1px solid #333;
+            margin-top: 8px;
+            padding-top: 8px;
+        }
     </style>
 </head>
 <body class="text-white h-screen w-full flex bg-zinc-950 relative overflow-hidden">
 
-    <!-- Global Background Scanlines -->
+    <button id="debug-trigger" onclick="toggleDebug()">
+        <i data-lucide="bug" class="w-5 h-5 text-yellow-500"></i>
+    </button>
+
+    <div id="debug-overlay">
+        <div class="flex justify-between items-center mb-1">
+            <span class="font-bold text-white">SYSTEM DIAGNOSTICS</span>
+            <button onclick="toggleDebug()" class="text-red-500 font-bold hover:text-red-400 px-2">✕</button>
+        </div>
+        <div class="text-xs text-zinc-500 mb-1">GPS Status Monitor</div>
+        <div id="debug-logs">
+            Waiting for input...
+        </div>
+    </div>
+
     <div class="absolute inset-0 scanlines pointer-events-none z-[60]"></div>
 
-    <!-- INTRO OVERLAY (Solid Black Background) -->
     <div id="sport-intro" class="fixed inset-0 z-[100] flex flex-col items-center justify-center pointer-events-none hidden-force w-full overflow-hidden bg-black">
         <div class="text-center space-y-4 relative z-10 w-full px-4">
             <h1 id="intro-text" class="text-[15vw] leading-none font-black italic text-white font-fl5 tracking-tighter">FULL SEND</h1>
@@ -87,11 +145,7 @@
         </div>
     </div>
 
-    <!-- ================================================================= -->
-    <!-- VIEW 1: ECO DASHBOARD                                             -->
-    <!-- ================================================================= -->
     <div id="view-eco" class="absolute inset-0 flex z-10 transition-all duration-500 bg-zinc-950">
-        <!-- SIDEBAR -->
         <div class="w-20 h-full bg-zinc-950 border-r border-zinc-900 flex flex-col items-center py-6 justify-between z-50 shadow-2xl shrink-0 relative">
             <div class="space-y-10 flex flex-col items-center">
                 <div class="p-3 bg-zinc-900 rounded-xl border border-zinc-800">
@@ -105,19 +159,13 @@
             <div id="clock" class="text-xs text-zinc-600 font-bold font-mono">12:00</div>
         </div>
 
-        <!-- MAIN DISPLAY -->
         <div class="flex-1 relative overflow-hidden flex flex-col">
-            <!-- Top Bar -->
             <div class="relative z-30 flex justify-between items-start p-6">
-                
-                <!-- UPDATED ECO INFO PANEL (Weather + Location) -->
                 <div class="flex flex-col">
-                    <!-- Location Row -->
                     <div class="flex items-center gap-2 text-zinc-500 mb-1">
                         <i data-lucide="map-pin" class="w-3 h-3"></i>
                         <span id="weather-location" class="text-xs uppercase tracking-widest font-bold text-zinc-400 truncate max-w-[200px]">...</span>
                     </div>
-                    <!-- Weather & Status Row -->
                     <div class="flex items-center gap-4">
                         <div class="flex items-center gap-2">
                              <i id="weather-icon" data-lucide="cloud" class="w-5 h-5 text-zinc-400"></i>
@@ -137,9 +185,7 @@
                 </div>
             </div>
 
-            <!-- Center Stage -->
             <div class="relative z-20 flex-1 flex items-center justify-center gap-4 md:gap-8 px-4 pb-12">
-                <!-- Left Gauge (RPM) -->
                 <div class="relative w-48 h-48 md:w-64 md:h-64 flex items-center justify-center">
                     <svg class="w-full h-full transform rotate-[135deg]" viewBox="0 0 200 200">
                         <circle cx="100" cy="100" r="85" fill="none" stroke="#1f2937" stroke-width="12" stroke-dasharray="534" stroke-dashoffset="133.5" />
@@ -151,7 +197,6 @@
                     </div>
                 </div>
 
-                <!-- Center Stack -->
                 <div class="flex flex-col items-center w-48 md:w-64 space-y-6 relative">
                     <div class="flex flex-col items-center">
                         <span id="eco-speed-val" class="text-6xl md:text-8xl font-bold text-white tracking-tighter" style="font-family: 'Orbitron', sans-serif;">0</span>
@@ -167,7 +212,6 @@
                     </button>
                 </div>
 
-                <!-- Right Gauge (Eco Guide) -->
                 <div class="relative w-48 h-48 md:w-64 md:h-64 flex items-center justify-center">
                     <svg class="w-full h-full transform rotate-[135deg]" viewBox="0 0 200 200">
                         <circle cx="100" cy="100" r="85" fill="none" stroke="#1f2937" stroke-width="12" stroke-dasharray="534" stroke-dashoffset="133.5" />
@@ -179,22 +223,16 @@
                     </div>
                 </div>
             </div>
-            <!-- Bottom Bar -->
             <div class="h-1 w-full bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.6)] mt-auto"></div>
         </div>
     </div>
 
-    <!-- ================================================================= -->
-    <!-- VIEW 2: SPORT DASHBOARD (FL5 Linear Design)                       -->
-    <!-- ================================================================= -->
     <div id="view-sport" class="absolute inset-0 z-20 opacity-0 pointer-events-none bg-black flex flex-col transition-opacity duration-500">
         
-        <!-- Background Texture (Reveals last via Clip Path) -->
         <div class="absolute inset-0 bg-fl5-pattern opacity-0 z-0" id="bg-sport-pattern" style="opacity: 0.5; clip-path: circle(0% at 50% 50%);">
             <div class="absolute inset-0 bg-gradient-to-t from-red-900/20 via-transparent to-transparent"></div>
         </div>
 
-        <!-- TOP RIGHT BUTTONS -->
         <div class="absolute top-6 right-6 z-[60] flex gap-3 opacity-0 transition-opacity duration-500" id="sport-buttons">
               <button onclick="toggleGPS()" class="px-4 py-2 bg-zinc-900/80 border border-zinc-700 text-zinc-400 text-xs font-bold uppercase rounded hover:text-blue-400 transition-colors flex items-center gap-2 backdrop-blur-sm cursor-pointer">
                 <div id="sport-gps-dot" class="w-2 h-2 rounded-full bg-zinc-600"></div>
@@ -208,10 +246,8 @@
               </button>
         </div>
 
-        <!-- CENTER CONTENT -->
         <div class="flex-1 flex flex-col items-center justify-center w-full max-w-7xl mx-auto relative z-20">
             
-            <!-- RPM & Shift Lights (Ignites First) -->
             <div id="sport-rpm-group" class="w-full max-w-5xl mx-auto mb-4 mt-16 opacity-0 transition-opacity duration-300">
                 <div class="flex gap-1 mb-1 px-[5%] h-3 justify-center">
                     <div class="led green" id="led-1"></div><div class="led green" id="led-2"></div><div class="led green" id="led-3"></div><div class="led green" id="led-4"></div><div class="led green" id="led-5"></div>
@@ -243,10 +279,8 @@
                 </div>
             </div>
 
-            <!-- MIDDLE: Speed & Gear (Reveals Second) -->
             <div class="flex flex-1 w-full items-center justify-center max-w-6xl px-8">
                 
-                <!-- Left: Stopwatch / 0-100 Timer -->
                 <div id="sport-misc-group-1" class="flex-1 hidden md:flex flex-col items-end pr-12 border-r border-zinc-900 opacity-0 transition-opacity duration-500">
                     <div class="flex items-center gap-2 mb-1 text-zinc-500">
                         <span id="timer-mode-label" class="text-xs font-bold uppercase tracking-wider">CHRONO</span>
@@ -258,7 +292,6 @@
                         <button onclick="timerStartStop()" id="btn-start" class="px-3 py-1 bg-emerald-900 hover:bg-emerald-700 text-[10px] font-bold text-emerald-300 rounded uppercase transition-colors">Start</button>
                     </div>
                     
-                    <!-- 0-100 Button -->
                     <div class="mt-3">
                         <button onclick="activateZeroHundred()" id="btn-zero-hundred" class="w-full px-3 py-1 bg-zinc-900 border border-red-900/50 hover:bg-red-900/20 hover:border-red-500 text-[10px] font-bold text-red-500 rounded uppercase transition-colors tracking-widest flex items-center justify-center gap-1">
                             <i data-lucide="gauge-circle" class="w-3 h-3"></i> 0-100 LAUNCH
@@ -274,13 +307,11 @@
                     <div id="last-lap" class="mt-2 text-[10px] font-mono text-zinc-400">LAST: --:--.--</div>
                 </div>
 
-                <!-- Center: Speed (Fades in after swipe) -->
                 <div id="sport-speed-group" class="w-80 flex flex-col items-center relative opacity-0 transition-opacity duration-500">
                     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-48 bg-gradient-to-b from-red-600 to-transparent opacity-30 blur-3xl rounded-full"></div>
                     <span id="sport-speed" class="text-8xl md:text-9xl font-fl5 font-black text-white drop-shadow-lg relative z-10 leading-none">0</span>
                     <span class="text-sm font-bold text-red-500 tracking-[0.4em] relative z-10 -mt-2">KM/H</span>
                     
-                    <!-- Metrics Grid -->
                     <div class="grid grid-cols-2 gap-x-12 gap-y-2 mt-8 w-full px-4">
                         <div class="flex justify-between items-center text-sm">
                             <span class="text-zinc-500 font-bold">WAT</span> <span class="font-fl5 font-bold text-white">90<span class="text-zinc-600 text-xs">°</span></span>
@@ -297,18 +328,15 @@
                     </div>
                 </div>
 
-                <!-- Right: Gear & G-Meter (Reveals last) -->
                 <div id="sport-misc-group-2" class="flex-1 flex flex-col items-start pl-12 border-l border-zinc-900 opacity-0 transition-opacity duration-500">
                     <div class="flex items-baseline gap-2 mb-6">
                         <span class="text-red-600 font-black italic text-2xl font-fl5 mr-2">+R</span>
                         <span id="sport-gear" class="text-7xl font-fl5 font-black text-white tracking-tighter">N</span>
                     </div>
-                    <!-- G-Meter -->
                     <div class="relative w-32 h-32 border-2 border-zinc-800 rounded-full flex items-center justify-center bg-zinc-900/50">
                         <div class="absolute w-20 h-20 border border-zinc-800 rounded-full"></div>
                         <div class="absolute w-full h-[1px] bg-zinc-800"></div>
                         <div class="absolute h-full w-[1px] bg-zinc-800"></div>
-                        <!-- Dots -->
                         <div id="g-ghost" class="w-2 h-2 bg-red-900/50 rounded-full absolute transition-all duration-1000 opacity-0"></div>
                         <div id="g-dot" class="w-3 h-3 bg-yellow-400 rounded-full shadow-[0_0_10px_#facc15] g-dot-smooth relative z-10"></div>
                         <span class="absolute bottom-2 text-[8px] text-zinc-500 font-bold">PEAK G</span>
@@ -321,6 +349,41 @@
 
     <script>
         lucide.createIcons();
+
+        // --- DEBUG LOGIC ---
+        function toggleDebug() {
+            const overlay = document.getElementById('debug-overlay');
+            const trigger = document.getElementById('debug-trigger');
+            
+            if (overlay.style.display === 'block') {
+                overlay.style.display = 'none';
+                trigger.style.display = 'flex';
+            } else {
+                overlay.style.display = 'block';
+                trigger.style.display = 'none';
+            }
+        }
+
+        function debugLog(msg) {
+            const container = document.getElementById('debug-logs');
+            // Append new message at the TOP (prepend)
+            container.innerHTML = `<div>> ${msg}</div>` + container.innerHTML;
+            
+            // Limit log history
+            const lines = container.children;
+            if (lines.length > 15) {
+                container.removeChild(lines[lines.length - 1]);
+            }
+            console.log(msg);
+        }
+
+        // Global Error Catcher for iPhone
+        window.onerror = function(msg, url, line) {
+            const err = `FATAL: ${msg} \nLine: ${line}`;
+            alert(err); 
+            debugLog(err);
+            return false;
+        };
 
         // --- CONFIGURATION & STATE ---
         const AppState = {
@@ -382,7 +445,7 @@
                     iconEl.setAttribute('data-lucide', iconName);
                     lucide.createIcons();
                 }
-            } catch (e) { console.warn("Weather fetch failed", e); }
+            } catch (e) { debugLog("Weather Error: " + e.message); }
 
             // 2. Fetch Location (BigDataCloud - Client Side Free)
             try {
@@ -390,10 +453,10 @@
                 const lData = await lRes.json();
                 const city = lData.locality || lData.city || lData.principalSubdivision || "Unknown";
                 document.getElementById('weather-location').innerText = city.toUpperCase();
-            } catch (e) { console.warn("Location fetch failed", e); }
+            } catch (e) { debugLog("Loc Error: " + e.message); }
         }
 
-        // --- UI TRANSITIONS (STAGED) ---
+        // --- UI TRANSITIONS ---
 
         function setMode(mode) {
             if (AppState.mode === mode) return;
@@ -413,56 +476,45 @@
             const btns = document.getElementById('sport-buttons');
 
             if (mode === 'sport') {
-                // T=0: Eco Fade Out & Blackout
                 ecoView.style.opacity = '0';
                 ecoView.style.pointerEvents = 'none';
                 
-                // Show Solid Black Intro
                 intro.classList.remove('hidden-force');
                 introText.classList.add('anim-text-strobe');
                 
-                // Prepare Sport Elements (Hidden initially)
                 sportView.classList.remove('pointer-events-none');
-                sportView.style.opacity = '1'; // Container visible
+                sportView.style.opacity = '1'; 
                 rpmGroup.style.opacity = '0';
                 speedGroup.style.opacity = '0';
                 misc1.style.opacity = '0';
                 misc2.style.opacity = '0';
                 btns.style.opacity = '0';
                 
-                // Reset BG to hidden state with clip-path 0
-                bgSport.style.opacity = '0.5'; // Keep visual opacity ready
-                bgSport.classList.remove('anim-bg-reveal'); // Clear prev animation
-                bgSport.style.clipPath = 'circle(0% at 50% 50%)'; // Force reset
+                bgSport.style.opacity = '0.5'; 
+                bgSport.classList.remove('anim-bg-reveal'); 
+                bgSport.style.clipPath = 'circle(0% at 50% 50%)'; 
 
-                // T=0.8s: Fade Intro, Ignite RPM (Shortened from 1.2s)
                 setTimeout(() => {
                     introText.classList.remove('anim-text-strobe');
-                    intro.classList.add('hidden-force'); // Gone
-                    rpmGroup.style.opacity = '1'; // IGNITION
-                    
-                    // Start Needle Swipe
+                    intro.classList.add('hidden-force'); 
+                    rpmGroup.style.opacity = '1'; 
                     startNeedleSwipe();
                 }, 800);
 
-                // T=1.6s (Mid-Swipe): Fade in Speed (Shortened)
                 setTimeout(() => {
                     speedGroup.style.opacity = '1';
                 }, 1600);
 
-                // T=2.1s (End Swipe): Show Rest & BG (Shortened)
                 setTimeout(() => {
                     misc1.style.opacity = '1';
                     misc2.style.opacity = '1';
                     btns.style.opacity = '1';
                     
-                    // Trigger Clip Path Expansion
-                    bgSport.style.clipPath = ''; // Clear inline style to let animation take over
+                    bgSport.style.clipPath = ''; 
                     bgSport.classList.add('anim-bg-reveal'); 
                 }, 2100);
 
             } else {
-                // Sport -> Eco
                 sportView.style.opacity = '0';
                 sportView.classList.add('pointer-events-none');
                 bgSport.classList.remove('anim-bg-reveal');
@@ -479,7 +531,7 @@
         function startNeedleSwipe() {
             if (AppState.swiping) return;
             AppState.swiping = true;
-            const duration = 1500; // Faster Swipe
+            const duration = 1500; 
             const startTime = Date.now();
 
             function swipeFrame() {
@@ -487,18 +539,15 @@
                 const elapsed = now - startTime;
                 const progress = Math.min(elapsed / duration, 1);
                 
-                // Triangle logic: 0 -> 1 -> 0
                 let val = 0;
                 if(progress < 0.5) val = progress * 2; 
                 else val = 2 - (progress * 2); 
                 val = Math.max(0, val); 
 
-                // Drive Visuals
                 const swipeRpm = val * 8000;
                 const rpmPct = swipeRpm / 7500; 
                 document.getElementById('rpm-fill-rect').setAttribute('width', Math.min(rpmPct, 1.07) * 800);
                 
-                // Only update speed text if speed group is visible to avoid ghost numbers
                 if(document.getElementById('sport-speed-group').style.opacity === '1') {
                     document.getElementById('sport-speed').innerText = Math.round(val * 188);
                 }
@@ -510,7 +559,7 @@
                 } else {
                     AppState.swiping = false;
                     document.getElementById('sport-speed').innerText = "0"; 
-                    updateDisplay(0); // Reset
+                    updateDisplay(0); 
                 }
             }
             requestAnimationFrame(swipeFrame);
@@ -529,7 +578,6 @@
                     document.getElementById('auto-status').className = "mt-2 text-[10px] font-bold text-emerald-500 animate-pulse text-right leading-tight";
                     if(!AppState.autoRunning) document.getElementById('stopwatch-display').innerText = "00:00.00";
                 } else if (AppState.autoArmed && speedKmh >= 2 && !AppState.autoRunning) {
-                    // LAUNCH DETECTED
                     AppState.autoArmed = false;
                     AppState.autoRunning = true;
                     AppState.swStartTime = Date.now();
@@ -542,7 +590,6 @@
                         formatTime(diff);
                     }, 30);
                 } else if (AppState.autoRunning && speedKmh >= 100) {
-                    // FINISH
                     clearInterval(AppState.swInterval);
                     AppState.autoRunning = false;
                     const finalTime = Date.now() - AppState.swStartTime;
@@ -595,13 +642,11 @@
                 document.getElementById('sport-speed').innerText = roundedSpeed;
                 document.getElementById('sport-gear').innerText = gear;
                 
-                // Linear RPM Bar
                 const rpmPct = Math.min(rpm, 7500) / 7500;
                 document.getElementById('rpm-fill-rect').setAttribute('width', rpmPct * 800);
                 
                 updateShiftLights(rpm);
 
-                // G-Meter Simulation
                 if(speedKmh > 5) {
                     const moveX = (Math.random() * 60) - 30;
                     const moveY = (Math.random() * 60) - 30;
@@ -617,16 +662,15 @@
             AppState.timerMode = 'auto';
             document.getElementById('timer-mode-label').innerText = "AUTO 0-100";
             document.getElementById('manual-controls').classList.add('hidden');
-            document.getElementById('btn-zero-hundred').classList.add('hidden'); // Hide launch button while active
+            document.getElementById('btn-zero-hundred').classList.add('hidden'); 
             document.getElementById('auto-controls').classList.remove('hidden');
             
-            // Reset state
             clearInterval(AppState.swInterval);
             AppState.swRunning = false;
             AppState.autoRunning = false;
-            AppState.autoArmed = true; // Immediately arm if stopped
+            AppState.autoArmed = true; 
             document.getElementById('stopwatch-display').innerText = "00:00.00";
-            updateDisplay(0); // Refresh status text
+            updateDisplay(0); 
         }
 
         function cancelZeroHundred() {
@@ -634,11 +678,10 @@
             AppState.swRunning = false;
             AppState.autoRunning = false;
             AppState.autoArmed = false;
-            toggleTimerMode(); // Return to manual UI
+            toggleTimerMode(); 
         }
 
         function toggleTimerMode() {
-            // Return to manual
             AppState.timerMode = 'manual';
             document.getElementById('timer-mode-label').innerText = "STOPWATCH";
             document.getElementById('manual-controls').classList.remove('hidden');
@@ -652,7 +695,6 @@
             const lapBtn = document.getElementById('btn-lap');
             
             if (!AppState.swRunning) {
-                // Start
                 AppState.swRunning = true;
                 AppState.swStartTime = Date.now() - AppState.swElapsed;
                 AppState.swInterval = setInterval(() => {
@@ -664,7 +706,6 @@
                 btn.className = "px-3 py-1 bg-red-900 hover:bg-red-700 text-[10px] font-bold text-red-300 rounded uppercase transition-colors";
                 lapBtn.innerText = "LAP";
             } else {
-                // Stop
                 AppState.swRunning = false;
                 clearInterval(AppState.swInterval);
                 btn.innerText = "START";
@@ -677,11 +718,9 @@
             const lapBtn = document.getElementById('btn-lap');
             
             if (AppState.swRunning) {
-                // Lap
                 const current = document.getElementById('stopwatch-display').innerText;
                 document.getElementById('last-lap').innerText = "LAP: " + current;
             } else {
-                // Reset
                 AppState.swElapsed = 0;
                 document.getElementById('stopwatch-display').innerText = "00:00.00";
                 document.getElementById('last-lap').innerText = "LAST: --:--.--";
@@ -708,7 +747,7 @@
             }
         }
 
-        // --- ROBUST GPS LOGIC (iOS Friendly) ---
+        // --- ROBUST GPS LOGIC ---
         function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
             var R = 6371; 
             var dLat = deg2rad(lat2-lat1);
@@ -720,6 +759,11 @@
         function deg2rad(deg) { return deg * (Math.PI/180); }
 
         function toggleGPS() {
+            if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+                alert("iOS RESTRICTION: Use HTTPS (Netlify/Vercel).");
+                return;
+            }
+
             const btnEco = document.getElementById('btn-gps-eco');
             const btnSportText = document.getElementById('sport-gps-text');
             const dotEco = document.getElementById('eco-status-dot');
@@ -737,6 +781,7 @@
                 dotSport.className = "w-2 h-2 rounded-full bg-zinc-600";
                 if(btnSportText) btnSportText.innerText = "GPS";
                 
+                debugLog("GPS: Stopped by user");
                 updateDisplay(0);
             } else {
                 if (!("geolocation" in navigator)) {
@@ -752,13 +797,17 @@
                 if(btnSportText) btnSportText.innerText = "SEARCH";
                 
                 AppState.gpsActive = true;
+                debugLog("GPS: Requesting High Accuracy...");
                 
-                const optionsHigh = { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 };
-                const optionsLow = { enableHighAccuracy: false, timeout: 30000, maximumAge: 0 };
+                const optionsHigh = { 
+                    enableHighAccuracy: true, 
+                    timeout: 20000, 
+                    maximumAge: 0 
+                };
 
                 AppState.watchId = navigator.geolocation.watchPosition(
                     handleSuccess,
-                    (error) => handleError(error, optionsLow),
+                    handleError,
                     optionsHigh
                 );
                 lucide.createIcons();
@@ -773,13 +822,17 @@
 
             let lat = position.coords.latitude;
             let lon = position.coords.longitude;
+            let acc = position.coords.accuracy;
+            let rawSpd = position.coords.speed;
             
-            // Trigger Weather Update
+            // Update Debug Log
+            debugLog(`GPS OK: Acc=${Math.round(acc)}m | Spd=${rawSpd}`);
+            
             updateWeather(lat, lon);
 
-            let speedMps = position.coords.speed;
+            let speedMps = rawSpd;
             
-            if (speedMps === null || speedMps < 0) {
+            if (speedMps === null || speedMps < 0.1) {
                 const currentTime = position.timestamp;
                 
                 if (AppState.lastLat !== null) {
@@ -787,8 +840,9 @@
                     const distanceMeters = distanceKm * 1000;
                     const timeDiffSeconds = (currentTime - AppState.lastTime) / 1000;
                     
-                    if (timeDiffSeconds > 0.5 && distanceMeters > 1) {
+                    if (timeDiffSeconds > 0.5 && distanceMeters > 2) {
                         speedMps = distanceMeters / timeDiffSeconds;
+                        debugLog(`Calc Speed: ${speedMps.toFixed(1)} m/s`);
                     } else {
                         speedMps = 0;
                     }
@@ -799,19 +853,30 @@
             }
 
             let speedKmph = (speedMps || 0) * 3.6;
-            if (speedKmph < 3) speedKmph = 0;
+            if (speedKmph < 2) speedKmph = 0;
             
             updateDisplay(speedKmph);
         }
 
-        function handleError(error, fallbackOptions) {
-             if (error.code === 3) {
+        function handleError(error) {
+            const txtEco = document.getElementById('eco-status-text');
+            debugLog(`GPS ERROR ${error.code}: ${error.message}`);
+            
+            if (error.code === 1) {
+                 alert("GPS DENIED. Check iPhone Settings > Privacy > Location Services > Safari");
+                 toggleGPS();
+            } else if (error.code === 3) {
+                txtEco.innerText = "WEAK SIG";
+                debugLog("Timeout: Switching to Low Accuracy");
+                
                 if (AppState.watchId) navigator.geolocation.clearWatch(AppState.watchId);
                 AppState.watchId = navigator.geolocation.watchPosition(
                     handleSuccess,
-                    (e) => console.log("Final Error", e),
-                    fallbackOptions
+                    (e) => debugLog("Low Acc Fail: " + e.message),
+                    { enableHighAccuracy: false, timeout: 20000, maximumAge: 10000 }
                 );
+            } else if (error.code === 2) {
+                txtEco.innerText = "NO SIGNAL";
             }
         }
 
@@ -821,6 +886,7 @@
                 document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             }, 1000);
             setMode('eco');
+            debugLog("Init Complete");
         });
     </script>
 </body>
