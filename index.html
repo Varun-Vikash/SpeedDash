@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Jazz 1200 Ultimate (Debug Mode)</title>
+    <title>Jazz 1200 Ultimate (Media)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -41,6 +41,23 @@
         }
         .anim-text-strobe { animation: introTextSequence 0.8s steps(1) forwards; }
 
+        /* MUSIC BARS ANIMATION */
+        @keyframes sound-bar {
+            0% { height: 10%; }
+            50% { height: 100%; }
+            100% { height: 10%; }
+        }
+        .music-bar {
+            width: 3px;
+            background: #10b981; /* Emerald */
+            animation: sound-bar 0.5s infinite ease-in-out;
+            border-radius: 2px;
+        }
+        .music-bar:nth-child(1) { animation-duration: 0.4s; }
+        .music-bar:nth-child(2) { animation-duration: 0.5s; }
+        .music-bar:nth-child(3) { animation-duration: 0.3s; }
+        .music-bar:nth-child(4) { animation-duration: 0.6s; }
+
         .scanlines {
             background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
             background-size: 100% 4px;
@@ -69,7 +86,7 @@
         
         .hidden-force { display: none !important; }
 
-        /* --- DEBUG STYLES (UPDATED) --- */
+        /* DEBUG STYLES */
         #debug-trigger {
             position: fixed;
             bottom: 20px;
@@ -103,7 +120,7 @@
             padding: 12px;
             z-index: 9999;
             border-radius: 10px;
-            display: none; /* Hidden by default */
+            display: none; 
             box-shadow: 0 10px 25px rgba(0,0,0,0.8);
         }
         
@@ -122,16 +139,13 @@
     <button id="debug-trigger" onclick="toggleDebug()">
         <i data-lucide="bug" class="w-5 h-5 text-yellow-500"></i>
     </button>
-
     <div id="debug-overlay">
         <div class="flex justify-between items-center mb-1">
             <span class="font-bold text-white">SYSTEM DIAGNOSTICS</span>
             <button onclick="toggleDebug()" class="text-red-500 font-bold hover:text-red-400 px-2">✕</button>
         </div>
         <div class="text-xs text-zinc-500 mb-1">GPS Status Monitor</div>
-        <div id="debug-logs">
-            Waiting for input...
-        </div>
+        <div id="debug-logs">Waiting for input...</div>
     </div>
 
     <div class="absolute inset-0 scanlines pointer-events-none z-[60]"></div>
@@ -160,23 +174,44 @@
         </div>
 
         <div class="flex-1 relative overflow-hidden flex flex-col">
+            
             <div class="relative z-30 flex justify-between items-start p-6">
-                <div class="flex flex-col">
-                    <div class="flex items-center gap-2 text-zinc-500 mb-1">
-                        <i data-lucide="map-pin" class="w-3 h-3"></i>
-                        <span id="weather-location" class="text-xs uppercase tracking-widest font-bold text-zinc-400 truncate max-w-[200px]">...</span>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <div class="flex items-center gap-2">
-                             <i id="weather-icon" data-lucide="cloud" class="w-5 h-5 text-zinc-400"></i>
-                             <span id="weather-temp" class="text-2xl font-bold text-white leading-none">--°</span>
+                <div class="flex flex-col gap-6">
+                    
+                    <div>
+                        <div class="flex items-center gap-2 text-zinc-500 mb-1">
+                            <i data-lucide="map-pin" class="w-3 h-3"></i>
+                            <span id="weather-location" class="text-xs uppercase tracking-widest font-bold text-zinc-400 truncate max-w-[200px]">...</span>
                         </div>
-                        <div class="w-px h-6 bg-zinc-800"></div>
-                        <div class="flex items-center gap-2">
-                             <div id="eco-status-dot" class="w-2 h-2 rounded-full bg-zinc-600"></div>
-                             <span id="eco-status-text" class="text-xs font-bold text-zinc-500 tracking-wide">NO GPS</span>
+                        <div class="flex items-center gap-4">
+                            <div class="flex items-center gap-2">
+                                 <i id="weather-icon" data-lucide="cloud" class="w-5 h-5 text-zinc-400"></i>
+                                 <span id="weather-temp" class="text-2xl font-bold text-white leading-none">--°</span>
+                            </div>
+                            <div class="w-px h-6 bg-zinc-800"></div>
+                            <div class="flex items-center gap-2">
+                                 <div id="eco-status-dot" class="w-2 h-2 rounded-full bg-zinc-600"></div>
+                                 <span id="eco-status-text" class="text-xs font-bold text-zinc-500 tracking-wide">NO GPS</span>
+                            </div>
                         </div>
                     </div>
+
+                    <div class="flex items-center gap-3 bg-zinc-900/50 p-2 pr-4 rounded-lg border border-zinc-800/50 backdrop-blur-md">
+                        <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-red-500 rounded flex items-center justify-center">
+                            <i data-lucide="music" class="text-white w-5 h-5"></i>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-[10px] uppercase text-zinc-500 font-bold tracking-wider">Now Playing</span>
+                            <span class="text-xs text-white font-bold tracking-wide">Apple Music</span>
+                        </div>
+                        <div class="flex gap-1 items-end h-4 ml-2">
+                            <div class="music-bar"></div>
+                            <div class="music-bar"></div>
+                            <div class="music-bar"></div>
+                            <div class="music-bar"></div>
+                        </div>
+                    </div>
+
                 </div>
 
                 <div class="flex bg-zinc-900 p-1 rounded-lg border border-zinc-800 shadow-lg">
@@ -366,10 +401,8 @@
 
         function debugLog(msg) {
             const container = document.getElementById('debug-logs');
-            // Append new message at the TOP (prepend)
             container.innerHTML = `<div>> ${msg}</div>` + container.innerHTML;
             
-            // Limit log history
             const lines = container.children;
             if (lines.length > 15) {
                 container.removeChild(lines[lines.length - 1]);
@@ -377,7 +410,6 @@
             console.log(msg);
         }
 
-        // Global Error Catcher for iPhone
         window.onerror = function(msg, url, line) {
             const err = `FATAL: ${msg} \nLine: ${line}`;
             alert(err); 
@@ -393,19 +425,13 @@
             lastLat: null, lastLon: null, lastTime: null,
             simulatedRPM: 0,
             swiping: false,
-            
-            // Stopwatch State
-            timerMode: 'manual', // 'manual' or 'auto'
+            timerMode: 'manual', 
             swRunning: false,
             swStartTime: 0,
             swElapsed: 0,
             swInterval: null,
-
-            // 0-100 Logic
             autoArmed: false,
             autoRunning: false,
-            
-            // Weather State
             lastWeatherUpdate: 0,
             lastWeatherPos: { lat: 0, lon: 0 }
         };
@@ -415,26 +441,21 @@
         // --- WEATHER & LOCATION ---
         async function updateWeather(lat, lon) {
             const now = Date.now();
-            // Only fetch if moved > 1km OR time > 5 mins
             const dist = getDistanceFromLatLonInKm(AppState.lastWeatherPos.lat, AppState.lastWeatherPos.lon, lat, lon);
             if (dist < 1 && (now - AppState.lastWeatherUpdate) < 300000) return;
 
             AppState.lastWeatherUpdate = now;
             AppState.lastWeatherPos = { lat, lon };
 
-            // 1. Fetch Weather (Open-Meteo)
             try {
                 const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code`);
                 const wData = await wRes.json();
                 if (wData.current) {
                     const temp = Math.round(wData.current.temperature_2m);
                     document.getElementById('weather-temp').innerText = `${temp}°`;
-                    // Simple icon mapping
                     const code = wData.current.weather_code;
                     const iconEl = document.getElementById('weather-icon');
-                    // Reset classes
-                    iconEl.innerHTML = ''; // Clear Lucide
-                    // Re-render icon based on code
+                    iconEl.innerHTML = '';
                     let iconName = 'cloud';
                     if(code <= 1) iconName = 'sun';
                     else if(code <= 3) iconName = 'cloud-sun';
@@ -447,7 +468,6 @@
                 }
             } catch (e) { debugLog("Weather Error: " + e.message); }
 
-            // 2. Fetch Location (BigDataCloud - Client Side Free)
             try {
                 const lRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`);
                 const lData = await lRes.json();
@@ -457,7 +477,6 @@
         }
 
         // --- UI TRANSITIONS ---
-
         function setMode(mode) {
             if (AppState.mode === mode) return;
             AppState.mode = mode;
@@ -825,21 +844,16 @@
             let acc = position.coords.accuracy;
             let rawSpd = position.coords.speed;
             
-            // Update Debug Log
             debugLog(`GPS OK: Acc=${Math.round(acc)}m | Spd=${rawSpd}`);
-            
             updateWeather(lat, lon);
 
             let speedMps = rawSpd;
-            
             if (speedMps === null || speedMps < 0.1) {
                 const currentTime = position.timestamp;
-                
                 if (AppState.lastLat !== null) {
                     const distanceKm = getDistanceFromLatLonInKm(AppState.lastLat, AppState.lastLon, lat, lon);
                     const distanceMeters = distanceKm * 1000;
                     const timeDiffSeconds = (currentTime - AppState.lastTime) / 1000;
-                    
                     if (timeDiffSeconds > 0.5 && distanceMeters > 2) {
                         speedMps = distanceMeters / timeDiffSeconds;
                         debugLog(`Calc Speed: ${speedMps.toFixed(1)} m/s`);
@@ -854,7 +868,6 @@
 
             let speedKmph = (speedMps || 0) * 3.6;
             if (speedKmph < 2) speedKmph = 0;
-            
             updateDisplay(speedKmph);
         }
 
@@ -868,7 +881,6 @@
             } else if (error.code === 3) {
                 txtEco.innerText = "WEAK SIG";
                 debugLog("Timeout: Switching to Low Accuracy");
-                
                 if (AppState.watchId) navigator.geolocation.clearWatch(AppState.watchId);
                 AppState.watchId = navigator.geolocation.watchPosition(
                     handleSuccess,
