@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Jazz 1200 Ultimate (Map + Fixed Spotify)</title>
+    <title>Jazz 1200 Ultimate (Transparent Map)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Leaflet Map (Free Google Maps Alternative) -->
+    <!-- Leaflet Map -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
@@ -17,20 +17,29 @@
     
     <style>
         /* --- CORE STYLES --- */
-        body { font-family: 'Rajdhani', sans-serif; background-color: #050505; overflow: hidden; touch-action: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Rajdhani', sans-serif; background-color: #000; overflow: hidden; touch-action: none; user-select: none; -webkit-tap-highlight-color: transparent; }
         .gauge-transition { transition: stroke-dashoffset 0.2s ease-out; }
         
-        /* --- MAP & COMPASS --- */
+        /* --- INVISIBLE MAP STYLE --- */
+        /* This hides the map background and only shows light elements (roads) */
+        .map-container {
+            background: #000; /* Ensure container is black */
+            box-shadow: inset 0 0 30px #000; /* Fade edges */
+            border: 2px solid #222;
+        }
         #mini-map {
             width: 100%;
             height: 100%;
-            filter: grayscale(100%) invert(100%) contrast(1.1); /* Dark Mode Effect */
+            background: #000;
             z-index: 0;
-            background: #111;
         }
-        .map-container {
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        /* The Magic: Blend Mode makes black pixels transparent */
+        .leaflet-layer {
+            filter: grayscale(100%) contrast(300%) brightness(1.5);
+            mix-blend-mode: screen; 
         }
+        /* Hide leaflet controls/branding for cleaner look (Optional) */
+        .leaflet-control-attribution { display: none !important; }
         
         /* --- ANIMATIONS --- */
         @keyframes circleExpand { 0% { clip-path: circle(0% at 50% 50%); } 100% { clip-path: circle(150% at 50% 50%); } }
@@ -88,25 +97,24 @@
         </div>
         <div class="debug-tabs">
             <div class="debug-tab active" onclick="switchTab('log')">LOGS</div>
-            <div class="debug-tab" onclick="switchTab('issues')">UPDATES & ISSUES</div>
+            <div class="debug-tab" onclick="switchTab('issues')">SETUP HELP</div>
         </div>
         <div id="log-view" class="debug-content">
             <div id="debug-logs" style="white-space: pre-wrap;">System Ready...</div>
         </div>
         <div id="issues-view" class="debug-content">
             <div class="issue-item">
-                <span class="issue-title">🗺️ GPS & Map</span>
-                Map works on localhost & HTTPS (Vercel). Requires Location Permission.
+                <span class="issue-title">🛑 IMPORTANT: Spotify Fix</span>
+                Copy this EXACT URL below and add it to your Spotify Dashboard "Redirect URIs":
+                <div id="uri-display" class="p-1 bg-zinc-800 text-white text-[10px] break-all mt-1 select-all">...</div>
             </div>
             <div class="issue-item">
-                <span class="issue-title">🎵 Spotify Auth</span>
-                Token valid for 1hr. If it loops, clear cache in this menu.
+                <span class="issue-title">🗺️ Map Style</span>
+                Using "Screen" blend mode to hide map background.
             </div>
-            <div class="issue-item">
-                <span class="issue-title">🧭 Compass</span>
-                Requires device movement/orientation sensors (Mobile only).
-            </div>
-            <button onclick="localStorage.clear(); window.location.reload()" class="mt-2 w-full py-1 bg-red-900/50 text-red-200 text-[10px] uppercase rounded border border-red-800">Reset App Data</button>
+            <button onclick="resetConnection()" class="mt-2 w-full py-2 bg-red-900/80 hover:bg-red-800 text-white font-bold text-[10px] uppercase rounded border border-red-600">
+                RESET CONNECTION & RELOAD
+            </button>
         </div>
     </div>
 
@@ -234,11 +242,11 @@
                 </div>
             </div>
             
-            <!-- MINI MAP OVERLAY (Circular) -->
-            <div class="absolute bottom-6 right-6 w-36 h-36 md:w-48 md:h-48 rounded-full border-4 border-zinc-800 overflow-hidden bg-black z-40 opacity-90 hover:opacity-100 transition-opacity map-container">
+            <!-- MINI MAP OVERLAY (Circular + Invisible BG) -->
+            <div class="absolute bottom-6 right-6 w-36 h-36 md:w-48 md:h-48 rounded-full border-4 border-zinc-800 overflow-hidden z-40 opacity-90 hover:opacity-100 transition-opacity map-container">
                  <div id="mini-map"></div>
                  <!-- Crosshair -->
-                 <div class="absolute inset-0 pointer-events-none flex items-center justify-center z-20">
+                 <div class="absolute inset-0 pointer-events-none flex items-center justify-center z-50">
                     <div class="w-2 h-2 bg-emerald-500 rounded-full ring-2 ring-white shadow-lg"></div>
                  </div>
             </div>
@@ -354,8 +362,8 @@
         // SPOTIFY CONFIGURATION
         // =================================================================
         const SPOTIFY_CLIENT_ID = '852950465a424a9fb4f2cb105a5089a5'; 
-        // NOTE: This must match your Vercel URL EXACTLY (no slash at end is safer for some browsers)
-        const REDIRECT_URI = "https://speeddash.vercel.app"; 
+        // DYNAMICALLY GET CURRENT URL (Handles localhost, Vercel, Netlify automatically)
+        const REDIRECT_URI = window.location.href.split('#')[0]; 
         
         const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
         const API_ENDPOINT = "https://api.spotify.com/v1/me/player/currently-playing";
@@ -370,26 +378,30 @@
         function handleSpotifyClick() {
             if (!SPOTIFY_CLIENT_ID) return alert("Missing Client ID");
             if (!spotifyToken) {
-                // Redirect only if we don't have a token
+                // Start Login
                 const authUrl = `${AUTH_ENDPOINT}?client_id=${SPOTIFY_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES.join(' '))}&response_type=token&show_dialog=true`;
+                debugLog("Auth URL generated. Redirecting...");
                 window.location.href = authUrl;
             } else {
-                debugLog("Spotify already connected.");
+                debugLog("Already connected. Token active.");
             }
         }
 
         function checkSpotifyAuth() {
             const hash = window.location.hash;
+            // Handle Redirect Callback
             if (hash && hash.includes('access_token')) {
                 const token = new URLSearchParams(hash.substring(1)).get('access_token');
                 window.location.hash = ""; 
                 if (token) {
                     spotifyToken = token;
                     localStorage.setItem('sp_token', token);
-                    debugLog("Spotify Connected!");
+                    debugLog("Spotify Connected! Token saved.");
                     startSpotifyPolling();
                 }
-            } else {
+            } 
+            // Handle Saved Token
+            else {
                 const stored = localStorage.getItem('sp_token');
                 if (stored) {
                     spotifyToken = stored;
@@ -397,6 +409,12 @@
                     startSpotifyPolling();
                 }
             }
+        }
+
+        function resetConnection() {
+            localStorage.removeItem('sp_token');
+            spotifyToken = null;
+            window.location.href = window.location.href.split('#')[0]; // Reload clean
         }
 
         function startSpotifyPolling() {
@@ -411,15 +429,17 @@
                 const res = await fetch(API_ENDPOINT, {
                     headers: { 'Authorization': `Bearer ${spotifyToken}` }
                 });
-                if (res.status === 204 || res.status > 400) {
-                    if (res.status === 401) {
-                        debugLog("Spotify Token Expired");
-                        spotifyToken = null;
-                        localStorage.removeItem('sp_token');
-                        document.getElementById('spotify-artist').innerText = "Tap to Re-Login";
-                    }
+                
+                if (res.status === 401) {
+                    debugLog("Token Expired. Clearing session.");
+                    resetConnection();
                     return;
                 }
+                if (res.status === 204) {
+                    // Nothing playing
+                    return;
+                }
+
                 const data = await res.json();
                 if (data && data.item) {
                     document.getElementById('spotify-title').innerText = "NOW PLAYING";
@@ -431,17 +451,21 @@
                     artImg.classList.remove('hidden');
                     icon.classList.add('hidden');
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) { 
+                console.error(e); 
+                // Don't spam logs
+            }
         }
 
         // --- MAP & COMPASS LOGIC ---
         function initMap() {
             if(mapInstance) return;
-            // Initialize Leaflet (Free OpenStreetMap)
+            // Initialize Leaflet (Free OpenStreetMap) using Dark Matter Tiles
             mapInstance = L.map('mini-map', {
                 zoomControl: false, attributionControl: false, dragging: false, scrollWheelZoom: false
             }).setView([0, 0], 15);
 
+            // CartoDB Dark Matter Tiles (High Contrast)
             L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
                 maxZoom: 19
             }).addTo(mapInstance);
@@ -475,6 +499,9 @@
             const trigger = document.getElementById('debug-trigger');
             overlay.style.display = (overlay.style.display === 'block') ? 'none' : 'block';
             trigger.style.display = (overlay.style.display === 'block') ? 'none' : 'flex';
+            
+            // Show current URI in debug menu for easy copying
+            document.getElementById('uri-display').innerText = REDIRECT_URI;
         }
 
         function switchTab(tab) {
