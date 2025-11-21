@@ -5,73 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Jazz 1200 Ultimate (Spotify Official)</title>
+    <title>Jazz 1200 Ultimate (Eco Logic)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
     
     <style>
-        /* --- CORE STYLES --- */
+        /* --- CORE --- */
         body { font-family: 'Rajdhani', sans-serif; background-color: #050505; overflow: hidden; touch-action: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+        .gauge-transition { transition: stroke-dashoffset 0.2s ease-out; }
         
-        .gauge-transition { transition: stroke-dashoffset 0.1s linear; }
-        
+        /* --- MAP & COMPASS --- */
+        #mini-map { width: 100%; height: 100%; filter: grayscale(100%) invert(100%) contrast(1.2); z-index: 0; }
+        .compass-ring { transition: transform 0.2s ease-out; }
+
         /* --- ANIMATIONS --- */
-        @keyframes circleExpand {
-            0% { clip-path: circle(0% at 50% 50%); }
-            100% { clip-path: circle(150% at 50% 50%); }
-        }
+        @keyframes circleExpand { 0% { clip-path: circle(0% at 50% 50%); } 100% { clip-path: circle(150% at 50% 50%); } }
         .anim-bg-reveal { animation: circleExpand 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
-
-        @keyframes ecoEnter {
-            0% { transform: translateY(50px) scale(0.9); opacity: 0; }
-            100% { transform: translateY(0) scale(1); opacity: 1; }
-        }
+        @keyframes ecoEnter { 0% { transform: translateY(50px) scale(0.9); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
         .anim-eco-enter { animation: ecoEnter 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        @keyframes pulseGreen { 0%, 100% { box-shadow: 0 0 15px #10b981; } 50% { box-shadow: 0 0 25px #10b981; } }
+        .eco-pulse { animation: pulseGreen 2s infinite; }
 
-        @keyframes introTextSequence {
-            0% { color: white; }
-            10% { color: #dc2626; }
-            20% { color: white; }
-            30% { color: white; }
-            40% { color: #dc2626; }
-            50% { color: white; }
-            100% { color: white; }
-        }
-        .anim-text-strobe { animation: introTextSequence 0.8s steps(1) forwards; }
+        /* SPOTIFY BARS */
+        @keyframes sound-bar { 0% { height: 10%; } 50% { height: 100%; } 100% { height: 10%; } }
+        .music-bar { width: 3px; background: #1ed760; animation: sound-bar 0.5s infinite ease-in-out; border-radius: 2px; }
+        .music-bar:nth-child(1) { animation-duration: 0.4s; } .music-bar:nth-child(2) { animation-duration: 0.5s; }
+        .music-bar:nth-child(3) { animation-duration: 0.3s; } .music-bar:nth-child(4) { animation-duration: 0.6s; }
 
-        /* MUSIC BARS ANIMATION */
-        @keyframes sound-bar {
-            0% { height: 10%; }
-            50% { height: 100%; }
-            100% { height: 10%; }
-        }
-        .music-bar {
-            width: 3px;
-            background: #1ed760; /* Spotify Green */
-            animation: sound-bar 0.5s infinite ease-in-out;
-            border-radius: 2px;
-        }
-        .music-bar:nth-child(1) { animation-duration: 0.4s; }
-        .music-bar:nth-child(2) { animation-duration: 0.5s; }
-        .music-bar:nth-child(3) { animation-duration: 0.3s; }
-        .music-bar:nth-child(4) { animation-duration: 0.6s; }
-
-        .scanlines {
-            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
-            background-size: 100% 4px;
-            pointer-events: none;
-            z-index: 50;
-            opacity: 0.3;
-        }
-
-        /* --- FL5 SPORT STYLES --- */
+        .scanlines { background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1)); background-size: 100% 4px; pointer-events: none; z-index: 50; opacity: 0.3; }
         .font-fl5 { font-family: 'Orbitron', sans-serif; letter-spacing: -0.05em; }
-        
-        .bg-fl5-pattern {
-            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0l17.32 10v20L20 40 2.68 30V10z' fill-opacity='0.08' fill='%23333' stroke='%23444' stroke-width='1'/%3E%3C/svg%3E");
-        }
+        .bg-fl5-pattern { background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0l17.32 10v20L20 40 2.68 30V10z' fill-opacity='0.08' fill='%23333' stroke='%23444' stroke-width='1'/%3E%3C/svg%3E"); }
 
         /* Shift LEDs */
         .led { width: 100%; height: 8px; background: #333; skew-x: -20deg; border-radius: 2px; transition: background 0.05s, box-shadow 0.05s; }
@@ -79,59 +46,16 @@
         .led.yellow.on { background: #eab308; box-shadow: 0 0 10px #eab308; }
         .led.red.on { background: #ef4444; box-shadow: 0 0 15px #ef4444; }
         .led.blink { animation: flashWhite 0.1s infinite alternate; }
-
         @keyframes flashWhite { from { background: #ef4444; box-shadow: 0 0 15px #ef4444; } to { background: #ffffff; box-shadow: 0 0 20px #ffffff; } }
-
-        .g-dot-smooth { transition: transform 0.2s cubic-bezier(0.1, 0.7, 1.0, 0.1); }
         
         .hidden-force { display: none !important; }
 
         /* DEBUG STYLES */
-        #debug-trigger {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 9998;
-            background: rgba(30, 30, 30, 0.8);
-            border: 1px solid #444;
-            color: #fff;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            backdrop-filter: blur(5px);
-            transition: transform 0.1s;
-        }
+        #debug-trigger { position: fixed; bottom: 20px; right: 20px; z-index: 9998; background: rgba(30, 30, 30, 0.8); border: 1px solid #444; color: #fff; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(5px); transition: transform 0.1s; }
         #debug-trigger:active { transform: scale(0.9); }
-
-        #debug-overlay {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 280px;
-            background: rgba(5, 5, 5, 0.95);
-            border: 1px solid #333;
-            color: #0f0;
-            font-family: monospace;
-            font-size: 11px;
-            padding: 12px;
-            z-index: 9999;
-            border-radius: 10px;
-            display: none; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
-        }
-        
-        #debug-logs {
-            white-space: pre-wrap;
-            max-height: 150px;
-            overflow-y: auto;
-            border-top: 1px solid #333;
-            margin-top: 8px;
-            padding-top: 8px;
-        }
+        #debug-overlay { position: fixed; bottom: 20px; right: 20px; width: 300px; background: rgba(5, 5, 5, 0.95); border: 1px solid #333; color: #0f0; font-family: monospace; font-size: 11px; padding: 12px; z-index: 9999; border-radius: 10px; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.8); }
+        #debug-logs { white-space: pre-wrap; max-height: 150px; overflow-y: auto; border-top: 1px solid #333; margin-top: 8px; padding-top: 8px; }
+        #debug-issues { color: #fca5a5; margin-top: 10px; border-top: 1px dashed #555; padding-top: 5px; display: none; }
     </style>
 </head>
 <body class="text-white h-screen w-full flex bg-zinc-950 relative overflow-hidden">
@@ -141,11 +65,22 @@
     </button>
     <div id="debug-overlay">
         <div class="flex justify-between items-center mb-1">
-            <span class="font-bold text-white">SYSTEM DIAGNOSTICS</span>
-            <button onclick="toggleDebug()" class="text-red-500 font-bold hover:text-red-400 px-2">✕</button>
+            <span class="font-bold text-white">DIAGNOSTICS</span>
+            <div class="flex gap-2">
+                <button onclick="toggleIssues()" class="text-xs text-yellow-500 hover:text-white">ISSUES</button>
+                <button onclick="toggleDebug()" class="text-red-500 font-bold hover:text-red-400">✕</button>
+            </div>
         </div>
-        <div class="text-xs text-zinc-500 mb-1">Status Monitor</div>
-        <div id="debug-logs">Waiting for input...</div>
+        <div class="text-xs text-zinc-500 mb-1">Live Log</div>
+        <div id="debug-logs">System Ready...</div>
+        <div id="debug-issues">
+            <strong>GPS NOTE:</strong><br>
+            - Works on Localhost & HTTPS.<br>
+            - Fails on HTTP with Mobile IP.<br>
+            <strong>ECO LOGIC:</strong><br>
+            - Steady speed = Full Ring<br>
+            - Acceleration = Empty Ring
+        </div>
     </div>
 
     <div class="absolute inset-0 scanlines pointer-events-none z-[60]"></div>
@@ -174,21 +109,23 @@
         </div>
 
         <div class="flex-1 relative overflow-hidden flex flex-col">
-            
             <div class="relative z-30 flex justify-between items-start p-6">
                 <div class="flex flex-col gap-6">
                     
-                    <div>
-                        <div class="flex items-center gap-2 text-zinc-500 mb-1">
-                            <i data-lucide="map-pin" class="w-3 h-3"></i>
-                            <span id="weather-location" class="text-xs uppercase tracking-widest font-bold text-zinc-400 truncate max-w-[200px]">...</span>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <div class="flex items-center gap-2">
-                                 <i id="weather-icon" data-lucide="cloud" class="w-5 h-5 text-zinc-400"></i>
-                                 <span id="weather-temp" class="text-2xl font-bold text-white leading-none">--°</span>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full border border-zinc-700 bg-zinc-900 flex items-center justify-center relative overflow-hidden">
+                            <div id="compass-arrow" class="compass-ring w-full h-full flex items-center justify-center absolute top-0 left-0">
+                                <div class="w-1 h-3 bg-red-500 absolute top-2 rounded-full"></div>
+                                <div class="w-1 h-3 bg-zinc-600 absolute bottom-2 rounded-full"></div>
                             </div>
-                            <div class="w-px h-6 bg-zinc-800"></div>
+                            <span class="text-[8px] font-bold text-zinc-500 z-10">N</span>
+                        </div>
+                        
+                        <div>
+                            <div class="flex items-center gap-2 text-zinc-500 mb-1">
+                                <i data-lucide="map-pin" class="w-3 h-3"></i>
+                                <span id="weather-location" class="text-xs uppercase tracking-widest font-bold text-zinc-400 truncate max-w-[200px]">...</span>
+                            </div>
                             <div class="flex items-center gap-2">
                                  <div id="eco-status-dot" class="w-2 h-2 rounded-full bg-zinc-600"></div>
                                  <span id="eco-status-text" class="text-xs font-bold text-zinc-500 tracking-wide">NO GPS</span>
@@ -197,25 +134,18 @@
                     </div>
 
                     <div class="flex items-center gap-3 bg-zinc-900/80 p-2 pr-4 rounded-lg border border-zinc-800/50 backdrop-blur-md transition-all hover:border-[#1ed760]/50 group cursor-pointer" onclick="handleSpotifyClick()">
-                        
                         <div id="spotify-art-container" class="w-10 h-10 rounded overflow-hidden relative bg-black flex items-center justify-center shrink-0">
                             <img id="spotify-art" src="" class="w-full h-full object-cover hidden">
                             <i id="spotify-icon" data-lucide="music" class="text-white w-5 h-5"></i>
                         </div>
-
                         <div class="flex flex-col min-w-[120px]">
                             <span id="spotify-title" class="text-[10px] uppercase text-zinc-500 font-bold tracking-wider truncate max-w-[150px]">SPOTIFY</span>
-                            <span id="spotify-artist" class="text-xs text-white font-bold tracking-wide truncate max-w-[150px]">Not Connected</span>
+                            <span id="spotify-artist" class="text-xs text-white font-bold tracking-wide truncate max-w-[150px]">Tap to Connect</span>
                         </div>
-
                         <div id="spotify-bars" class="flex gap-1 items-end h-4 ml-2 opacity-50 group-hover:opacity-100 transition-opacity">
-                            <div class="music-bar"></div>
-                            <div class="music-bar"></div>
-                            <div class="music-bar"></div>
-                            <div class="music-bar"></div>
+                            <div class="music-bar"></div><div class="music-bar"></div><div class="music-bar"></div><div class="music-bar"></div>
                         </div>
                     </div>
-
                 </div>
 
                 <div class="flex bg-zinc-900 p-1 rounded-lg border border-zinc-800 shadow-lg">
@@ -225,6 +155,7 @@
             </div>
 
             <div class="relative z-20 flex-1 flex items-center justify-center gap-4 md:gap-8 px-4 pb-12">
+                
                 <div class="relative w-48 h-48 md:w-64 md:h-64 flex items-center justify-center">
                     <svg class="w-full h-full transform rotate-[135deg]" viewBox="0 0 200 200">
                         <circle cx="100" cy="100" r="85" fill="none" stroke="#1f2937" stroke-width="12" stroke-dasharray="534" stroke-dashoffset="133.5" />
@@ -254,14 +185,22 @@
                 <div class="relative w-48 h-48 md:w-64 md:h-64 flex items-center justify-center">
                     <svg class="w-full h-full transform rotate-[135deg]" viewBox="0 0 200 200">
                         <circle cx="100" cy="100" r="85" fill="none" stroke="#1f2937" stroke-width="12" stroke-dasharray="534" stroke-dashoffset="133.5" />
-                        <circle id="eco-ring-speed" cx="100" cy="100" r="85" fill="none" stroke="#10b981" stroke-width="12" stroke-dasharray="534" stroke-dashoffset="534" class="gauge-transition" />
+                        <circle id="eco-ring-guide" cx="100" cy="100" r="85" fill="none" stroke="#10b981" stroke-width="12" stroke-dasharray="534" stroke-dashoffset="0" class="gauge-transition" />
                     </svg>
                     <div class="absolute inset-0 flex flex-col items-center justify-center mt-6">
-                        <span class="text-zinc-600 text-[10px] md:text-xs uppercase tracking-[0.2em]">Eco Guide</span>
-                        <div class="w-4 h-4 md:w-6 md:h-6 rounded-full bg-emerald-500 mt-2 shadow-[0_0_15px_#10b981] animate-pulse"></div>
+                        <span class="text-zinc-600 text-[10px] md:text-xs uppercase tracking-[0.2em]">Eco Score</span>
+                        <div id="eco-leaf" class="w-4 h-4 md:w-6 md:h-6 rounded-full bg-emerald-500 mt-2 shadow-[0_0_15px_#10b981] transition-all duration-300"></div>
                     </div>
                 </div>
             </div>
+            
+            <div class="absolute bottom-6 right-6 w-32 h-32 md:w-48 md:h-48 rounded-full border-4 border-zinc-800 overflow-hidden bg-black z-40 opacity-80 hover:opacity-100 transition-opacity">
+                 <div id="mini-map"></div>
+                 <div class="absolute inset-0 pointer-events-none flex items-center justify-center z-20">
+                    <div class="w-2 h-2 bg-emerald-500 rounded-full ring-2 ring-white"></div>
+                 </div>
+            </div>
+            
             <div class="h-1 w-full bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.6)] mt-auto"></div>
         </div>
     </div>
@@ -313,6 +252,7 @@
                     <div class="absolute top-0 right-0 text-white font-mono text-[10px]">x1000 r/min</div>
                 </div>
             </div>
+            
             <div class="flex flex-1 w-full items-center justify-center max-w-6xl px-8">
                 <div id="sport-misc-group-1" class="flex-1 hidden md:flex flex-col items-end pr-12 border-r border-zinc-900 opacity-0 transition-opacity duration-500">
                     <div class="flex items-center gap-2 mb-1 text-zinc-500">
@@ -367,151 +307,150 @@
         lucide.createIcons();
 
         // =================================================================
-        // !!! USER CONFIGURATION !!!
+        // SPOTIFY CONFIGURATION (FIXED ENDPOINTS)
         // =================================================================
-        // Leave empty for Visualizer Mode. 
-        // Add your ID for Real Data.
         const SPOTIFY_CLIENT_ID = '852950465a424a9fb4f2cb105a5089a5'; 
+        const REDIRECT_URI = window.location.href.split('#')[0]; 
+        const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
+        const API_ENDPOINT = "https://api.spotify.com/v1/me/player/currently-playing";
+        const SCOPES = ["user-read-currently-playing", "user-read-playback-state"];
         // =================================================================
-
-        // --- SPOTIFY LOGIC ---
-        // FIXED: Official Spotify Endpoints
-        const SPOTIFY_AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
-        const SPOTIFY_SCOPES = ['user-read-currently-playing', 'user-read-playback-state'];
-
-        // Auto-detect your Netlify URL for the Redirect URI
-        const REDIRECT_URI = window.location.origin + window.location.pathname;
 
         let spotifyToken = null;
         let spotifyInterval = null;
+        let mapInstance = null;
+        let mapMarker = null;
 
         function handleSpotifyClick() {
-            if (!SPOTIFY_CLIENT_ID) {
-                alert("Visualizer Mode Active.\nTo get Real Data, edit the code and add your Spotify Client ID.");
-                return;
-            }
+            if (!SPOTIFY_CLIENT_ID) return alert("Missing Client ID");
             if (!spotifyToken) {
-                // Start Login
-                const authUrl = `${SPOTIFY_AUTH_ENDPOINT}?client_id=${SPOTIFY_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SPOTIFY_SCOPES.join(' '))}&response_type=token&show_dialog=true`;
+                // Redirect only if we don't have a token
+                const authUrl = `${AUTH_ENDPOINT}?client_id=${SPOTIFY_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES.join(' '))}&response_type=token&show_dialog=true`;
                 window.location.href = authUrl;
+            } else {
+                debugLog("Spotify is already connected.");
             }
         }
 
         function checkSpotifyAuth() {
-            // 1. Check URL Hash for token (returning from login)
             const hash = window.location.hash;
             if (hash && hash.includes('access_token')) {
                 const token = new URLSearchParams(hash.substring(1)).get('access_token');
+                window.location.hash = ""; 
                 if (token) {
                     spotifyToken = token;
                     localStorage.setItem('sp_token', token);
-                    window.location.hash = ''; // Clean URL
                     debugLog("Spotify Connected!");
                     startSpotifyPolling();
                 }
-            } 
-            // 2. Check LocalStorage (refresh)
-            else {
+            } else {
                 const stored = localStorage.getItem('sp_token');
                 if (stored) {
                     spotifyToken = stored;
-                    debugLog("Spotify Restored");
+                    debugLog("Spotify Token Restored");
                     startSpotifyPolling();
                 }
             }
         }
 
         function startSpotifyPolling() {
-            if(spotifyInterval) clearInterval(spotifyInterval);
-            updateSpotifyUI(); // Immediate check
-            spotifyInterval = setInterval(updateSpotifyUI, 5000); // Check every 5s
+            updateSpotifyUI();
+            if (spotifyInterval) clearInterval(spotifyInterval);
+            spotifyInterval = setInterval(updateSpotifyUI, 5000);
         }
 
         async function updateSpotifyUI() {
             if (!spotifyToken) return;
-
             try {
-                // FIXED: Official Spotify API Endpoint
-                const res = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
+                const res = await fetch(API_ENDPOINT, {
                     headers: { 'Authorization': `Bearer ${spotifyToken}` }
                 });
-
                 if (res.status === 204 || res.status > 400) {
-                    // Nothing playing or Error
-                    if(res.status === 401) {
-                        debugLog("Spotify Token Expired");
+                    if (res.status === 401) {
+                        debugLog("Token Expired. Re-login needed.");
                         spotifyToken = null;
                         localStorage.removeItem('sp_token');
-                        document.getElementById('spotify-artist').innerText = "Re-Login Required";
+                        document.getElementById('spotify-artist').innerText = "Tap to Re-Login";
                     }
-                    return; 
+                    return;
                 }
-
                 const data = await res.json();
                 if (data && data.item) {
-                    // Update Text
                     document.getElementById('spotify-title').innerText = "NOW PLAYING";
                     document.getElementById('spotify-artist').innerText = data.item.name + " • " + data.item.artists[0].name;
-                    
-                    // Update Art
                     const artUrl = data.item.album.images[0].url;
                     const artImg = document.getElementById('spotify-art');
                     const icon = document.getElementById('spotify-icon');
-                    
                     artImg.src = artUrl;
                     artImg.classList.remove('hidden');
                     icon.classList.add('hidden');
                 }
-            } catch (e) {
-                // Silent fail
+            } catch (e) { console.error(e); }
+        }
+
+        // --- MAP & COMPASS LOGIC ---
+        function initMap() {
+            if(mapInstance) return;
+            mapInstance = L.map('mini-map', {
+                zoomControl: false, attributionControl: false, dragging: false, scrollWheelZoom: false
+            }).setView([0, 0], 15);
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                maxZoom: 19
+            }).addTo(mapInstance);
+        }
+
+        function updateMap(lat, lon) {
+            if (!mapInstance) initMap();
+            mapInstance.setView([lat, lon], 15);
+            if (!mapMarker) {
+                mapMarker = L.circleMarker([lat, lon], {
+                    radius: 6, fillColor: "#10b981", color: "#fff", weight: 2, opacity: 1, fillOpacity: 0.8
+                }).addTo(mapInstance);
+            } else {
+                mapMarker.setLatLng([lat, lon]);
             }
         }
+
+        window.addEventListener('deviceorientation', (event) => {
+            let heading = 0;
+            if (event.webkitCompassHeading) {
+                heading = event.webkitCompassHeading;
+            } else if (event.alpha) {
+                heading = 360 - event.alpha;
+            }
+            document.getElementById('compass-arrow').style.transform = `rotate(${heading}deg)`;
+        });
 
         // --- DEBUG LOGIC ---
         function toggleDebug() {
             const overlay = document.getElementById('debug-overlay');
             const trigger = document.getElementById('debug-trigger');
-            
-            if (overlay.style.display === 'block') {
-                overlay.style.display = 'none';
-                trigger.style.display = 'flex';
-            } else {
-                overlay.style.display = 'block';
-                trigger.style.display = 'none';
-            }
+            overlay.style.display = (overlay.style.display === 'block') ? 'none' : 'block';
+            trigger.style.display = (overlay.style.display === 'block') ? 'none' : 'flex';
+        }
+
+        function toggleIssues() {
+            const issues = document.getElementById('debug-issues');
+            issues.style.display = (issues.style.display === 'block') ? 'none' : 'block';
         }
 
         function debugLog(msg) {
             const container = document.getElementById('debug-logs');
             container.innerHTML = `<div>> ${msg}</div>` + container.innerHTML;
-            const lines = container.children;
-            if (lines.length > 15) container.removeChild(lines[lines.length - 1]);
-            console.log(msg);
         }
 
-        window.onerror = function(msg, url, line) {
-            const err = `FATAL: ${msg} \nLine: ${line}`;
-            debugLog(err);
-            return false;
-        };
+        window.onerror = function(msg) { debugLog("Err: " + msg); return false; };
 
         // --- APP STATE & GPS ---
         const AppState = {
-            mode: 'eco',
-            gpsActive: false,
-            watchId: null,
+            mode: 'eco', gpsActive: false, watchId: null,
             lastLat: null, lastLon: null, lastTime: null,
-            simulatedRPM: 0,
-            swiping: false,
-            timerMode: 'manual', 
-            swRunning: false,
-            swStartTime: 0,
-            swElapsed: 0,
-            swInterval: null,
-            autoArmed: false,
-            autoRunning: false,
-            lastWeatherUpdate: 0,
-            lastWeatherPos: { lat: 0, lon: 0 }
+            lastSpeed: 0, ecoScore: 100, // Eco Physics vars
+            swiping: false, timerMode: 'manual', 
+            swRunning: false, swStartTime: 0, swElapsed: 0, swInterval: null,
+            autoArmed: false, autoRunning: false,
+            lastWeatherUpdate: 0, lastWeatherPos: { lat: 0, lon: 0 }
         };
         
         const SHIFT_RPM_START = 4000;
@@ -533,16 +472,11 @@
                     const iconEl = document.getElementById('weather-icon');
                     iconEl.innerHTML = '';
                     let iconName = 'cloud';
-                    if(code <= 1) iconName = 'sun';
-                    else if(code <= 3) iconName = 'cloud-sun';
-                    else if(code <= 67) iconName = 'cloud-rain';
-                    else if(code <= 77) iconName = 'snowflake';
-                    else if(code > 90) iconName = 'cloud-lightning';
+                    if(code <= 1) iconName = 'sun'; else if(code <= 3) iconName = 'cloud-sun'; else if(code <= 67) iconName = 'cloud-rain'; else if(code > 90) iconName = 'cloud-lightning';
                     iconEl.setAttribute('data-lucide', iconName);
                     lucide.createIcons();
                 }
             } catch (e) { debugLog("Weather Error: " + e.message); }
-
             try {
                 const lRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`);
                 const lData = await lRes.json();
@@ -566,43 +500,25 @@
             const btns = document.getElementById('sport-buttons');
 
             if (mode === 'sport') {
-                ecoView.style.opacity = '0';
-                ecoView.style.pointerEvents = 'none';
-                intro.classList.remove('hidden-force');
-                introText.classList.add('anim-text-strobe');
-                sportView.classList.remove('pointer-events-none');
-                sportView.style.opacity = '1'; 
-                rpmGroup.style.opacity = '0';
-                speedGroup.style.opacity = '0';
-                misc1.style.opacity = '0';
-                misc2.style.opacity = '0';
-                btns.style.opacity = '0';
-                bgSport.style.opacity = '0.5'; 
-                bgSport.classList.remove('anim-bg-reveal'); 
-                bgSport.style.clipPath = 'circle(0% at 50% 50%)'; 
+                ecoView.style.opacity = '0'; ecoView.style.pointerEvents = 'none';
+                intro.classList.remove('hidden-force'); introText.classList.add('anim-text-strobe');
+                sportView.classList.remove('pointer-events-none'); sportView.style.opacity = '1'; 
+                rpmGroup.style.opacity = '0'; speedGroup.style.opacity = '0'; misc1.style.opacity = '0'; misc2.style.opacity = '0'; btns.style.opacity = '0';
+                bgSport.style.opacity = '0.5'; bgSport.classList.remove('anim-bg-reveal'); bgSport.style.clipPath = 'circle(0% at 50% 50%)'; 
 
                 setTimeout(() => {
-                    introText.classList.remove('anim-text-strobe');
-                    intro.classList.add('hidden-force'); 
-                    rpmGroup.style.opacity = '1'; 
-                    startNeedleSwipe();
+                    introText.classList.remove('anim-text-strobe'); intro.classList.add('hidden-force'); 
+                    rpmGroup.style.opacity = '1'; startNeedleSwipe();
                 }, 800);
                 setTimeout(() => { speedGroup.style.opacity = '1'; }, 1600);
                 setTimeout(() => {
-                    misc1.style.opacity = '1';
-                    misc2.style.opacity = '1';
-                    btns.style.opacity = '1';
-                    bgSport.style.clipPath = ''; 
-                    bgSport.classList.add('anim-bg-reveal'); 
+                    misc1.style.opacity = '1'; misc2.style.opacity = '1'; btns.style.opacity = '1';
+                    bgSport.style.clipPath = ''; bgSport.classList.add('anim-bg-reveal'); 
                 }, 2100);
             } else {
-                sportView.style.opacity = '0';
-                sportView.classList.add('pointer-events-none');
+                sportView.style.opacity = '0'; sportView.classList.add('pointer-events-none');
                 bgSport.classList.remove('anim-bg-reveal');
-                ecoView.style.opacity = '1';
-                ecoView.style.transform = 'scale(1)';
-                ecoView.classList.add('anim-eco-enter');
-                ecoView.style.pointerEvents = 'auto';
+                ecoView.style.opacity = '1'; ecoView.style.transform = 'scale(1)'; ecoView.classList.add('anim-eco-enter'); ecoView.style.pointerEvents = 'auto';
                 setTimeout(() => ecoView.classList.remove('anim-eco-enter'), 1000);
             }
         }
@@ -610,29 +526,20 @@
         function startNeedleSwipe() {
             if (AppState.swiping) return;
             AppState.swiping = true;
-            const duration = 1500; 
-            const startTime = Date.now();
+            const duration = 1500; const startTime = Date.now();
             function swipeFrame() {
-                const now = Date.now();
-                const elapsed = now - startTime;
-                const progress = Math.min(elapsed / duration, 1);
+                const now = Date.now(); const elapsed = now - startTime; const progress = Math.min(elapsed / duration, 1);
                 let val = 0;
-                if(progress < 0.5) val = progress * 2; 
-                else val = 2 - (progress * 2); 
+                if(progress < 0.5) val = progress * 2; else val = 2 - (progress * 2); 
                 val = Math.max(0, val); 
-                const swipeRpm = val * 8000;
-                const rpmPct = swipeRpm / 7500; 
+                const swipeRpm = val * 8000; const rpmPct = swipeRpm / 7500; 
                 document.getElementById('rpm-fill-rect').setAttribute('width', Math.min(rpmPct, 1.07) * 800);
                 if(document.getElementById('sport-speed-group').style.opacity === '1') {
                     document.getElementById('sport-speed').innerText = Math.round(val * 188);
                 }
                 updateShiftLights(swipeRpm);
-                if(progress < 1) {
-                    requestAnimationFrame(swipeFrame);
-                } else {
-                    AppState.swiping = false;
-                    document.getElementById('sport-speed').innerText = "0"; 
-                    updateDisplay(0); 
+                if(progress < 1) { requestAnimationFrame(swipeFrame); } else {
+                    AppState.swiping = false; document.getElementById('sport-speed').innerText = "0"; updateDisplay(0); 
                 }
             }
             requestAnimationFrame(swipeFrame);
@@ -642,6 +549,7 @@
             if(AppState.swiping) return;
             const roundedSpeed = Math.round(speedKmh);
 
+            // ZERO TO HUNDRED LOGIC
             if (AppState.timerMode === 'auto') {
                 if (speedKmh < 2 && !AppState.autoRunning) {
                     AppState.autoArmed = true;
@@ -649,21 +557,15 @@
                     document.getElementById('auto-status').className = "mt-2 text-[10px] font-bold text-emerald-500 animate-pulse text-right leading-tight";
                     if(!AppState.autoRunning) document.getElementById('stopwatch-display').innerText = "00:00.00";
                 } else if (AppState.autoArmed && speedKmh >= 2 && !AppState.autoRunning) {
-                    AppState.autoArmed = false;
-                    AppState.autoRunning = true;
-                    AppState.swStartTime = Date.now();
+                    AppState.autoArmed = false; AppState.autoRunning = true; AppState.swStartTime = Date.now();
                     document.getElementById('auto-status').innerText = "GO GO GO";
                     document.getElementById('auto-status').className = "mt-2 text-[10px] font-bold text-red-500 text-right";
                     AppState.swInterval = setInterval(() => {
-                        const now = Date.now();
-                        const diff = now - AppState.swStartTime;
-                        formatTime(diff);
+                        const now = Date.now(); const diff = now - AppState.swStartTime; formatTime(diff);
                     }, 30);
                 } else if (AppState.autoRunning && speedKmh >= 100) {
-                    clearInterval(AppState.swInterval);
-                    AppState.autoRunning = false;
-                    const finalTime = Date.now() - AppState.swStartTime;
-                    formatTime(finalTime);
+                    clearInterval(AppState.swInterval); AppState.autoRunning = false;
+                    const finalTime = Date.now() - AppState.swStartTime; formatTime(finalTime);
                     document.getElementById('last-lap').innerText = "0-100: " + document.getElementById('stopwatch-display').innerText;
                     document.getElementById('auto-status').innerText = "FINISHED";
                     document.getElementById('auto-status').className = "mt-2 text-[10px] font-bold text-emerald-400 text-right";
@@ -672,33 +574,57 @@
 
             let gear = 'N';
             if (speedKmh > 1) {
-                if (speedKmh < 20) gear = '1';
-                else if (speedKmh < 40) gear = '2';
-                else if (speedKmh < 65) gear = '3';
-                else if (speedKmh < 90) gear = '4';
-                else if (speedKmh < 120) gear = '5';
-                else gear = '6';
+                if (speedKmh < 20) gear = '1'; else if (speedKmh < 40) gear = '2'; else if (speedKmh < 65) gear = '3'; else if (speedKmh < 90) gear = '4'; else if (speedKmh < 120) gear = '5'; else gear = '6';
             }
             
             let rpm = 800; 
             if (speedKmh > 1) {
-                let gearRange = 40; 
-                let positionInGear = (speedKmh % gearRange) / gearRange; 
+                let gearRange = 40; let positionInGear = (speedKmh % gearRange) / gearRange; 
                 rpm = 2000 + (positionInGear * 5000) + (Math.random() * 100 - 50);
             }
 
+            // --- ECO PHYSICS LOGIC ---
             if (AppState.mode === 'eco') {
                 document.getElementById('eco-speed-val').innerText = roundedSpeed;
                 document.getElementById('eco-gear-val').innerText = (speedKmh < 1 ? 'P' : 'D');
+                
+                // Calculate Acceleration (Smoothness)
+                const delta = Math.abs(speedKmh - AppState.lastSpeed);
+                let ecoTarget = 100 - (delta * 5); // Hard accel drops score
+                if(ecoTarget < 0) ecoTarget = 0;
+                
+                // Smoothing
+                AppState.ecoScore = AppState.ecoScore * 0.9 + ecoTarget * 0.1;
+                AppState.lastSpeed = speedKmh;
+
+                // Visualize Eco Score
+                const circumference = 534; const arcLength = circumference * 0.75; const baseOffset = circumference * 0.25;
+                // Full ring (low offset) = Good Score (100). Empty ring (high offset) = Bad Score (0).
+                const scorePct = AppState.ecoScore / 100; 
+                const ecoOffset = baseOffset + (arcLength * (1 - scorePct));
+                
+                const ecoRing = document.getElementById('eco-ring-guide');
+                const ecoLeaf = document.getElementById('eco-leaf');
+                
+                ecoRing.style.strokeDashoffset = ecoOffset;
+                
+                // Color shift based on score
+                if (AppState.ecoScore > 80) {
+                    ecoRing.style.stroke = "#10b981"; // Green
+                    ecoLeaf.className = "w-4 h-4 md:w-6 md:h-6 rounded-full bg-emerald-500 mt-2 shadow-[0_0_15px_#10b981] eco-pulse transition-all";
+                } else if (AppState.ecoScore > 40) {
+                    ecoRing.style.stroke = "#eab308"; // Yellow
+                    ecoLeaf.className = "w-4 h-4 md:w-6 md:h-6 rounded-full bg-yellow-500 mt-2 shadow-none transition-all";
+                } else {
+                    ecoRing.style.stroke = "#ef4444"; // Red
+                    ecoLeaf.className = "w-2 h-2 md:w-3 md:h-3 rounded-full bg-red-500 mt-2 shadow-none transition-all";
+                }
+                
+                // RPM Ring (Left)
                 const maxRpm = 8000;
-                const circumference = 534; 
-                const arcLength = circumference * 0.75; 
-                const baseOffset = circumference * 0.25;
                 const rpmOffset = baseOffset + (arcLength - (Math.min(rpm, maxRpm) / maxRpm) * arcLength);
                 document.getElementById('eco-ring-rpm').style.strokeDashoffset = rpmOffset;
                 document.getElementById('eco-val-rpm').innerText = (rpm / 1000).toFixed(1);
-                const speedOffset = baseOffset + (arcLength - (Math.min(speedKmh, 200) / 200) * arcLength);
-                document.getElementById('eco-ring-speed').style.strokeDashoffset = speedOffset;
             }
 
             if (AppState.mode === 'sport') {
@@ -708,8 +634,7 @@
                 document.getElementById('rpm-fill-rect').setAttribute('width', rpmPct * 800);
                 updateShiftLights(rpm);
                 if(speedKmh > 5) {
-                    const moveX = (Math.random() * 60) - 30;
-                    const moveY = (Math.random() * 60) - 30;
+                    const moveX = (Math.random() * 60) - 30; const moveY = (Math.random() * 60) - 30;
                     document.getElementById('g-dot').style.transform = `translate(${moveX}px, ${moveY}px)`;
                 } else {
                     document.getElementById('g-dot').style.transform = `translate(0px, 0px)`;
@@ -717,6 +642,7 @@
             }
         }
 
+        // ZERO-TO-HUNDRED & TIMER FUNCTIONS
         function activateZeroHundred() {
             AppState.timerMode = 'auto';
             document.getElementById('timer-mode-label').innerText = "AUTO 0-100";
@@ -724,18 +650,14 @@
             document.getElementById('btn-zero-hundred').classList.add('hidden'); 
             document.getElementById('auto-controls').classList.remove('hidden');
             clearInterval(AppState.swInterval);
-            AppState.swRunning = false;
-            AppState.autoRunning = false;
-            AppState.autoArmed = true; 
+            AppState.swRunning = false; AppState.autoRunning = false; AppState.autoArmed = true; 
             document.getElementById('stopwatch-display').innerText = "00:00.00";
             updateDisplay(0); 
         }
 
         function cancelZeroHundred() {
             clearInterval(AppState.swInterval);
-            AppState.swRunning = false;
-            AppState.autoRunning = false;
-            AppState.autoArmed = false;
+            AppState.swRunning = false; AppState.autoRunning = false; AppState.autoArmed = false;
             toggleTimerMode(); 
         }
 
@@ -802,25 +724,20 @@
         }
 
         function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-            var R = 6371; 
-            var dLat = deg2rad(lat2-lat1);
-            var dLon = deg2rad(lon2-lon1); 
+            var R = 6371; var dLat = deg2rad(lat2-lat1); var dLon = deg2rad(lon2-lon1); 
             var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); 
-            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-            return R * c; 
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); return R * c; 
         }
         function deg2rad(deg) { return deg * (Math.PI/180); }
 
+        // --- UNRESTRICTED GPS ---
         function toggleGPS() {
-            if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-                alert("iOS RESTRICTION: Use HTTPS (Netlify/Vercel).");
-                return;
-            }
             const btnEco = document.getElementById('btn-gps-eco');
             const btnSportText = document.getElementById('sport-gps-text');
             const dotEco = document.getElementById('eco-status-dot');
             const txtEco = document.getElementById('eco-status-text');
             const dotSport = document.getElementById('sport-gps-dot');
+            
             if (AppState.gpsActive) {
                 if (AppState.watchId) navigator.geolocation.clearWatch(AppState.watchId);
                 AppState.gpsActive = false;
@@ -832,10 +749,9 @@
                 debugLog("GPS: Stopped by user");
                 updateDisplay(0);
             } else {
-                if (!("geolocation" in navigator)) {
-                    alert("GPS not supported.");
-                    return;
-                }
+                if (!("geolocation" in navigator)) return alert("GPS not supported.");
+                
+                // REMOVED LOCALHOST CHECK - WILL TRY REGARDLESS
                 dotEco.className = "w-2 h-2 rounded-full bg-yellow-500 animate-pulse";
                 txtEco.innerText = "SEARCHING...";
                 btnEco.innerHTML = '<i data-lucide="satellite" class="w-3 h-3"></i> Stop GPS';
@@ -843,11 +759,7 @@
                 if(btnSportText) btnSportText.innerText = "SEARCH";
                 AppState.gpsActive = true;
                 debugLog("GPS: Requesting High Accuracy...");
-                const optionsHigh = { 
-                    enableHighAccuracy: true, 
-                    timeout: 20000, 
-                    maximumAge: 0 
-                };
+                const optionsHigh = { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 };
                 AppState.watchId = navigator.geolocation.watchPosition(handleSuccess, handleError, optionsHigh);
                 lucide.createIcons();
             }
@@ -860,6 +772,10 @@
             document.getElementById('sport-gps-text').innerText = "LOCKED";
             let lat = position.coords.latitude;
             let lon = position.coords.longitude;
+            
+            // Update Map
+            updateMap(lat, lon);
+
             let acc = position.coords.accuracy;
             let rawSpd = position.coords.speed;
             debugLog(`GPS OK: Acc=${Math.round(acc)}m | Spd=${rawSpd}`);
@@ -878,9 +794,7 @@
                         speedMps = 0;
                     }
                 }
-                AppState.lastLat = lat;
-                AppState.lastLon = lon;
-                AppState.lastTime = currentTime;
+                AppState.lastLat = lat; AppState.lastLon = lon; AppState.lastTime = currentTime;
             }
             let speedKmph = (speedMps || 0) * 3.6;
             if (speedKmph < 2) speedKmph = 0;
@@ -913,8 +827,9 @@
                 document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             }, 1000);
             setMode('eco');
-            checkSpotifyAuth(); // NEW
-            debugLog("Init Complete");
+            initMap(); // Init map on load
+            checkSpotifyAuth(); 
+            debugLog("System Init Complete");
         });
     </script>
 </body>
