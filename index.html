@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Jazz 1200 Ultimate (Media)</title>
+    <title>Jazz 1200 Ultimate (Spotify)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -49,7 +49,7 @@
         }
         .music-bar {
             width: 3px;
-            background: #10b981; /* Emerald */
+            background: #1ed760; /* Spotify Green */
             animation: sound-bar 0.5s infinite ease-in-out;
             border-radius: 2px;
         }
@@ -132,6 +132,10 @@
             margin-top: 8px;
             padding-top: 8px;
         }
+
+        /* ALBUM ART ROTATION */
+        .album-spin { animation: spin 10s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="text-white h-screen w-full flex bg-zinc-950 relative overflow-hidden">
@@ -144,7 +148,7 @@
             <span class="font-bold text-white">SYSTEM DIAGNOSTICS</span>
             <button onclick="toggleDebug()" class="text-red-500 font-bold hover:text-red-400 px-2">✕</button>
         </div>
-        <div class="text-xs text-zinc-500 mb-1">GPS Status Monitor</div>
+        <div class="text-xs text-zinc-500 mb-1">Status Monitor</div>
         <div id="debug-logs">Waiting for input...</div>
     </div>
 
@@ -196,15 +200,19 @@
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-3 bg-zinc-900/50 p-2 pr-4 rounded-lg border border-zinc-800/50 backdrop-blur-md">
-                        <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-red-500 rounded flex items-center justify-center">
-                            <i data-lucide="music" class="text-white w-5 h-5"></i>
+                    <div class="flex items-center gap-3 bg-zinc-900/80 p-2 pr-4 rounded-lg border border-zinc-800/50 backdrop-blur-md transition-all hover:border-[#1ed760]/50 group cursor-pointer" onclick="handleSpotifyClick()">
+                        
+                        <div id="spotify-art-container" class="w-10 h-10 rounded overflow-hidden relative bg-black flex items-center justify-center shrink-0">
+                            <img id="spotify-art" src="" class="w-full h-full object-cover hidden">
+                            <i id="spotify-icon" data-lucide="music" class="text-white w-5 h-5"></i>
                         </div>
-                        <div class="flex flex-col">
-                            <span class="text-[10px] uppercase text-zinc-500 font-bold tracking-wider">Now Playing</span>
-                            <span class="text-xs text-white font-bold tracking-wide">Apple Music</span>
+
+                        <div class="flex flex-col min-w-[120px]">
+                            <span id="spotify-title" class="text-[10px] uppercase text-zinc-500 font-bold tracking-wider truncate max-w-[150px]">SPOTIFY</span>
+                            <span id="spotify-artist" class="text-xs text-white font-bold tracking-wide truncate max-w-[150px]">Not Connected</span>
                         </div>
-                        <div class="flex gap-1 items-end h-4 ml-2">
+
+                        <div id="spotify-bars" class="flex gap-1 items-end h-4 ml-2 opacity-50 group-hover:opacity-100 transition-opacity">
                             <div class="music-bar"></div>
                             <div class="music-bar"></div>
                             <div class="music-bar"></div>
@@ -263,11 +271,9 @@
     </div>
 
     <div id="view-sport" class="absolute inset-0 z-20 opacity-0 pointer-events-none bg-black flex flex-col transition-opacity duration-500">
-        
         <div class="absolute inset-0 bg-fl5-pattern opacity-0 z-0" id="bg-sport-pattern" style="opacity: 0.5; clip-path: circle(0% at 50% 50%);">
             <div class="absolute inset-0 bg-gradient-to-t from-red-900/20 via-transparent to-transparent"></div>
         </div>
-
         <div class="absolute top-6 right-6 z-[60] flex gap-3 opacity-0 transition-opacity duration-500" id="sport-buttons">
               <button onclick="toggleGPS()" class="px-4 py-2 bg-zinc-900/80 border border-zinc-700 text-zinc-400 text-xs font-bold uppercase rounded hover:text-blue-400 transition-colors flex items-center gap-2 backdrop-blur-sm cursor-pointer">
                 <div id="sport-gps-dot" class="w-2 h-2 rounded-full bg-zinc-600"></div>
@@ -280,9 +286,7 @@
                 Exit +R
               </button>
         </div>
-
         <div class="flex-1 flex flex-col items-center justify-center w-full max-w-7xl mx-auto relative z-20">
-            
             <div id="sport-rpm-group" class="w-full max-w-5xl mx-auto mb-4 mt-16 opacity-0 transition-opacity duration-300">
                 <div class="flex gap-1 mb-1 px-[5%] h-3 justify-center">
                     <div class="led green" id="led-1"></div><div class="led green" id="led-2"></div><div class="led green" id="led-3"></div><div class="led green" id="led-4"></div><div class="led green" id="led-5"></div>
@@ -313,56 +317,38 @@
                     <div class="absolute top-0 right-0 text-white font-mono text-[10px]">x1000 r/min</div>
                 </div>
             </div>
-
             <div class="flex flex-1 w-full items-center justify-center max-w-6xl px-8">
-                
                 <div id="sport-misc-group-1" class="flex-1 hidden md:flex flex-col items-end pr-12 border-r border-zinc-900 opacity-0 transition-opacity duration-500">
                     <div class="flex items-center gap-2 mb-1 text-zinc-500">
                         <span id="timer-mode-label" class="text-xs font-bold uppercase tracking-wider">CHRONO</span>
                     </div>
                     <div id="stopwatch-display" class="text-4xl font-fl5 text-white font-mono tabular-nums">00:00.00</div>
-                    
                     <div id="manual-controls" class="flex gap-2 mt-2">
                         <button onclick="timerLapReset()" id="btn-lap" class="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-[10px] font-bold text-zinc-300 rounded uppercase transition-colors">Reset</button>
                         <button onclick="timerStartStop()" id="btn-start" class="px-3 py-1 bg-emerald-900 hover:bg-emerald-700 text-[10px] font-bold text-emerald-300 rounded uppercase transition-colors">Start</button>
                     </div>
-                    
                     <div class="mt-3">
                         <button onclick="activateZeroHundred()" id="btn-zero-hundred" class="w-full px-3 py-1 bg-zinc-900 border border-red-900/50 hover:bg-red-900/20 hover:border-red-500 text-[10px] font-bold text-red-500 rounded uppercase transition-colors tracking-widest flex items-center justify-center gap-1">
                             <i data-lucide="gauge-circle" class="w-3 h-3"></i> 0-100 LAUNCH
                         </button>
                     </div>
-
                     <div id="auto-controls" class="mt-2 text-[10px] font-bold text-zinc-600 hidden text-right flex flex-col gap-2 items-end">
                         <span id="auto-status">STOP TO ARM</span>
-                        <button onclick="cancelZeroHundred()" class="px-2 py-1 bg-red-900/30 border border-red-500 text-red-400 text-[10px] font-bold uppercase rounded hover:bg-red-900/60 transition-colors w-auto">
-                            CANCEL
-                        </button>
+                        <button onclick="cancelZeroHundred()" class="px-2 py-1 bg-red-900/30 border border-red-500 text-red-400 text-[10px] font-bold uppercase rounded hover:bg-red-900/60 transition-colors w-auto">CANCEL</button>
                     </div>
                     <div id="last-lap" class="mt-2 text-[10px] font-mono text-zinc-400">LAST: --:--.--</div>
                 </div>
-
                 <div id="sport-speed-group" class="w-80 flex flex-col items-center relative opacity-0 transition-opacity duration-500">
                     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-48 bg-gradient-to-b from-red-600 to-transparent opacity-30 blur-3xl rounded-full"></div>
                     <span id="sport-speed" class="text-8xl md:text-9xl font-fl5 font-black text-white drop-shadow-lg relative z-10 leading-none">0</span>
                     <span class="text-sm font-bold text-red-500 tracking-[0.4em] relative z-10 -mt-2">KM/H</span>
-                    
                     <div class="grid grid-cols-2 gap-x-12 gap-y-2 mt-8 w-full px-4">
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-zinc-500 font-bold">WAT</span> <span class="font-fl5 font-bold text-white">90<span class="text-zinc-600 text-xs">°</span></span>
-                        </div>
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-zinc-500 font-bold">OIL</span> <span class="font-fl5 font-bold text-white">102<span class="text-zinc-600 text-xs">°</span></span>
-                        </div>
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-zinc-500 font-bold">BST</span> <span class="font-fl5 font-bold text-white">0.8<span class="text-zinc-600 text-xs">b</span></span>
-                        </div>
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-zinc-500 font-bold">VLT</span> <span class="font-fl5 font-bold text-white">14.2<span class="text-zinc-600 text-xs">v</span></span>
-                        </div>
+                        <div class="flex justify-between items-center text-sm"><span class="text-zinc-500 font-bold">WAT</span> <span class="font-fl5 font-bold text-white">90<span class="text-zinc-600 text-xs">°</span></span></div>
+                        <div class="flex justify-between items-center text-sm"><span class="text-zinc-500 font-bold">OIL</span> <span class="font-fl5 font-bold text-white">102<span class="text-zinc-600 text-xs">°</span></span></div>
+                        <div class="flex justify-between items-center text-sm"><span class="text-zinc-500 font-bold">BST</span> <span class="font-fl5 font-bold text-white">0.8<span class="text-zinc-600 text-xs">b</span></span></div>
+                        <div class="flex justify-between items-center text-sm"><span class="text-zinc-500 font-bold">VLT</span> <span class="font-fl5 font-bold text-white">14.2<span class="text-zinc-600 text-xs">v</span></span></div>
                     </div>
                 </div>
-
                 <div id="sport-misc-group-2" class="flex-1 flex flex-col items-start pl-12 border-l border-zinc-900 opacity-0 transition-opacity duration-500">
                     <div class="flex items-baseline gap-2 mb-6">
                         <span class="text-red-600 font-black italic text-2xl font-fl5 mr-2">+R</span>
@@ -378,12 +364,110 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
     <script>
         lucide.createIcons();
+
+        // =================================================================
+        // !!! USER CONFIGURATION !!!
+        // =================================================================
+        // Leave empty for Visualizer Mode. 
+        // Add your ID for Real Data.
+        const SPOTIFY_CLIENT_ID = '852950465a424a9fb4f2cb105a5089a5'; 
+        // =================================================================
+
+        // --- SPOTIFY LOGIC ---
+        const SPOTIFY_AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
+        const SPOTIFY_SCOPES = ['user-read-currently-playing', 'user-read-playback-state'];
+
+        // Auto-detect your Netlify URL for the Redirect URI
+        const REDIRECT_URI = window.location.origin + window.location.pathname;
+
+        let spotifyToken = null;
+        let spotifyInterval = null;
+
+        function handleSpotifyClick() {
+            if (!SPOTIFY_CLIENT_ID) {
+                alert("Visualizer Mode Active.\nTo get Real Data, edit the code and add your Spotify Client ID.");
+                return;
+            }
+            if (!spotifyToken) {
+                // Start Login
+                const authUrl = `${SPOTIFY_AUTH_ENDPOINT}?client_id=${SPOTIFY_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SPOTIFY_SCOPES.join(' '))}&response_type=token&show_dialog=true`;
+                window.location.href = authUrl;
+            }
+        }
+
+        function checkSpotifyAuth() {
+            // 1. Check URL Hash for token (returning from login)
+            const hash = window.location.hash;
+            if (hash && hash.includes('access_token')) {
+                const token = new URLSearchParams(hash.substring(1)).get('access_token');
+                if (token) {
+                    spotifyToken = token;
+                    localStorage.setItem('sp_token', token);
+                    window.location.hash = ''; // Clean URL
+                    debugLog("Spotify Connected!");
+                    startSpotifyPolling();
+                }
+            } 
+            // 2. Check LocalStorage (refresh)
+            else {
+                const stored = localStorage.getItem('sp_token');
+                if (stored) {
+                    spotifyToken = stored;
+                    debugLog("Spotify Restored");
+                    startSpotifyPolling();
+                }
+            }
+        }
+
+        function startSpotifyPolling() {
+            if(spotifyInterval) clearInterval(spotifyInterval);
+            updateSpotifyUI(); // Immediate check
+            spotifyInterval = setInterval(updateSpotifyUI, 5000); // Check every 5s
+        }
+
+        async function updateSpotifyUI() {
+            if (!spotifyToken) return;
+
+            try {
+                const res = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
+                    headers: { 'Authorization': `Bearer ${spotifyToken}` }
+                });
+
+                if (res.status === 204 || res.status > 400) {
+                    // Nothing playing or Error
+                    if(res.status === 401) {
+                        debugLog("Spotify Token Expired");
+                        spotifyToken = null;
+                        localStorage.removeItem('sp_token');
+                        document.getElementById('spotify-artist').innerText = "Re-Login Required";
+                    }
+                    return; 
+                }
+
+                const data = await res.json();
+                if (data && data.item) {
+                    // Update Text
+                    document.getElementById('spotify-title').innerText = "NOW PLAYING";
+                    document.getElementById('spotify-artist').innerText = data.item.name + " • " + data.item.artists[0].name;
+                    
+                    // Update Art
+                    const artUrl = data.item.album.images[0].url;
+                    const artImg = document.getElementById('spotify-art');
+                    const icon = document.getElementById('spotify-icon');
+                    
+                    artImg.src = artUrl;
+                    artImg.classList.remove('hidden');
+                    icon.classList.add('hidden');
+                }
+            } catch (e) {
+                // Silent fail
+            }
+        }
 
         // --- DEBUG LOGIC ---
         function toggleDebug() {
@@ -402,22 +486,18 @@
         function debugLog(msg) {
             const container = document.getElementById('debug-logs');
             container.innerHTML = `<div>> ${msg}</div>` + container.innerHTML;
-            
             const lines = container.children;
-            if (lines.length > 15) {
-                container.removeChild(lines[lines.length - 1]);
-            }
+            if (lines.length > 15) container.removeChild(lines[lines.length - 1]);
             console.log(msg);
         }
 
         window.onerror = function(msg, url, line) {
             const err = `FATAL: ${msg} \nLine: ${line}`;
-            alert(err); 
             debugLog(err);
             return false;
         };
 
-        // --- CONFIGURATION & STATE ---
+        // --- APP STATE & GPS ---
         const AppState = {
             mode: 'eco',
             gpsActive: false,
@@ -438,12 +518,10 @@
         
         const SHIFT_RPM_START = 4000;
 
-        // --- WEATHER & LOCATION ---
         async function updateWeather(lat, lon) {
             const now = Date.now();
             const dist = getDistanceFromLatLonInKm(AppState.lastWeatherPos.lat, AppState.lastWeatherPos.lon, lat, lon);
             if (dist < 1 && (now - AppState.lastWeatherUpdate) < 300000) return;
-
             AppState.lastWeatherUpdate = now;
             AppState.lastWeatherPos = { lat, lon };
 
@@ -462,7 +540,6 @@
                     else if(code <= 67) iconName = 'cloud-rain';
                     else if(code <= 77) iconName = 'snowflake';
                     else if(code > 90) iconName = 'cloud-lightning';
-                    
                     iconEl.setAttribute('data-lucide', iconName);
                     lucide.createIcons();
                 }
@@ -476,18 +553,14 @@
             } catch (e) { debugLog("Loc Error: " + e.message); }
         }
 
-        // --- UI TRANSITIONS ---
         function setMode(mode) {
             if (AppState.mode === mode) return;
             AppState.mode = mode;
-
             const ecoView = document.getElementById('view-eco');
             const sportView = document.getElementById('view-sport');
             const intro = document.getElementById('sport-intro');
             const introText = document.getElementById('intro-text');
             const bgSport = document.getElementById('bg-sport-pattern');
-            
-            // Groups
             const rpmGroup = document.getElementById('sport-rpm-group');
             const speedGroup = document.getElementById('sport-speed-group');
             const misc1 = document.getElementById('sport-misc-group-1');
@@ -497,10 +570,8 @@
             if (mode === 'sport') {
                 ecoView.style.opacity = '0';
                 ecoView.style.pointerEvents = 'none';
-                
                 intro.classList.remove('hidden-force');
                 introText.classList.add('anim-text-strobe');
-                
                 sportView.classList.remove('pointer-events-none');
                 sportView.style.opacity = '1'; 
                 rpmGroup.style.opacity = '0';
@@ -508,7 +579,6 @@
                 misc1.style.opacity = '0';
                 misc2.style.opacity = '0';
                 btns.style.opacity = '0';
-                
                 bgSport.style.opacity = '0.5'; 
                 bgSport.classList.remove('anim-bg-reveal'); 
                 bgSport.style.clipPath = 'circle(0% at 50% 50%)'; 
@@ -519,30 +589,22 @@
                     rpmGroup.style.opacity = '1'; 
                     startNeedleSwipe();
                 }, 800);
-
-                setTimeout(() => {
-                    speedGroup.style.opacity = '1';
-                }, 1600);
-
+                setTimeout(() => { speedGroup.style.opacity = '1'; }, 1600);
                 setTimeout(() => {
                     misc1.style.opacity = '1';
                     misc2.style.opacity = '1';
                     btns.style.opacity = '1';
-                    
                     bgSport.style.clipPath = ''; 
                     bgSport.classList.add('anim-bg-reveal'); 
                 }, 2100);
-
             } else {
                 sportView.style.opacity = '0';
                 sportView.classList.add('pointer-events-none');
                 bgSport.classList.remove('anim-bg-reveal');
-                
                 ecoView.style.opacity = '1';
                 ecoView.style.transform = 'scale(1)';
                 ecoView.classList.add('anim-eco-enter');
                 ecoView.style.pointerEvents = 'auto';
-                
                 setTimeout(() => ecoView.classList.remove('anim-eco-enter'), 1000);
             }
         }
@@ -552,27 +614,21 @@
             AppState.swiping = true;
             const duration = 1500; 
             const startTime = Date.now();
-
             function swipeFrame() {
                 const now = Date.now();
                 const elapsed = now - startTime;
                 const progress = Math.min(elapsed / duration, 1);
-                
                 let val = 0;
                 if(progress < 0.5) val = progress * 2; 
                 else val = 2 - (progress * 2); 
                 val = Math.max(0, val); 
-
                 const swipeRpm = val * 8000;
                 const rpmPct = swipeRpm / 7500; 
                 document.getElementById('rpm-fill-rect').setAttribute('width', Math.min(rpmPct, 1.07) * 800);
-                
                 if(document.getElementById('sport-speed-group').style.opacity === '1') {
                     document.getElementById('sport-speed').innerText = Math.round(val * 188);
                 }
-                
                 updateShiftLights(swipeRpm);
-
                 if(progress < 1) {
                     requestAnimationFrame(swipeFrame);
                 } else {
@@ -586,10 +642,8 @@
 
         function updateDisplay(speedKmh) {
             if(AppState.swiping) return;
-            
             const roundedSpeed = Math.round(speedKmh);
 
-            // --- AUTO TIMER LOGIC (0-100) ---
             if (AppState.timerMode === 'auto') {
                 if (speedKmh < 2 && !AppState.autoRunning) {
                     AppState.autoArmed = true;
@@ -602,7 +656,6 @@
                     AppState.swStartTime = Date.now();
                     document.getElementById('auto-status').innerText = "GO GO GO";
                     document.getElementById('auto-status').className = "mt-2 text-[10px] font-bold text-red-500 text-right";
-                    
                     AppState.swInterval = setInterval(() => {
                         const now = Date.now();
                         const diff = now - AppState.swStartTime;
@@ -619,7 +672,6 @@
                 }
             }
 
-            // Gear Logic
             let gear = 'N';
             if (speedKmh > 1) {
                 if (speedKmh < 20) gear = '1';
@@ -630,7 +682,6 @@
                 else gear = '6';
             }
             
-            // Simulated RPM
             let rpm = 800; 
             if (speedKmh > 1) {
                 let gearRange = 40; 
@@ -638,34 +689,26 @@
                 rpm = 2000 + (positionInGear * 5000) + (Math.random() * 100 - 50);
             }
 
-            // --- ECO UPDATES ---
             if (AppState.mode === 'eco') {
                 document.getElementById('eco-speed-val').innerText = roundedSpeed;
                 document.getElementById('eco-gear-val').innerText = (speedKmh < 1 ? 'P' : 'D');
-                
                 const maxRpm = 8000;
                 const circumference = 534; 
                 const arcLength = circumference * 0.75; 
                 const baseOffset = circumference * 0.25;
-                
                 const rpmOffset = baseOffset + (arcLength - (Math.min(rpm, maxRpm) / maxRpm) * arcLength);
                 document.getElementById('eco-ring-rpm').style.strokeDashoffset = rpmOffset;
                 document.getElementById('eco-val-rpm').innerText = (rpm / 1000).toFixed(1);
-                
                 const speedOffset = baseOffset + (arcLength - (Math.min(speedKmh, 200) / 200) * arcLength);
                 document.getElementById('eco-ring-speed').style.strokeDashoffset = speedOffset;
             }
 
-            // --- SPORT UPDATES ---
             if (AppState.mode === 'sport') {
                 document.getElementById('sport-speed').innerText = roundedSpeed;
                 document.getElementById('sport-gear').innerText = gear;
-                
                 const rpmPct = Math.min(rpm, 7500) / 7500;
                 document.getElementById('rpm-fill-rect').setAttribute('width', rpmPct * 800);
-                
                 updateShiftLights(rpm);
-
                 if(speedKmh > 5) {
                     const moveX = (Math.random() * 60) - 30;
                     const moveY = (Math.random() * 60) - 30;
@@ -676,14 +719,12 @@
             }
         }
 
-        // --- TIMER FUNCTIONS ---
         function activateZeroHundred() {
             AppState.timerMode = 'auto';
             document.getElementById('timer-mode-label').innerText = "AUTO 0-100";
             document.getElementById('manual-controls').classList.add('hidden');
             document.getElementById('btn-zero-hundred').classList.add('hidden'); 
             document.getElementById('auto-controls').classList.remove('hidden');
-            
             clearInterval(AppState.swInterval);
             AppState.swRunning = false;
             AppState.autoRunning = false;
@@ -712,7 +753,6 @@
         function timerStartStop() {
             const btn = document.getElementById('btn-start');
             const lapBtn = document.getElementById('btn-lap');
-            
             if (!AppState.swRunning) {
                 AppState.swRunning = true;
                 AppState.swStartTime = Date.now() - AppState.swElapsed;
@@ -720,7 +760,6 @@
                     AppState.swElapsed = Date.now() - AppState.swStartTime;
                     formatTime(AppState.swElapsed);
                 }, 30);
-                
                 btn.innerText = "STOP";
                 btn.className = "px-3 py-1 bg-red-900 hover:bg-red-700 text-[10px] font-bold text-red-300 rounded uppercase transition-colors";
                 lapBtn.innerText = "LAP";
@@ -735,7 +774,6 @@
 
         function timerLapReset() {
             const lapBtn = document.getElementById('btn-lap');
-            
             if (AppState.swRunning) {
                 const current = document.getElementById('stopwatch-display').innerText;
                 document.getElementById('last-lap').innerText = "LAP: " + current;
@@ -756,7 +794,6 @@
         function updateShiftLights(rpm) {
             const leds = document.querySelectorAll('.led');
             leds.forEach(l => l.classList.remove('on', 'blink'));
-            
             if (rpm >= SHIFT_RPM_START) {
                 const activeCount = Math.floor((rpm - SHIFT_RPM_START) / 300);
                 for(let i=0; i <= Math.min(activeCount, 9); i++) {
@@ -766,7 +803,6 @@
             }
         }
 
-        // --- ROBUST GPS LOGIC ---
         function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
             var R = 6371; 
             var dLat = deg2rad(lat2-lat1);
@@ -782,24 +818,19 @@
                 alert("iOS RESTRICTION: Use HTTPS (Netlify/Vercel).");
                 return;
             }
-
             const btnEco = document.getElementById('btn-gps-eco');
             const btnSportText = document.getElementById('sport-gps-text');
             const dotEco = document.getElementById('eco-status-dot');
             const txtEco = document.getElementById('eco-status-text');
             const dotSport = document.getElementById('sport-gps-dot');
-            
             if (AppState.gpsActive) {
                 if (AppState.watchId) navigator.geolocation.clearWatch(AppState.watchId);
                 AppState.gpsActive = false;
-                
                 dotEco.className = "w-2 h-2 rounded-full bg-zinc-600";
                 txtEco.innerText = "GPS PAUSED";
                 btnEco.innerHTML = '<i data-lucide="satellite" class="w-3 h-3"></i> Enable GPS';
-                
                 dotSport.className = "w-2 h-2 rounded-full bg-zinc-600";
                 if(btnSportText) btnSportText.innerText = "GPS";
-                
                 debugLog("GPS: Stopped by user");
                 updateDisplay(0);
             } else {
@@ -807,28 +838,19 @@
                     alert("GPS not supported.");
                     return;
                 }
-                
                 dotEco.className = "w-2 h-2 rounded-full bg-yellow-500 animate-pulse";
                 txtEco.innerText = "SEARCHING...";
                 btnEco.innerHTML = '<i data-lucide="satellite" class="w-3 h-3"></i> Stop GPS';
-                
                 dotSport.className = "w-2 h-2 rounded-full bg-yellow-500 animate-pulse";
                 if(btnSportText) btnSportText.innerText = "SEARCH";
-                
                 AppState.gpsActive = true;
                 debugLog("GPS: Requesting High Accuracy...");
-                
                 const optionsHigh = { 
                     enableHighAccuracy: true, 
                     timeout: 20000, 
                     maximumAge: 0 
                 };
-
-                AppState.watchId = navigator.geolocation.watchPosition(
-                    handleSuccess,
-                    handleError,
-                    optionsHigh
-                );
+                AppState.watchId = navigator.geolocation.watchPosition(handleSuccess, handleError, optionsHigh);
                 lucide.createIcons();
             }
         }
@@ -838,15 +860,12 @@
             document.getElementById('eco-status-text').innerText = "GPS LOCKED";
             document.getElementById('sport-gps-dot').className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
             document.getElementById('sport-gps-text').innerText = "LOCKED";
-
             let lat = position.coords.latitude;
             let lon = position.coords.longitude;
             let acc = position.coords.accuracy;
             let rawSpd = position.coords.speed;
-            
             debugLog(`GPS OK: Acc=${Math.round(acc)}m | Spd=${rawSpd}`);
             updateWeather(lat, lon);
-
             let speedMps = rawSpd;
             if (speedMps === null || speedMps < 0.1) {
                 const currentTime = position.timestamp;
@@ -865,7 +884,6 @@
                 AppState.lastLon = lon;
                 AppState.lastTime = currentTime;
             }
-
             let speedKmph = (speedMps || 0) * 3.6;
             if (speedKmph < 2) speedKmph = 0;
             updateDisplay(speedKmph);
@@ -874,7 +892,6 @@
         function handleError(error) {
             const txtEco = document.getElementById('eco-status-text');
             debugLog(`GPS ERROR ${error.code}: ${error.message}`);
-            
             if (error.code === 1) {
                  alert("GPS DENIED. Check iPhone Settings > Privacy > Location Services > Safari");
                  toggleGPS();
@@ -898,6 +915,7 @@
                 document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             }, 1000);
             setMode('eco');
+            checkSpotifyAuth(); // NEW
             debugLog("Init Complete");
         });
     </script>
