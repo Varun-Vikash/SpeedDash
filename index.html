@@ -3,59 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Jazz 1200 Ultimate (Transparent Map)</title>
+    <title>Jazz 1200 Ultimate</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Leaflet Map -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
     
     <style>
         /* --- CORE STYLES --- */
-        body { font-family: 'Rajdhani', sans-serif; background-color: #000; overflow: hidden; touch-action: none; user-select: none; -webkit-tap-highlight-color: transparent; }
-        .gauge-transition { transition: stroke-dashoffset 0.2s ease-out; }
+        body { font-family: 'Rajdhani', sans-serif; background-color: #050505; overflow: hidden; touch-action: none; user-select: none; }
         
-        /* --- INVISIBLE MAP STYLE --- */
-        /* This hides the map background and only shows light elements (roads) */
-        .map-container {
-            background: #000; /* Ensure container is black */
-            box-shadow: inset 0 0 30px #000; /* Fade edges */
-            border: 2px solid #222;
-        }
-        #mini-map {
-            width: 100%;
-            height: 100%;
-            background: #000;
-            z-index: 0;
-        }
-        /* The Magic: Blend Mode makes black pixels transparent */
-        .leaflet-layer {
-            filter: grayscale(100%) contrast(300%) brightness(1.5);
-            mix-blend-mode: screen; 
-        }
-        /* Hide leaflet controls/branding for cleaner look (Optional) */
-        .leaflet-control-attribution { display: none !important; }
+        .gauge-transition { transition: stroke-dashoffset 0.1s linear; }
         
         /* --- ANIMATIONS --- */
-        @keyframes circleExpand { 0% { clip-path: circle(0% at 50% 50%); } 100% { clip-path: circle(150% at 50% 50%); } }
-        .anim-bg-reveal { animation: circleExpand 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
-        @keyframes ecoEnter { 0% { transform: translateY(50px) scale(0.9); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
-        .anim-eco-enter { animation: ecoEnter 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
         
-        /* SPOTIFY BARS */
-        @keyframes sound-bar { 0% { height: 10%; } 50% { height: 100%; } 100% { height: 10%; } }
-        .music-bar { width: 3px; background: #1ed760; animation: sound-bar 0.5s infinite ease-in-out; border-radius: 2px; }
-        .music-bar:nth-child(1) { animation-duration: 0.4s; } .music-bar:nth-child(2) { animation-duration: 0.5s; }
-        .music-bar:nth-child(3) { animation-duration: 0.3s; } .music-bar:nth-child(4) { animation-duration: 0.6s; }
+        /* Background Circle Reveal - Using Clip Path for reliability */
+        @keyframes circleExpand {
+            0% { clip-path: circle(0% at 50% 50%); }
+            100% { clip-path: circle(150% at 50% 50%); }
+        }
+        .anim-bg-reveal { animation: circleExpand 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
 
-        .scanlines { background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1)); background-size: 100% 4px; pointer-events: none; z-index: 50; opacity: 0.3; }
+        /* Eco Entry */
+        @keyframes ecoEnter {
+            0% { transform: translateY(50px) scale(0.9); opacity: 0; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        .anim-eco-enter { animation: ecoEnter 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+
+        /* Full Send Text Rapid Strobe (White-Red-White Sequence) */
+        @keyframes introTextSequence {
+            0% { color: white; }
+            10% { color: #dc2626; } /* RED */
+            20% { color: white; } /* WHITE */
+            30% { color: white; } /* PAUSE WHITE */
+            40% { color: #dc2626; } /* RED */
+            50% { color: white; } /* WHITE */
+            100% { color: white; }
+        }
+        .anim-text-strobe { animation: introTextSequence 0.8s steps(1) forwards; }
+
+        .scanlines {
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0.3;
+        }
+
+        /* --- FL5 SPORT STYLES --- */
         .font-fl5 { font-family: 'Orbitron', sans-serif; letter-spacing: -0.05em; }
-        .bg-fl5-pattern { background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0l17.32 10v20L20 40 2.68 30V10z' fill-opacity='0.08' fill='%23333' stroke='%23444' stroke-width='1'/%3E%3C/svg%3E"); }
+        
+        .bg-fl5-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0l17.32 10v20L20 40 2.68 30V10z' fill-opacity='0.08' fill='%23333' stroke='%23444' stroke-width='1'/%3E%3C/svg%3E");
+        }
 
         /* Shift LEDs */
         .led { width: 100%; height: 8px; background: #333; skew-x: -20deg; border-radius: 2px; transition: background 0.05s, box-shadow 0.05s; }
@@ -63,64 +64,20 @@
         .led.yellow.on { background: #eab308; box-shadow: 0 0 10px #eab308; }
         .led.red.on { background: #ef4444; box-shadow: 0 0 15px #ef4444; }
         .led.blink { animation: flashWhite 0.1s infinite alternate; }
+
         @keyframes flashWhite { from { background: #ef4444; box-shadow: 0 0 15px #ef4444; } to { background: #ffffff; box-shadow: 0 0 20px #ffffff; } }
+
+        .g-dot-smooth { transition: transform 0.2s cubic-bezier(0.1, 0.7, 1.0, 0.1); }
         
         .hidden-force { display: none !important; }
-
-        /* DEBUG MENU */
-        #debug-trigger { position: fixed; bottom: 20px; right: 20px; z-index: 9998; background: rgba(30, 30, 30, 0.8); border: 1px solid #444; color: #fff; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(5px); transition: transform 0.1s; }
-        #debug-trigger:active { transform: scale(0.9); }
-        #debug-overlay { position: fixed; bottom: 20px; right: 20px; width: 320px; background: rgba(5, 5, 5, 0.98); border: 1px solid #333; color: #0f0; font-family: monospace; font-size: 11px; padding: 0; z-index: 9999; border-radius: 10px; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.8); overflow: hidden; }
-        
-        .debug-header { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #111; border-bottom: 1px solid #333; }
-        .debug-tabs { display: flex; background: #000; }
-        .debug-tab { flex: 1; padding: 8px; text-align: center; cursor: pointer; color: #666; border-bottom: 2px solid transparent; }
-        .debug-tab.active { color: #fff; border-bottom: 2px solid #1ed760; background: #111; }
-        
-        .debug-content { padding: 10px; height: 180px; overflow-y: auto; }
-        #log-view { display: block; }
-        #issues-view { display: none; color: #ccc; }
-        .issue-item { margin-bottom: 8px; border-bottom: 1px solid #222; padding-bottom: 4px; }
-        .issue-title { color: #fbbf24; font-weight: bold; display: block; margin-bottom: 2px; }
     </style>
 </head>
 <body class="text-white h-screen w-full flex bg-zinc-950 relative overflow-hidden">
 
-    <!-- DEBUG MENU -->
-    <button id="debug-trigger" onclick="toggleDebug()">
-        <i data-lucide="bug" class="w-5 h-5 text-yellow-500"></i>
-    </button>
-    <div id="debug-overlay">
-        <div class="debug-header">
-            <span class="font-bold text-white">SYSTEM DIAGNOSTICS</span>
-            <button onclick="toggleDebug()" class="text-red-500 font-bold hover:text-red-400">✕</button>
-        </div>
-        <div class="debug-tabs">
-            <div class="debug-tab active" onclick="switchTab('log')">LOGS</div>
-            <div class="debug-tab" onclick="switchTab('issues')">SETUP HELP</div>
-        </div>
-        <div id="log-view" class="debug-content">
-            <div id="debug-logs" style="white-space: pre-wrap;">System Ready...</div>
-        </div>
-        <div id="issues-view" class="debug-content">
-            <div class="issue-item">
-                <span class="issue-title">🛑 IMPORTANT: Spotify Fix</span>
-                Copy this EXACT URL below and add it to your Spotify Dashboard "Redirect URIs":
-                <div id="uri-display" class="p-1 bg-zinc-800 text-white text-[10px] break-all mt-1 select-all">...</div>
-            </div>
-            <div class="issue-item">
-                <span class="issue-title">🗺️ Map Style</span>
-                Using "Screen" blend mode to hide map background.
-            </div>
-            <button onclick="resetConnection()" class="mt-2 w-full py-2 bg-red-900/80 hover:bg-red-800 text-white font-bold text-[10px] uppercase rounded border border-red-600">
-                RESET CONNECTION & RELOAD
-            </button>
-        </div>
-    </div>
-
+    <!-- Global Background Scanlines -->
     <div class="absolute inset-0 scanlines pointer-events-none z-[60]"></div>
 
-    <!-- INTRO SCREEN -->
+    <!-- INTRO OVERLAY (Solid Black Background) -->
     <div id="sport-intro" class="fixed inset-0 z-[100] flex flex-col items-center justify-center pointer-events-none hidden-force w-full overflow-hidden bg-black">
         <div class="text-center space-y-4 relative z-10 w-full px-4">
             <h1 id="intro-text" class="text-[15vw] leading-none font-black italic text-white font-fl5 tracking-tighter">FULL SEND</h1>
@@ -130,7 +87,9 @@
         </div>
     </div>
 
-    <!-- ECO VIEW (MAIN) -->
+    <!-- ================================================================= -->
+    <!-- VIEW 1: ECO DASHBOARD                                             -->
+    <!-- ================================================================= -->
     <div id="view-eco" class="absolute inset-0 flex z-10 transition-all duration-500 bg-zinc-950">
         <!-- SIDEBAR -->
         <div class="w-20 h-full bg-zinc-950 border-r border-zinc-900 flex flex-col items-center py-6 justify-between z-50 shadow-2xl shrink-0 relative">
@@ -146,61 +105,41 @@
             <div id="clock" class="text-xs text-zinc-600 font-bold font-mono">12:00</div>
         </div>
 
+        <!-- MAIN DISPLAY -->
         <div class="flex-1 relative overflow-hidden flex flex-col">
-            <!-- TOP BAR -->
+            <!-- Top Bar -->
             <div class="relative z-30 flex justify-between items-start p-6">
-                <div class="flex flex-col gap-6">
-                    
-                    <!-- COMPASS & LOCATION -->
-                    <div class="flex items-center gap-4">
-                        <!-- Compass Widget -->
-                        <div class="w-12 h-12 rounded-full border border-zinc-700 bg-zinc-900 flex items-center justify-center relative overflow-hidden shadow-lg">
-                            <div id="compass-arrow" class="compass-ring w-full h-full flex items-center justify-center absolute top-0 left-0">
-                                <div class="w-1 h-3 bg-red-500 absolute top-2 rounded-full shadow-[0_0_5px_red]"></div>
-                                <div class="w-1 h-3 bg-zinc-600 absolute bottom-2 rounded-full"></div>
-                            </div>
-                            <span class="text-[8px] font-bold text-zinc-500 z-10">N</span>
-                        </div>
-                        
-                        <div>
-                            <div class="flex items-center gap-2 text-zinc-500 mb-1">
-                                <i data-lucide="map-pin" class="w-3 h-3"></i>
-                                <span id="weather-location" class="text-xs uppercase tracking-widest font-bold text-zinc-400 truncate max-w-[200px]">...</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                 <div id="eco-status-dot" class="w-2 h-2 rounded-full bg-zinc-600"></div>
-                                 <span id="eco-status-text" class="text-xs font-bold text-zinc-500 tracking-wide">NO GPS</span>
-                            </div>
-                        </div>
+                
+                <!-- UPDATED ECO INFO PANEL (Weather + Location) -->
+                <div class="flex flex-col">
+                    <!-- Location Row -->
+                    <div class="flex items-center gap-2 text-zinc-500 mb-1">
+                        <i data-lucide="map-pin" class="w-3 h-3"></i>
+                        <span id="weather-location" class="text-xs uppercase tracking-widest font-bold text-zinc-400 truncate max-w-[200px]">...</span>
                     </div>
-
-                    <!-- SPOTIFY WIDGET -->
-                    <div class="flex items-center gap-3 bg-zinc-900/80 p-2 pr-4 rounded-lg border border-zinc-800/50 backdrop-blur-md transition-all hover:border-[#1ed760]/50 group cursor-pointer" onclick="handleSpotifyClick()">
-                        <div id="spotify-art-container" class="w-10 h-10 rounded overflow-hidden relative bg-black flex items-center justify-center shrink-0">
-                            <img id="spotify-art" src="" class="w-full h-full object-cover hidden">
-                            <i id="spotify-icon" data-lucide="music" class="text-white w-5 h-5"></i>
+                    <!-- Weather & Status Row -->
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-2">
+                             <i id="weather-icon" data-lucide="cloud" class="w-5 h-5 text-zinc-400"></i>
+                             <span id="weather-temp" class="text-2xl font-bold text-white leading-none">--°</span>
                         </div>
-                        <div class="flex flex-col min-w-[120px]">
-                            <span id="spotify-title" class="text-[10px] uppercase text-zinc-500 font-bold tracking-wider truncate max-w-[150px]">SPOTIFY</span>
-                            <span id="spotify-artist" class="text-xs text-white font-bold tracking-wide truncate max-w-[150px]">Tap to Connect</span>
-                        </div>
-                        <div id="spotify-bars" class="flex gap-1 items-end h-4 ml-2 opacity-50 group-hover:opacity-100 transition-opacity">
-                            <div class="music-bar"></div><div class="music-bar"></div><div class="music-bar"></div><div class="music-bar"></div>
+                        <div class="w-px h-6 bg-zinc-800"></div>
+                        <div class="flex items-center gap-2">
+                             <div id="eco-status-dot" class="w-2 h-2 rounded-full bg-zinc-600"></div>
+                             <span id="eco-status-text" class="text-xs font-bold text-zinc-500 tracking-wide">NO GPS</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- MODE TOGGLE -->
                 <div class="flex bg-zinc-900 p-1 rounded-lg border border-zinc-800 shadow-lg">
                     <button class="px-6 py-1 rounded-md text-sm font-bold uppercase tracking-wider transition-all bg-emerald-900/50 text-emerald-400 border border-emerald-500/30 cursor-default">Drive</button>
                     <button onclick="setMode('sport')" class="px-6 py-1 rounded-md text-sm font-bold uppercase tracking-wider transition-all text-zinc-500 hover:text-white hover:bg-zinc-800 relative z-50 cursor-pointer">Sport</button>
                 </div>
             </div>
 
-            <!-- CENTER GAUGES -->
+            <!-- Center Stage -->
             <div class="relative z-20 flex-1 flex items-center justify-center gap-4 md:gap-8 px-4 pb-12">
-                
-                <!-- LEFT: RPM -->
+                <!-- Left Gauge (RPM) -->
                 <div class="relative w-48 h-48 md:w-64 md:h-64 flex items-center justify-center">
                     <svg class="w-full h-full transform rotate-[135deg]" viewBox="0 0 200 200">
                         <circle cx="100" cy="100" r="85" fill="none" stroke="#1f2937" stroke-width="12" stroke-dasharray="534" stroke-dashoffset="133.5" />
@@ -212,7 +151,7 @@
                     </div>
                 </div>
 
-                <!-- CENTER: SPEED & GEAR -->
+                <!-- Center Stack -->
                 <div class="flex flex-col items-center w-48 md:w-64 space-y-6 relative">
                     <div class="flex flex-col items-center">
                         <span id="eco-speed-val" class="text-6xl md:text-8xl font-bold text-white tracking-tighter" style="font-family: 'Orbitron', sans-serif;">0</span>
@@ -223,43 +162,39 @@
                             <span id="eco-gear-val" class="text-4xl md:text-5xl font-bold text-white">P</span>
                         </div>
                     </div>
-                    <!-- GPS TOGGLE -->
                     <button onclick="toggleGPS()" id="btn-gps-eco" class="w-full py-3 rounded bg-zinc-900 border border-zinc-800 text-zinc-400 font-bold text-xs uppercase tracking-[0.2em] transition-all hover:bg-zinc-800 hover:text-white flex items-center justify-center gap-2 cursor-pointer z-50">
                         <i data-lucide="satellite" class="w-3 h-3"></i> Enable GPS
                     </button>
                 </div>
 
-                <!-- RIGHT: ECO GUIDE -->
+                <!-- Right Gauge (Eco Guide) -->
                 <div class="relative w-48 h-48 md:w-64 md:h-64 flex items-center justify-center">
                     <svg class="w-full h-full transform rotate-[135deg]" viewBox="0 0 200 200">
                         <circle cx="100" cy="100" r="85" fill="none" stroke="#1f2937" stroke-width="12" stroke-dasharray="534" stroke-dashoffset="133.5" />
-                        <circle id="eco-ring-guide" cx="100" cy="100" r="85" fill="none" stroke="#10b981" stroke-width="12" stroke-dasharray="534" stroke-dashoffset="0" class="gauge-transition" />
+                        <circle id="eco-ring-speed" cx="100" cy="100" r="85" fill="none" stroke="#10b981" stroke-width="12" stroke-dasharray="534" stroke-dashoffset="534" class="gauge-transition" />
                     </svg>
                     <div class="absolute inset-0 flex flex-col items-center justify-center mt-6">
-                        <span class="text-zinc-600 text-[10px] md:text-xs uppercase tracking-[0.2em]">Eco Score</span>
-                        <div id="eco-leaf" class="w-4 h-4 md:w-6 md:h-6 rounded-full bg-emerald-500 mt-2 shadow-[0_0_15px_#10b981] transition-all duration-300"></div>
+                        <span class="text-zinc-600 text-[10px] md:text-xs uppercase tracking-[0.2em]">Eco Guide</span>
+                        <div class="w-4 h-4 md:w-6 md:h-6 rounded-full bg-emerald-500 mt-2 shadow-[0_0_15px_#10b981] animate-pulse"></div>
                     </div>
                 </div>
             </div>
-            
-            <!-- MINI MAP OVERLAY (Circular + Invisible BG) -->
-            <div class="absolute bottom-6 right-6 w-36 h-36 md:w-48 md:h-48 rounded-full border-4 border-zinc-800 overflow-hidden z-40 opacity-90 hover:opacity-100 transition-opacity map-container">
-                 <div id="mini-map"></div>
-                 <!-- Crosshair -->
-                 <div class="absolute inset-0 pointer-events-none flex items-center justify-center z-50">
-                    <div class="w-2 h-2 bg-emerald-500 rounded-full ring-2 ring-white shadow-lg"></div>
-                 </div>
-            </div>
-            
+            <!-- Bottom Bar -->
             <div class="h-1 w-full bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.6)] mt-auto"></div>
         </div>
     </div>
 
-    <!-- SPORT VIEW -->
+    <!-- ================================================================= -->
+    <!-- VIEW 2: SPORT DASHBOARD (FL5 Linear Design)                       -->
+    <!-- ================================================================= -->
     <div id="view-sport" class="absolute inset-0 z-20 opacity-0 pointer-events-none bg-black flex flex-col transition-opacity duration-500">
+        
+        <!-- Background Texture (Reveals last via Clip Path) -->
         <div class="absolute inset-0 bg-fl5-pattern opacity-0 z-0" id="bg-sport-pattern" style="opacity: 0.5; clip-path: circle(0% at 50% 50%);">
             <div class="absolute inset-0 bg-gradient-to-t from-red-900/20 via-transparent to-transparent"></div>
         </div>
+
+        <!-- TOP RIGHT BUTTONS -->
         <div class="absolute top-6 right-6 z-[60] flex gap-3 opacity-0 transition-opacity duration-500" id="sport-buttons">
               <button onclick="toggleGPS()" class="px-4 py-2 bg-zinc-900/80 border border-zinc-700 text-zinc-400 text-xs font-bold uppercase rounded hover:text-blue-400 transition-colors flex items-center gap-2 backdrop-blur-sm cursor-pointer">
                 <div id="sport-gps-dot" class="w-2 h-2 rounded-full bg-zinc-600"></div>
@@ -272,7 +207,11 @@
                 Exit +R
               </button>
         </div>
+
+        <!-- CENTER CONTENT -->
         <div class="flex-1 flex flex-col items-center justify-center w-full max-w-7xl mx-auto relative z-20">
+            
+            <!-- RPM & Shift Lights (Ignites First) -->
             <div id="sport-rpm-group" class="w-full max-w-5xl mx-auto mb-4 mt-16 opacity-0 transition-opacity duration-300">
                 <div class="flex gap-1 mb-1 px-[5%] h-3 justify-center">
                     <div class="led green" id="led-1"></div><div class="led green" id="led-2"></div><div class="led green" id="led-3"></div><div class="led green" id="led-4"></div><div class="led green" id="led-5"></div>
@@ -303,278 +242,170 @@
                     <div class="absolute top-0 right-0 text-white font-mono text-[10px]">x1000 r/min</div>
                 </div>
             </div>
-            
-            <!-- SPORT METRICS -->
+
+            <!-- MIDDLE: Speed & Gear (Reveals Second) -->
             <div class="flex flex-1 w-full items-center justify-center max-w-6xl px-8">
+                
+                <!-- Left: Stopwatch / 0-100 Timer -->
                 <div id="sport-misc-group-1" class="flex-1 hidden md:flex flex-col items-end pr-12 border-r border-zinc-900 opacity-0 transition-opacity duration-500">
                     <div class="flex items-center gap-2 mb-1 text-zinc-500">
                         <span id="timer-mode-label" class="text-xs font-bold uppercase tracking-wider">CHRONO</span>
                     </div>
                     <div id="stopwatch-display" class="text-4xl font-fl5 text-white font-mono tabular-nums">00:00.00</div>
+                    
                     <div id="manual-controls" class="flex gap-2 mt-2">
                         <button onclick="timerLapReset()" id="btn-lap" class="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-[10px] font-bold text-zinc-300 rounded uppercase transition-colors">Reset</button>
                         <button onclick="timerStartStop()" id="btn-start" class="px-3 py-1 bg-emerald-900 hover:bg-emerald-700 text-[10px] font-bold text-emerald-300 rounded uppercase transition-colors">Start</button>
                     </div>
+                    
+                    <!-- 0-100 Button -->
                     <div class="mt-3">
                         <button onclick="activateZeroHundred()" id="btn-zero-hundred" class="w-full px-3 py-1 bg-zinc-900 border border-red-900/50 hover:bg-red-900/20 hover:border-red-500 text-[10px] font-bold text-red-500 rounded uppercase transition-colors tracking-widest flex items-center justify-center gap-1">
                             <i data-lucide="gauge-circle" class="w-3 h-3"></i> 0-100 LAUNCH
                         </button>
                     </div>
+
                     <div id="auto-controls" class="mt-2 text-[10px] font-bold text-zinc-600 hidden text-right flex flex-col gap-2 items-end">
                         <span id="auto-status">STOP TO ARM</span>
-                        <button onclick="cancelZeroHundred()" class="px-2 py-1 bg-red-900/30 border border-red-500 text-red-400 text-[10px] font-bold uppercase rounded hover:bg-red-900/60 transition-colors w-auto">CANCEL</button>
+                        <button onclick="cancelZeroHundred()" class="px-2 py-1 bg-red-900/30 border border-red-500 text-red-400 text-[10px] font-bold uppercase rounded hover:bg-red-900/60 transition-colors w-auto">
+                            CANCEL
+                        </button>
                     </div>
                     <div id="last-lap" class="mt-2 text-[10px] font-mono text-zinc-400">LAST: --:--.--</div>
                 </div>
+
+                <!-- Center: Speed (Fades in after swipe) -->
                 <div id="sport-speed-group" class="w-80 flex flex-col items-center relative opacity-0 transition-opacity duration-500">
                     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-48 bg-gradient-to-b from-red-600 to-transparent opacity-30 blur-3xl rounded-full"></div>
                     <span id="sport-speed" class="text-8xl md:text-9xl font-fl5 font-black text-white drop-shadow-lg relative z-10 leading-none">0</span>
                     <span class="text-sm font-bold text-red-500 tracking-[0.4em] relative z-10 -mt-2">KM/H</span>
+                    
+                    <!-- Metrics Grid -->
                     <div class="grid grid-cols-2 gap-x-12 gap-y-2 mt-8 w-full px-4">
-                        <div class="flex justify-between items-center text-sm"><span class="text-zinc-500 font-bold">WAT</span> <span class="font-fl5 font-bold text-white">90<span class="text-zinc-600 text-xs">°</span></span></div>
-                        <div class="flex justify-between items-center text-sm"><span class="text-zinc-500 font-bold">OIL</span> <span class="font-fl5 font-bold text-white">102<span class="text-zinc-600 text-xs">°</span></span></div>
-                        <div class="flex justify-between items-center text-sm"><span class="text-zinc-500 font-bold">BST</span> <span class="font-fl5 font-bold text-white">0.8<span class="text-zinc-600 text-xs">b</span></span></div>
-                        <div class="flex justify-between items-center text-sm"><span class="text-zinc-500 font-bold">VLT</span> <span class="font-fl5 font-bold text-white">14.2<span class="text-zinc-600 text-xs">v</span></span></div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-zinc-500 font-bold">WAT</span> <span class="font-fl5 font-bold text-white">90<span class="text-zinc-600 text-xs">°</span></span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-zinc-500 font-bold">OIL</span> <span class="font-fl5 font-bold text-white">102<span class="text-zinc-600 text-xs">°</span></span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-zinc-500 font-bold">BST</span> <span class="font-fl5 font-bold text-white">0.8<span class="text-zinc-600 text-xs">b</span></span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-zinc-500 font-bold">VLT</span> <span class="font-fl5 font-bold text-white">14.2<span class="text-zinc-600 text-xs">v</span></span>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Right: Gear & G-Meter (Reveals last) -->
                 <div id="sport-misc-group-2" class="flex-1 flex flex-col items-start pl-12 border-l border-zinc-900 opacity-0 transition-opacity duration-500">
                     <div class="flex items-baseline gap-2 mb-6">
                         <span class="text-red-600 font-black italic text-2xl font-fl5 mr-2">+R</span>
                         <span id="sport-gear" class="text-7xl font-fl5 font-black text-white tracking-tighter">N</span>
                     </div>
+                    <!-- G-Meter -->
                     <div class="relative w-32 h-32 border-2 border-zinc-800 rounded-full flex items-center justify-center bg-zinc-900/50">
                         <div class="absolute w-20 h-20 border border-zinc-800 rounded-full"></div>
                         <div class="absolute w-full h-[1px] bg-zinc-800"></div>
                         <div class="absolute h-full w-[1px] bg-zinc-800"></div>
+                        <!-- Dots -->
                         <div id="g-ghost" class="w-2 h-2 bg-red-900/50 rounded-full absolute transition-all duration-1000 opacity-0"></div>
                         <div id="g-dot" class="w-3 h-3 bg-yellow-400 rounded-full shadow-[0_0_10px_#facc15] g-dot-smooth relative z-10"></div>
                         <span class="absolute bottom-2 text-[8px] text-zinc-500 font-bold">PEAK G</span>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 
     <script>
         lucide.createIcons();
 
-        // =================================================================
-        // SPOTIFY CONFIGURATION
-        // =================================================================
-        const SPOTIFY_CLIENT_ID = '852950465a424a9fb4f2cb105a5089a5'; 
-        // DYNAMICALLY GET CURRENT URL (Handles localhost, Vercel, Netlify automatically)
-        const REDIRECT_URI = window.location.href.split('#')[0]; 
-        
-        const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
-        const API_ENDPOINT = "https://api.spotify.com/v1/me/player/currently-playing";
-        const SCOPES = ["user-read-currently-playing", "user-read-playback-state"];
-        // =================================================================
-
-        let spotifyToken = null;
-        let spotifyInterval = null;
-        let mapInstance = null;
-        let mapMarker = null;
-
-        function handleSpotifyClick() {
-            if (!SPOTIFY_CLIENT_ID) return alert("Missing Client ID");
-            if (!spotifyToken) {
-                // Start Login
-                const authUrl = `${AUTH_ENDPOINT}?client_id=${SPOTIFY_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES.join(' '))}&response_type=token&show_dialog=true`;
-                debugLog("Auth URL generated. Redirecting...");
-                window.location.href = authUrl;
-            } else {
-                debugLog("Already connected. Token active.");
-            }
-        }
-
-        function checkSpotifyAuth() {
-            const hash = window.location.hash;
-            // Handle Redirect Callback
-            if (hash && hash.includes('access_token')) {
-                const token = new URLSearchParams(hash.substring(1)).get('access_token');
-                window.location.hash = ""; 
-                if (token) {
-                    spotifyToken = token;
-                    localStorage.setItem('sp_token', token);
-                    debugLog("Spotify Connected! Token saved.");
-                    startSpotifyPolling();
-                }
-            } 
-            // Handle Saved Token
-            else {
-                const stored = localStorage.getItem('sp_token');
-                if (stored) {
-                    spotifyToken = stored;
-                    debugLog("Spotify Token Restored");
-                    startSpotifyPolling();
-                }
-            }
-        }
-
-        function resetConnection() {
-            localStorage.removeItem('sp_token');
-            spotifyToken = null;
-            window.location.href = window.location.href.split('#')[0]; // Reload clean
-        }
-
-        function startSpotifyPolling() {
-            updateSpotifyUI();
-            if (spotifyInterval) clearInterval(spotifyInterval);
-            spotifyInterval = setInterval(updateSpotifyUI, 5000);
-        }
-
-        async function updateSpotifyUI() {
-            if (!spotifyToken) return;
-            try {
-                const res = await fetch(API_ENDPOINT, {
-                    headers: { 'Authorization': `Bearer ${spotifyToken}` }
-                });
-                
-                if (res.status === 401) {
-                    debugLog("Token Expired. Clearing session.");
-                    resetConnection();
-                    return;
-                }
-                if (res.status === 204) {
-                    // Nothing playing
-                    return;
-                }
-
-                const data = await res.json();
-                if (data && data.item) {
-                    document.getElementById('spotify-title').innerText = "NOW PLAYING";
-                    document.getElementById('spotify-artist').innerText = data.item.name + " • " + data.item.artists[0].name;
-                    const artUrl = data.item.album.images[0].url;
-                    const artImg = document.getElementById('spotify-art');
-                    const icon = document.getElementById('spotify-icon');
-                    artImg.src = artUrl;
-                    artImg.classList.remove('hidden');
-                    icon.classList.add('hidden');
-                }
-            } catch (e) { 
-                console.error(e); 
-                // Don't spam logs
-            }
-        }
-
-        // --- MAP & COMPASS LOGIC ---
-        function initMap() {
-            if(mapInstance) return;
-            // Initialize Leaflet (Free OpenStreetMap) using Dark Matter Tiles
-            mapInstance = L.map('mini-map', {
-                zoomControl: false, attributionControl: false, dragging: false, scrollWheelZoom: false
-            }).setView([0, 0], 15);
-
-            // CartoDB Dark Matter Tiles (High Contrast)
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                maxZoom: 19
-            }).addTo(mapInstance);
-        }
-
-        function updateMap(lat, lon) {
-            if (!mapInstance) initMap();
-            mapInstance.setView([lat, lon], 15);
-            if (!mapMarker) {
-                mapMarker = L.circleMarker([lat, lon], {
-                    radius: 6, fillColor: "#10b981", color: "#fff", weight: 2, opacity: 1, fillOpacity: 0.8
-                }).addTo(mapInstance);
-            } else {
-                mapMarker.setLatLng([lat, lon]);
-            }
-        }
-
-        window.addEventListener('deviceorientation', (event) => {
-            let heading = 0;
-            if (event.webkitCompassHeading) {
-                heading = event.webkitCompassHeading;
-            } else if (event.alpha) {
-                heading = 360 - event.alpha;
-            }
-            document.getElementById('compass-arrow').style.transform = `rotate(${heading}deg)`;
-        });
-
-        // --- DEBUG LOGIC ---
-        function toggleDebug() {
-            const overlay = document.getElementById('debug-overlay');
-            const trigger = document.getElementById('debug-trigger');
-            overlay.style.display = (overlay.style.display === 'block') ? 'none' : 'block';
-            trigger.style.display = (overlay.style.display === 'block') ? 'none' : 'flex';
-            
-            // Show current URI in debug menu for easy copying
-            document.getElementById('uri-display').innerText = REDIRECT_URI;
-        }
-
-        function switchTab(tab) {
-            document.querySelectorAll('.debug-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.debug-content').forEach(c => c.style.display = 'none');
-            
-            if(tab === 'log') {
-                document.querySelector('.debug-tab:nth-child(1)').classList.add('active');
-                document.getElementById('log-view').style.display = 'block';
-            } else {
-                document.querySelector('.debug-tab:nth-child(2)').classList.add('active');
-                document.getElementById('issues-view').style.display = 'block';
-            }
-        }
-
-        function debugLog(msg) {
-            const container = document.getElementById('debug-logs');
-            container.innerHTML = `<div>> ${msg}</div>` + container.innerHTML;
-        }
-
-        window.onerror = function(msg) { debugLog("Err: " + msg); return false; };
-
-        // --- APP STATE & GPS ---
+        // --- CONFIGURATION & STATE ---
         const AppState = {
-            mode: 'eco', gpsActive: false, watchId: null,
+            mode: 'eco',
+            gpsActive: false,
+            watchId: null,
             lastLat: null, lastLon: null, lastTime: null,
-            lastSpeed: 0, ecoScore: 100, // Eco Physics
-            swiping: false, timerMode: 'manual', 
-            swRunning: false, swStartTime: 0, swElapsed: 0, swInterval: null,
-            autoArmed: false, autoRunning: false,
-            lastWeatherUpdate: 0, lastWeatherPos: { lat: 0, lon: 0 }
+            simulatedRPM: 0,
+            swiping: false,
+            
+            // Stopwatch State
+            timerMode: 'manual', // 'manual' or 'auto'
+            swRunning: false,
+            swStartTime: 0,
+            swElapsed: 0,
+            swInterval: null,
+
+            // 0-100 Logic
+            autoArmed: false,
+            autoRunning: false,
+            
+            // Weather State
+            lastWeatherUpdate: 0,
+            lastWeatherPos: { lat: 0, lon: 0 }
         };
         
         const SHIFT_RPM_START = 4000;
 
+        // --- WEATHER & LOCATION ---
         async function updateWeather(lat, lon) {
             const now = Date.now();
+            // Only fetch if moved > 1km OR time > 5 mins
             const dist = getDistanceFromLatLonInKm(AppState.lastWeatherPos.lat, AppState.lastWeatherPos.lon, lat, lon);
             if (dist < 1 && (now - AppState.lastWeatherUpdate) < 300000) return;
+
             AppState.lastWeatherUpdate = now;
             AppState.lastWeatherPos = { lat, lon };
 
+            // 1. Fetch Weather (Open-Meteo)
             try {
                 const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code`);
                 const wData = await wRes.json();
                 if (wData.current) {
                     const temp = Math.round(wData.current.temperature_2m);
                     document.getElementById('weather-temp').innerText = `${temp}°`;
+                    // Simple icon mapping
                     const code = wData.current.weather_code;
                     const iconEl = document.getElementById('weather-icon');
-                    iconEl.innerHTML = '';
+                    // Reset classes
+                    iconEl.innerHTML = ''; // Clear Lucide
+                    // Re-render icon based on code
                     let iconName = 'cloud';
-                    if(code <= 1) iconName = 'sun'; else if(code <= 3) iconName = 'cloud-sun'; else if(code <= 67) iconName = 'cloud-rain'; else if(code > 90) iconName = 'cloud-lightning';
+                    if(code <= 1) iconName = 'sun';
+                    else if(code <= 3) iconName = 'cloud-sun';
+                    else if(code <= 67) iconName = 'cloud-rain';
+                    else if(code <= 77) iconName = 'snowflake';
+                    else if(code > 90) iconName = 'cloud-lightning';
+                    
                     iconEl.setAttribute('data-lucide', iconName);
                     lucide.createIcons();
                 }
-            } catch (e) { debugLog("Weather Error: " + e.message); }
+            } catch (e) { console.warn("Weather fetch failed", e); }
+
+            // 2. Fetch Location (BigDataCloud - Client Side Free)
             try {
                 const lRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`);
                 const lData = await lRes.json();
                 const city = lData.locality || lData.city || lData.principalSubdivision || "Unknown";
                 document.getElementById('weather-location').innerText = city.toUpperCase();
-            } catch (e) { debugLog("Loc Error: " + e.message); }
+            } catch (e) { console.warn("Location fetch failed", e); }
         }
+
+        // --- UI TRANSITIONS (STAGED) ---
 
         function setMode(mode) {
             if (AppState.mode === mode) return;
             AppState.mode = mode;
+
             const ecoView = document.getElementById('view-eco');
             const sportView = document.getElementById('view-sport');
             const intro = document.getElementById('sport-intro');
             const introText = document.getElementById('intro-text');
             const bgSport = document.getElementById('bg-sport-pattern');
+            
+            // Groups
             const rpmGroup = document.getElementById('sport-rpm-group');
             const speedGroup = document.getElementById('sport-speed-group');
             const misc1 = document.getElementById('sport-misc-group-1');
@@ -582,25 +413,65 @@
             const btns = document.getElementById('sport-buttons');
 
             if (mode === 'sport') {
-                ecoView.style.opacity = '0'; ecoView.style.pointerEvents = 'none';
-                intro.classList.remove('hidden-force'); introText.classList.add('anim-text-strobe');
-                sportView.classList.remove('pointer-events-none'); sportView.style.opacity = '1'; 
-                rpmGroup.style.opacity = '0'; speedGroup.style.opacity = '0'; misc1.style.opacity = '0'; misc2.style.opacity = '0'; btns.style.opacity = '0';
-                bgSport.style.opacity = '0.5'; bgSport.classList.remove('anim-bg-reveal'); bgSport.style.clipPath = 'circle(0% at 50% 50%)'; 
+                // T=0: Eco Fade Out & Blackout
+                ecoView.style.opacity = '0';
+                ecoView.style.pointerEvents = 'none';
+                
+                // Show Solid Black Intro
+                intro.classList.remove('hidden-force');
+                introText.classList.add('anim-text-strobe');
+                
+                // Prepare Sport Elements (Hidden initially)
+                sportView.classList.remove('pointer-events-none');
+                sportView.style.opacity = '1'; // Container visible
+                rpmGroup.style.opacity = '0';
+                speedGroup.style.opacity = '0';
+                misc1.style.opacity = '0';
+                misc2.style.opacity = '0';
+                btns.style.opacity = '0';
+                
+                // Reset BG to hidden state with clip-path 0
+                bgSport.style.opacity = '0.5'; // Keep visual opacity ready
+                bgSport.classList.remove('anim-bg-reveal'); // Clear prev animation
+                bgSport.style.clipPath = 'circle(0% at 50% 50%)'; // Force reset
 
+                // T=0.8s: Fade Intro, Ignite RPM (Shortened from 1.2s)
                 setTimeout(() => {
-                    introText.classList.remove('anim-text-strobe'); intro.classList.add('hidden-force'); 
-                    rpmGroup.style.opacity = '1'; startNeedleSwipe();
+                    introText.classList.remove('anim-text-strobe');
+                    intro.classList.add('hidden-force'); // Gone
+                    rpmGroup.style.opacity = '1'; // IGNITION
+                    
+                    // Start Needle Swipe
+                    startNeedleSwipe();
                 }, 800);
-                setTimeout(() => { speedGroup.style.opacity = '1'; }, 1600);
+
+                // T=1.6s (Mid-Swipe): Fade in Speed (Shortened)
                 setTimeout(() => {
-                    misc1.style.opacity = '1'; misc2.style.opacity = '1'; btns.style.opacity = '1';
-                    bgSport.style.clipPath = ''; bgSport.classList.add('anim-bg-reveal'); 
+                    speedGroup.style.opacity = '1';
+                }, 1600);
+
+                // T=2.1s (End Swipe): Show Rest & BG (Shortened)
+                setTimeout(() => {
+                    misc1.style.opacity = '1';
+                    misc2.style.opacity = '1';
+                    btns.style.opacity = '1';
+                    
+                    // Trigger Clip Path Expansion
+                    bgSport.style.clipPath = ''; // Clear inline style to let animation take over
+                    bgSport.classList.add('anim-bg-reveal'); 
                 }, 2100);
+
             } else {
-                sportView.style.opacity = '0'; sportView.classList.add('pointer-events-none');
+                // Sport -> Eco
+                sportView.style.opacity = '0';
+                sportView.classList.add('pointer-events-none');
                 bgSport.classList.remove('anim-bg-reveal');
-                ecoView.style.opacity = '1'; ecoView.style.transform = 'scale(1)'; ecoView.classList.add('anim-eco-enter'); ecoView.style.pointerEvents = 'auto';
+                
+                ecoView.style.opacity = '1';
+                ecoView.style.transform = 'scale(1)';
+                ecoView.classList.add('anim-eco-enter');
+                ecoView.style.pointerEvents = 'auto';
+                
                 setTimeout(() => ecoView.classList.remove('anim-eco-enter'), 1000);
             }
         }
@@ -608,20 +479,38 @@
         function startNeedleSwipe() {
             if (AppState.swiping) return;
             AppState.swiping = true;
-            const duration = 1500; const startTime = Date.now();
+            const duration = 1500; // Faster Swipe
+            const startTime = Date.now();
+
             function swipeFrame() {
-                const now = Date.now(); const elapsed = now - startTime; const progress = Math.min(elapsed / duration, 1);
+                const now = Date.now();
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Triangle logic: 0 -> 1 -> 0
                 let val = 0;
-                if(progress < 0.5) val = progress * 2; else val = 2 - (progress * 2); 
+                if(progress < 0.5) val = progress * 2; 
+                else val = 2 - (progress * 2); 
                 val = Math.max(0, val); 
-                const swipeRpm = val * 8000; const rpmPct = swipeRpm / 7500; 
+
+                // Drive Visuals
+                const swipeRpm = val * 8000;
+                const rpmPct = swipeRpm / 7500; 
                 document.getElementById('rpm-fill-rect').setAttribute('width', Math.min(rpmPct, 1.07) * 800);
+                
+                // Only update speed text if speed group is visible to avoid ghost numbers
                 if(document.getElementById('sport-speed-group').style.opacity === '1') {
                     document.getElementById('sport-speed').innerText = Math.round(val * 188);
                 }
+                
                 updateShiftLights(swipeRpm);
-                if(progress < 1) { requestAnimationFrame(swipeFrame); } else {
-                    AppState.swiping = false; document.getElementById('sport-speed').innerText = "0"; updateDisplay(0); 
+
+                if(progress < 1) {
+                    requestAnimationFrame(swipeFrame);
+                } else {
+                    AppState.swiping = false;
+                    document.getElementById('sport-speed').innerText = "0"; 
+                    updateDisplay(0); // Reset
                 }
             }
             requestAnimationFrame(swipeFrame);
@@ -629,9 +518,10 @@
 
         function updateDisplay(speedKmh) {
             if(AppState.swiping) return;
+            
             const roundedSpeed = Math.round(speedKmh);
 
-            // ZERO TO HUNDRED LOGIC
+            // --- AUTO TIMER LOGIC (0-100) ---
             if (AppState.timerMode === 'auto') {
                 if (speedKmh < 2 && !AppState.autoRunning) {
                     AppState.autoArmed = true;
@@ -639,79 +529,82 @@
                     document.getElementById('auto-status').className = "mt-2 text-[10px] font-bold text-emerald-500 animate-pulse text-right leading-tight";
                     if(!AppState.autoRunning) document.getElementById('stopwatch-display').innerText = "00:00.00";
                 } else if (AppState.autoArmed && speedKmh >= 2 && !AppState.autoRunning) {
-                    AppState.autoArmed = false; AppState.autoRunning = true; AppState.swStartTime = Date.now();
+                    // LAUNCH DETECTED
+                    AppState.autoArmed = false;
+                    AppState.autoRunning = true;
+                    AppState.swStartTime = Date.now();
                     document.getElementById('auto-status').innerText = "GO GO GO";
                     document.getElementById('auto-status').className = "mt-2 text-[10px] font-bold text-red-500 text-right";
+                    
                     AppState.swInterval = setInterval(() => {
-                        const now = Date.now(); const diff = now - AppState.swStartTime; formatTime(diff);
+                        const now = Date.now();
+                        const diff = now - AppState.swStartTime;
+                        formatTime(diff);
                     }, 30);
                 } else if (AppState.autoRunning && speedKmh >= 100) {
-                    clearInterval(AppState.swInterval); AppState.autoRunning = false;
-                    const finalTime = Date.now() - AppState.swStartTime; formatTime(finalTime);
+                    // FINISH
+                    clearInterval(AppState.swInterval);
+                    AppState.autoRunning = false;
+                    const finalTime = Date.now() - AppState.swStartTime;
+                    formatTime(finalTime);
                     document.getElementById('last-lap').innerText = "0-100: " + document.getElementById('stopwatch-display').innerText;
                     document.getElementById('auto-status').innerText = "FINISHED";
                     document.getElementById('auto-status').className = "mt-2 text-[10px] font-bold text-emerald-400 text-right";
                 }
             }
 
+            // Gear Logic
             let gear = 'N';
             if (speedKmh > 1) {
-                if (speedKmh < 20) gear = '1'; else if (speedKmh < 40) gear = '2'; else if (speedKmh < 65) gear = '3'; else if (speedKmh < 90) gear = '4'; else if (speedKmh < 120) gear = '5'; else gear = '6';
+                if (speedKmh < 20) gear = '1';
+                else if (speedKmh < 40) gear = '2';
+                else if (speedKmh < 65) gear = '3';
+                else if (speedKmh < 90) gear = '4';
+                else if (speedKmh < 120) gear = '5';
+                else gear = '6';
             }
             
+            // Simulated RPM
             let rpm = 800; 
             if (speedKmh > 1) {
-                let gearRange = 40; let positionInGear = (speedKmh % gearRange) / gearRange; 
+                let gearRange = 40; 
+                let positionInGear = (speedKmh % gearRange) / gearRange; 
                 rpm = 2000 + (positionInGear * 5000) + (Math.random() * 100 - 50);
             }
 
-            // --- ECO PHYSICS LOGIC ---
+            // --- ECO UPDATES ---
             if (AppState.mode === 'eco') {
                 document.getElementById('eco-speed-val').innerText = roundedSpeed;
                 document.getElementById('eco-gear-val').innerText = (speedKmh < 1 ? 'P' : 'D');
                 
-                // Calculate Acceleration (Smoothness)
-                const delta = Math.abs(speedKmh - AppState.lastSpeed);
-                let ecoTarget = 100 - (delta * 5); // Hard accel drops score
-                if(ecoTarget < 0) ecoTarget = 0;
-                
-                AppState.ecoScore = AppState.ecoScore * 0.9 + ecoTarget * 0.1;
-                AppState.lastSpeed = speedKmh;
-
-                const circumference = 534; const arcLength = circumference * 0.75; const baseOffset = circumference * 0.25;
-                const scorePct = AppState.ecoScore / 100; 
-                const ecoOffset = baseOffset + (arcLength * (1 - scorePct));
-                
-                const ecoRing = document.getElementById('eco-ring-guide');
-                const ecoLeaf = document.getElementById('eco-leaf');
-                
-                ecoRing.style.strokeDashoffset = ecoOffset;
-                
-                if (AppState.ecoScore > 80) {
-                    ecoRing.style.stroke = "#10b981"; // Green
-                    ecoLeaf.className = "w-4 h-4 md:w-6 md:h-6 rounded-full bg-emerald-500 mt-2 shadow-[0_0_15px_#10b981] transition-all";
-                } else if (AppState.ecoScore > 40) {
-                    ecoRing.style.stroke = "#eab308"; // Yellow
-                    ecoLeaf.className = "w-4 h-4 md:w-6 md:h-6 rounded-full bg-yellow-500 mt-2 shadow-none transition-all";
-                } else {
-                    ecoRing.style.stroke = "#ef4444"; // Red
-                    ecoLeaf.className = "w-2 h-2 md:w-3 md:h-3 rounded-full bg-red-500 mt-2 shadow-none transition-all";
-                }
-                
                 const maxRpm = 8000;
+                const circumference = 534; 
+                const arcLength = circumference * 0.75; 
+                const baseOffset = circumference * 0.25;
+                
                 const rpmOffset = baseOffset + (arcLength - (Math.min(rpm, maxRpm) / maxRpm) * arcLength);
                 document.getElementById('eco-ring-rpm').style.strokeDashoffset = rpmOffset;
                 document.getElementById('eco-val-rpm').innerText = (rpm / 1000).toFixed(1);
+                
+                const speedOffset = baseOffset + (arcLength - (Math.min(speedKmh, 200) / 200) * arcLength);
+                document.getElementById('eco-ring-speed').style.strokeDashoffset = speedOffset;
             }
 
+            // --- SPORT UPDATES ---
             if (AppState.mode === 'sport') {
                 document.getElementById('sport-speed').innerText = roundedSpeed;
                 document.getElementById('sport-gear').innerText = gear;
+                
+                // Linear RPM Bar
                 const rpmPct = Math.min(rpm, 7500) / 7500;
                 document.getElementById('rpm-fill-rect').setAttribute('width', rpmPct * 800);
+                
                 updateShiftLights(rpm);
+
+                // G-Meter Simulation
                 if(speedKmh > 5) {
-                    const moveX = (Math.random() * 60) - 30; const moveY = (Math.random() * 60) - 30;
+                    const moveX = (Math.random() * 60) - 30;
+                    const moveY = (Math.random() * 60) - 30;
                     document.getElementById('g-dot').style.transform = `translate(${moveX}px, ${moveY}px)`;
                 } else {
                     document.getElementById('g-dot').style.transform = `translate(0px, 0px)`;
@@ -719,25 +612,33 @@
             }
         }
 
+        // --- TIMER FUNCTIONS ---
         function activateZeroHundred() {
             AppState.timerMode = 'auto';
             document.getElementById('timer-mode-label').innerText = "AUTO 0-100";
             document.getElementById('manual-controls').classList.add('hidden');
-            document.getElementById('btn-zero-hundred').classList.add('hidden'); 
+            document.getElementById('btn-zero-hundred').classList.add('hidden'); // Hide launch button while active
             document.getElementById('auto-controls').classList.remove('hidden');
+            
+            // Reset state
             clearInterval(AppState.swInterval);
-            AppState.swRunning = false; AppState.autoRunning = false; AppState.autoArmed = true; 
+            AppState.swRunning = false;
+            AppState.autoRunning = false;
+            AppState.autoArmed = true; // Immediately arm if stopped
             document.getElementById('stopwatch-display').innerText = "00:00.00";
-            updateDisplay(0); 
+            updateDisplay(0); // Refresh status text
         }
 
         function cancelZeroHundred() {
             clearInterval(AppState.swInterval);
-            AppState.swRunning = false; AppState.autoRunning = false; AppState.autoArmed = false;
-            toggleTimerMode(); 
+            AppState.swRunning = false;
+            AppState.autoRunning = false;
+            AppState.autoArmed = false;
+            toggleTimerMode(); // Return to manual UI
         }
 
         function toggleTimerMode() {
+            // Return to manual
             AppState.timerMode = 'manual';
             document.getElementById('timer-mode-label').innerText = "STOPWATCH";
             document.getElementById('manual-controls').classList.remove('hidden');
@@ -749,17 +650,21 @@
         function timerStartStop() {
             const btn = document.getElementById('btn-start');
             const lapBtn = document.getElementById('btn-lap');
+            
             if (!AppState.swRunning) {
+                // Start
                 AppState.swRunning = true;
                 AppState.swStartTime = Date.now() - AppState.swElapsed;
                 AppState.swInterval = setInterval(() => {
                     AppState.swElapsed = Date.now() - AppState.swStartTime;
                     formatTime(AppState.swElapsed);
                 }, 30);
+                
                 btn.innerText = "STOP";
                 btn.className = "px-3 py-1 bg-red-900 hover:bg-red-700 text-[10px] font-bold text-red-300 rounded uppercase transition-colors";
                 lapBtn.innerText = "LAP";
             } else {
+                // Stop
                 AppState.swRunning = false;
                 clearInterval(AppState.swInterval);
                 btn.innerText = "START";
@@ -770,10 +675,13 @@
 
         function timerLapReset() {
             const lapBtn = document.getElementById('btn-lap');
+            
             if (AppState.swRunning) {
+                // Lap
                 const current = document.getElementById('stopwatch-display').innerText;
                 document.getElementById('last-lap').innerText = "LAP: " + current;
             } else {
+                // Reset
                 AppState.swElapsed = 0;
                 document.getElementById('stopwatch-display').innerText = "00:00.00";
                 document.getElementById('last-lap').innerText = "LAST: --:--.--";
@@ -790,6 +698,7 @@
         function updateShiftLights(rpm) {
             const leds = document.querySelectorAll('.led');
             leds.forEach(l => l.classList.remove('on', 'blink'));
+            
             if (rpm >= SHIFT_RPM_START) {
                 const activeCount = Math.floor((rpm - SHIFT_RPM_START) / 300);
                 for(let i=0; i <= Math.min(activeCount, 9); i++) {
@@ -799,14 +708,17 @@
             }
         }
 
+        // --- ROBUST GPS LOGIC (iOS Friendly) ---
         function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-            var R = 6371; var dLat = deg2rad(lat2-lat1); var dLon = deg2rad(lon2-lon1); 
+            var R = 6371; 
+            var dLat = deg2rad(lat2-lat1);
+            var dLon = deg2rad(lon2-lon1); 
             var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); 
-            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); return R * c; 
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+            return R * c; 
         }
         function deg2rad(deg) { return deg * (Math.PI/180); }
 
-        // --- UNRESTRICTED GPS ---
         function toggleGPS() {
             const btnEco = document.getElementById('btn-gps-eco');
             const btnSportText = document.getElementById('sport-gps-text');
@@ -817,26 +729,38 @@
             if (AppState.gpsActive) {
                 if (AppState.watchId) navigator.geolocation.clearWatch(AppState.watchId);
                 AppState.gpsActive = false;
+                
                 dotEco.className = "w-2 h-2 rounded-full bg-zinc-600";
                 txtEco.innerText = "GPS PAUSED";
                 btnEco.innerHTML = '<i data-lucide="satellite" class="w-3 h-3"></i> Enable GPS';
+                
                 dotSport.className = "w-2 h-2 rounded-full bg-zinc-600";
                 if(btnSportText) btnSportText.innerText = "GPS";
-                debugLog("GPS: Stopped by user");
+                
                 updateDisplay(0);
             } else {
-                if (!("geolocation" in navigator)) return alert("GPS not supported.");
+                if (!("geolocation" in navigator)) {
+                    alert("GPS not supported.");
+                    return;
+                }
                 
-                // Removed local check to force try
                 dotEco.className = "w-2 h-2 rounded-full bg-yellow-500 animate-pulse";
                 txtEco.innerText = "SEARCHING...";
                 btnEco.innerHTML = '<i data-lucide="satellite" class="w-3 h-3"></i> Stop GPS';
+                
                 dotSport.className = "w-2 h-2 rounded-full bg-yellow-500 animate-pulse";
                 if(btnSportText) btnSportText.innerText = "SEARCH";
+                
                 AppState.gpsActive = true;
-                debugLog("GPS: Requesting High Accuracy...");
-                const optionsHigh = { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 };
-                AppState.watchId = navigator.geolocation.watchPosition(handleSuccess, handleError, optionsHigh);
+                
+                const optionsHigh = { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 };
+                const optionsLow = { enableHighAccuracy: false, timeout: 30000, maximumAge: 0 };
+
+                AppState.watchId = navigator.geolocation.watchPosition(
+                    handleSuccess,
+                    (error) => handleError(error, optionsLow),
+                    optionsHigh
+                );
                 lucide.createIcons();
             }
         }
@@ -846,54 +770,48 @@
             document.getElementById('eco-status-text').innerText = "GPS LOCKED";
             document.getElementById('sport-gps-dot').className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
             document.getElementById('sport-gps-text').innerText = "LOCKED";
+
             let lat = position.coords.latitude;
             let lon = position.coords.longitude;
             
-            // Update Map
-            updateMap(lat, lon);
-
-            let acc = position.coords.accuracy;
-            let rawSpd = position.coords.speed;
-            debugLog(`GPS OK: Acc=${Math.round(acc)}m | Spd=${rawSpd}`);
+            // Trigger Weather Update
             updateWeather(lat, lon);
-            let speedMps = rawSpd;
-            if (speedMps === null || speedMps < 0.1) {
+
+            let speedMps = position.coords.speed;
+            
+            if (speedMps === null || speedMps < 0) {
                 const currentTime = position.timestamp;
+                
                 if (AppState.lastLat !== null) {
                     const distanceKm = getDistanceFromLatLonInKm(AppState.lastLat, AppState.lastLon, lat, lon);
                     const distanceMeters = distanceKm * 1000;
                     const timeDiffSeconds = (currentTime - AppState.lastTime) / 1000;
-                    if (timeDiffSeconds > 0.5 && distanceMeters > 2) {
+                    
+                    if (timeDiffSeconds > 0.5 && distanceMeters > 1) {
                         speedMps = distanceMeters / timeDiffSeconds;
-                        debugLog(`Calc Speed: ${speedMps.toFixed(1)} m/s`);
                     } else {
                         speedMps = 0;
                     }
                 }
-                AppState.lastLat = lat; AppState.lastLon = lon; AppState.lastTime = currentTime;
+                AppState.lastLat = lat;
+                AppState.lastLon = lon;
+                AppState.lastTime = currentTime;
             }
+
             let speedKmph = (speedMps || 0) * 3.6;
-            if (speedKmph < 2) speedKmph = 0;
+            if (speedKmph < 3) speedKmph = 0;
+            
             updateDisplay(speedKmph);
         }
 
-        function handleError(error) {
-            const txtEco = document.getElementById('eco-status-text');
-            debugLog(`GPS ERROR ${error.code}: ${error.message}`);
-            if (error.code === 1) {
-                 alert("GPS DENIED. Check Settings > Privacy > Location");
-                 toggleGPS();
-            } else if (error.code === 3) {
-                txtEco.innerText = "WEAK SIG";
-                debugLog("Timeout: Switching to Low Accuracy");
+        function handleError(error, fallbackOptions) {
+             if (error.code === 3) {
                 if (AppState.watchId) navigator.geolocation.clearWatch(AppState.watchId);
                 AppState.watchId = navigator.geolocation.watchPosition(
                     handleSuccess,
-                    (e) => debugLog("Low Acc Fail: " + e.message),
-                    { enableHighAccuracy: false, timeout: 20000, maximumAge: 10000 }
+                    (e) => console.log("Final Error", e),
+                    fallbackOptions
                 );
-            } else if (error.code === 2) {
-                txtEco.innerText = "NO SIGNAL";
             }
         }
 
@@ -903,9 +821,6 @@
                 document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             }, 1000);
             setMode('eco');
-            initMap(); // Init map on load
-            checkSpotifyAuth(); 
-            debugLog("System Init Complete");
         });
     </script>
 </body>
