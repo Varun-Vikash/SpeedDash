@@ -5,31 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Jazz 1200 Ultimate (Eco Logic)</title>
+    <title>Jazz 1200 Ultimate (Map + Fixed Spotify)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Leaflet Map (Free Google Maps Alternative) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
     
     <style>
-        /* --- CORE --- */
+        /* --- CORE STYLES --- */
         body { font-family: 'Rajdhani', sans-serif; background-color: #050505; overflow: hidden; touch-action: none; user-select: none; -webkit-tap-highlight-color: transparent; }
         .gauge-transition { transition: stroke-dashoffset 0.2s ease-out; }
         
         /* --- MAP & COMPASS --- */
-        #mini-map { width: 100%; height: 100%; filter: grayscale(100%) invert(100%) contrast(1.2); z-index: 0; }
-        .compass-ring { transition: transform 0.2s ease-out; }
-
+        #mini-map {
+            width: 100%;
+            height: 100%;
+            filter: grayscale(100%) invert(100%) contrast(1.1); /* Dark Mode Effect */
+            z-index: 0;
+            background: #111;
+        }
+        .map-container {
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        }
+        
         /* --- ANIMATIONS --- */
         @keyframes circleExpand { 0% { clip-path: circle(0% at 50% 50%); } 100% { clip-path: circle(150% at 50% 50%); } }
         .anim-bg-reveal { animation: circleExpand 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
         @keyframes ecoEnter { 0% { transform: translateY(50px) scale(0.9); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
         .anim-eco-enter { animation: ecoEnter 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
-        @keyframes pulseGreen { 0%, 100% { box-shadow: 0 0 15px #10b981; } 50% { box-shadow: 0 0 25px #10b981; } }
-        .eco-pulse { animation: pulseGreen 2s infinite; }
-
+        
         /* SPOTIFY BARS */
         @keyframes sound-bar { 0% { height: 10%; } 50% { height: 100%; } 100% { height: 10%; } }
         .music-bar { width: 3px; background: #1ed760; animation: sound-bar 0.5s infinite ease-in-out; border-radius: 2px; }
@@ -50,41 +58,61 @@
         
         .hidden-force { display: none !important; }
 
-        /* DEBUG STYLES */
+        /* DEBUG MENU */
         #debug-trigger { position: fixed; bottom: 20px; right: 20px; z-index: 9998; background: rgba(30, 30, 30, 0.8); border: 1px solid #444; color: #fff; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(5px); transition: transform 0.1s; }
         #debug-trigger:active { transform: scale(0.9); }
-        #debug-overlay { position: fixed; bottom: 20px; right: 20px; width: 300px; background: rgba(5, 5, 5, 0.95); border: 1px solid #333; color: #0f0; font-family: monospace; font-size: 11px; padding: 12px; z-index: 9999; border-radius: 10px; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.8); }
-        #debug-logs { white-space: pre-wrap; max-height: 150px; overflow-y: auto; border-top: 1px solid #333; margin-top: 8px; padding-top: 8px; }
-        #debug-issues { color: #fca5a5; margin-top: 10px; border-top: 1px dashed #555; padding-top: 5px; display: none; }
+        #debug-overlay { position: fixed; bottom: 20px; right: 20px; width: 320px; background: rgba(5, 5, 5, 0.98); border: 1px solid #333; color: #0f0; font-family: monospace; font-size: 11px; padding: 0; z-index: 9999; border-radius: 10px; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.8); overflow: hidden; }
+        
+        .debug-header { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #111; border-bottom: 1px solid #333; }
+        .debug-tabs { display: flex; background: #000; }
+        .debug-tab { flex: 1; padding: 8px; text-align: center; cursor: pointer; color: #666; border-bottom: 2px solid transparent; }
+        .debug-tab.active { color: #fff; border-bottom: 2px solid #1ed760; background: #111; }
+        
+        .debug-content { padding: 10px; height: 180px; overflow-y: auto; }
+        #log-view { display: block; }
+        #issues-view { display: none; color: #ccc; }
+        .issue-item { margin-bottom: 8px; border-bottom: 1px solid #222; padding-bottom: 4px; }
+        .issue-title { color: #fbbf24; font-weight: bold; display: block; margin-bottom: 2px; }
     </style>
 </head>
 <body class="text-white h-screen w-full flex bg-zinc-950 relative overflow-hidden">
 
+    <!-- DEBUG MENU -->
     <button id="debug-trigger" onclick="toggleDebug()">
         <i data-lucide="bug" class="w-5 h-5 text-yellow-500"></i>
     </button>
     <div id="debug-overlay">
-        <div class="flex justify-between items-center mb-1">
-            <span class="font-bold text-white">DIAGNOSTICS</span>
-            <div class="flex gap-2">
-                <button onclick="toggleIssues()" class="text-xs text-yellow-500 hover:text-white">ISSUES</button>
-                <button onclick="toggleDebug()" class="text-red-500 font-bold hover:text-red-400">✕</button>
-            </div>
+        <div class="debug-header">
+            <span class="font-bold text-white">SYSTEM DIAGNOSTICS</span>
+            <button onclick="toggleDebug()" class="text-red-500 font-bold hover:text-red-400">✕</button>
         </div>
-        <div class="text-xs text-zinc-500 mb-1">Live Log</div>
-        <div id="debug-logs">System Ready...</div>
-        <div id="debug-issues">
-            <strong>GPS NOTE:</strong><br>
-            - Works on Localhost & HTTPS.<br>
-            - Fails on HTTP with Mobile IP.<br>
-            <strong>ECO LOGIC:</strong><br>
-            - Steady speed = Full Ring<br>
-            - Acceleration = Empty Ring
+        <div class="debug-tabs">
+            <div class="debug-tab active" onclick="switchTab('log')">LOGS</div>
+            <div class="debug-tab" onclick="switchTab('issues')">UPDATES & ISSUES</div>
+        </div>
+        <div id="log-view" class="debug-content">
+            <div id="debug-logs" style="white-space: pre-wrap;">System Ready...</div>
+        </div>
+        <div id="issues-view" class="debug-content">
+            <div class="issue-item">
+                <span class="issue-title">🗺️ GPS & Map</span>
+                Map works on localhost & HTTPS (Vercel). Requires Location Permission.
+            </div>
+            <div class="issue-item">
+                <span class="issue-title">🎵 Spotify Auth</span>
+                Token valid for 1hr. If it loops, clear cache in this menu.
+            </div>
+            <div class="issue-item">
+                <span class="issue-title">🧭 Compass</span>
+                Requires device movement/orientation sensors (Mobile only).
+            </div>
+            <button onclick="localStorage.clear(); window.location.reload()" class="mt-2 w-full py-1 bg-red-900/50 text-red-200 text-[10px] uppercase rounded border border-red-800">Reset App Data</button>
         </div>
     </div>
 
     <div class="absolute inset-0 scanlines pointer-events-none z-[60]"></div>
 
+    <!-- INTRO SCREEN -->
     <div id="sport-intro" class="fixed inset-0 z-[100] flex flex-col items-center justify-center pointer-events-none hidden-force w-full overflow-hidden bg-black">
         <div class="text-center space-y-4 relative z-10 w-full px-4">
             <h1 id="intro-text" class="text-[15vw] leading-none font-black italic text-white font-fl5 tracking-tighter">FULL SEND</h1>
@@ -94,7 +122,9 @@
         </div>
     </div>
 
+    <!-- ECO VIEW (MAIN) -->
     <div id="view-eco" class="absolute inset-0 flex z-10 transition-all duration-500 bg-zinc-950">
+        <!-- SIDEBAR -->
         <div class="w-20 h-full bg-zinc-950 border-r border-zinc-900 flex flex-col items-center py-6 justify-between z-50 shadow-2xl shrink-0 relative">
             <div class="space-y-10 flex flex-col items-center">
                 <div class="p-3 bg-zinc-900 rounded-xl border border-zinc-800">
@@ -109,13 +139,16 @@
         </div>
 
         <div class="flex-1 relative overflow-hidden flex flex-col">
+            <!-- TOP BAR -->
             <div class="relative z-30 flex justify-between items-start p-6">
                 <div class="flex flex-col gap-6">
                     
+                    <!-- COMPASS & LOCATION -->
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-full border border-zinc-700 bg-zinc-900 flex items-center justify-center relative overflow-hidden">
+                        <!-- Compass Widget -->
+                        <div class="w-12 h-12 rounded-full border border-zinc-700 bg-zinc-900 flex items-center justify-center relative overflow-hidden shadow-lg">
                             <div id="compass-arrow" class="compass-ring w-full h-full flex items-center justify-center absolute top-0 left-0">
-                                <div class="w-1 h-3 bg-red-500 absolute top-2 rounded-full"></div>
+                                <div class="w-1 h-3 bg-red-500 absolute top-2 rounded-full shadow-[0_0_5px_red]"></div>
                                 <div class="w-1 h-3 bg-zinc-600 absolute bottom-2 rounded-full"></div>
                             </div>
                             <span class="text-[8px] font-bold text-zinc-500 z-10">N</span>
@@ -133,6 +166,7 @@
                         </div>
                     </div>
 
+                    <!-- SPOTIFY WIDGET -->
                     <div class="flex items-center gap-3 bg-zinc-900/80 p-2 pr-4 rounded-lg border border-zinc-800/50 backdrop-blur-md transition-all hover:border-[#1ed760]/50 group cursor-pointer" onclick="handleSpotifyClick()">
                         <div id="spotify-art-container" class="w-10 h-10 rounded overflow-hidden relative bg-black flex items-center justify-center shrink-0">
                             <img id="spotify-art" src="" class="w-full h-full object-cover hidden">
@@ -148,14 +182,17 @@
                     </div>
                 </div>
 
+                <!-- MODE TOGGLE -->
                 <div class="flex bg-zinc-900 p-1 rounded-lg border border-zinc-800 shadow-lg">
                     <button class="px-6 py-1 rounded-md text-sm font-bold uppercase tracking-wider transition-all bg-emerald-900/50 text-emerald-400 border border-emerald-500/30 cursor-default">Drive</button>
                     <button onclick="setMode('sport')" class="px-6 py-1 rounded-md text-sm font-bold uppercase tracking-wider transition-all text-zinc-500 hover:text-white hover:bg-zinc-800 relative z-50 cursor-pointer">Sport</button>
                 </div>
             </div>
 
+            <!-- CENTER GAUGES -->
             <div class="relative z-20 flex-1 flex items-center justify-center gap-4 md:gap-8 px-4 pb-12">
                 
+                <!-- LEFT: RPM -->
                 <div class="relative w-48 h-48 md:w-64 md:h-64 flex items-center justify-center">
                     <svg class="w-full h-full transform rotate-[135deg]" viewBox="0 0 200 200">
                         <circle cx="100" cy="100" r="85" fill="none" stroke="#1f2937" stroke-width="12" stroke-dasharray="534" stroke-dashoffset="133.5" />
@@ -167,6 +204,7 @@
                     </div>
                 </div>
 
+                <!-- CENTER: SPEED & GEAR -->
                 <div class="flex flex-col items-center w-48 md:w-64 space-y-6 relative">
                     <div class="flex flex-col items-center">
                         <span id="eco-speed-val" class="text-6xl md:text-8xl font-bold text-white tracking-tighter" style="font-family: 'Orbitron', sans-serif;">0</span>
@@ -177,11 +215,13 @@
                             <span id="eco-gear-val" class="text-4xl md:text-5xl font-bold text-white">P</span>
                         </div>
                     </div>
+                    <!-- GPS TOGGLE -->
                     <button onclick="toggleGPS()" id="btn-gps-eco" class="w-full py-3 rounded bg-zinc-900 border border-zinc-800 text-zinc-400 font-bold text-xs uppercase tracking-[0.2em] transition-all hover:bg-zinc-800 hover:text-white flex items-center justify-center gap-2 cursor-pointer z-50">
                         <i data-lucide="satellite" class="w-3 h-3"></i> Enable GPS
                     </button>
                 </div>
 
+                <!-- RIGHT: ECO GUIDE -->
                 <div class="relative w-48 h-48 md:w-64 md:h-64 flex items-center justify-center">
                     <svg class="w-full h-full transform rotate-[135deg]" viewBox="0 0 200 200">
                         <circle cx="100" cy="100" r="85" fill="none" stroke="#1f2937" stroke-width="12" stroke-dasharray="534" stroke-dashoffset="133.5" />
@@ -194,10 +234,12 @@
                 </div>
             </div>
             
-            <div class="absolute bottom-6 right-6 w-32 h-32 md:w-48 md:h-48 rounded-full border-4 border-zinc-800 overflow-hidden bg-black z-40 opacity-80 hover:opacity-100 transition-opacity">
+            <!-- MINI MAP OVERLAY (Circular) -->
+            <div class="absolute bottom-6 right-6 w-36 h-36 md:w-48 md:h-48 rounded-full border-4 border-zinc-800 overflow-hidden bg-black z-40 opacity-90 hover:opacity-100 transition-opacity map-container">
                  <div id="mini-map"></div>
+                 <!-- Crosshair -->
                  <div class="absolute inset-0 pointer-events-none flex items-center justify-center z-20">
-                    <div class="w-2 h-2 bg-emerald-500 rounded-full ring-2 ring-white"></div>
+                    <div class="w-2 h-2 bg-emerald-500 rounded-full ring-2 ring-white shadow-lg"></div>
                  </div>
             </div>
             
@@ -205,6 +247,7 @@
         </div>
     </div>
 
+    <!-- SPORT VIEW -->
     <div id="view-sport" class="absolute inset-0 z-20 opacity-0 pointer-events-none bg-black flex flex-col transition-opacity duration-500">
         <div class="absolute inset-0 bg-fl5-pattern opacity-0 z-0" id="bg-sport-pattern" style="opacity: 0.5; clip-path: circle(0% at 50% 50%);">
             <div class="absolute inset-0 bg-gradient-to-t from-red-900/20 via-transparent to-transparent"></div>
@@ -253,6 +296,7 @@
                 </div>
             </div>
             
+            <!-- SPORT METRICS -->
             <div class="flex flex-1 w-full items-center justify-center max-w-6xl px-8">
                 <div id="sport-misc-group-1" class="flex-1 hidden md:flex flex-col items-end pr-12 border-r border-zinc-900 opacity-0 transition-opacity duration-500">
                     <div class="flex items-center gap-2 mb-1 text-zinc-500">
@@ -305,14 +349,13 @@
 
     <script>
         lucide.createIcons();
-// =================================================================
-        // SPOTIFY CONFIGURATION (VERCEL FIXED)
+
+        // =================================================================
+        // SPOTIFY CONFIGURATION
         // =================================================================
         const SPOTIFY_CLIENT_ID = '852950465a424a9fb4f2cb105a5089a5'; 
-        
-        // FIXED: Hardcoded to your Vercel URL to prevent mismatch errors
-        // IMPORTANT: Ensure 'https://speeddash.vercel.app/' is in your Spotify Dashboard
-        const REDIRECT_URI = "https://speeddash.vercel.app/"; 
+        // NOTE: This must match your Vercel URL EXACTLY (no slash at end is safer for some browsers)
+        const REDIRECT_URI = "https://speeddash.vercel.app"; 
         
         const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
         const API_ENDPOINT = "https://api.spotify.com/v1/me/player/currently-playing";
@@ -331,7 +374,7 @@
                 const authUrl = `${AUTH_ENDPOINT}?client_id=${SPOTIFY_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES.join(' '))}&response_type=token&show_dialog=true`;
                 window.location.href = authUrl;
             } else {
-                debugLog("Spotify is already connected.");
+                debugLog("Spotify already connected.");
             }
         }
 
@@ -370,7 +413,7 @@
                 });
                 if (res.status === 204 || res.status > 400) {
                     if (res.status === 401) {
-                        debugLog("Token Expired. Re-login needed.");
+                        debugLog("Spotify Token Expired");
                         spotifyToken = null;
                         localStorage.removeItem('sp_token');
                         document.getElementById('spotify-artist').innerText = "Tap to Re-Login";
@@ -394,6 +437,7 @@
         // --- MAP & COMPASS LOGIC ---
         function initMap() {
             if(mapInstance) return;
+            // Initialize Leaflet (Free OpenStreetMap)
             mapInstance = L.map('mini-map', {
                 zoomControl: false, attributionControl: false, dragging: false, scrollWheelZoom: false
             }).setView([0, 0], 15);
@@ -433,9 +477,17 @@
             trigger.style.display = (overlay.style.display === 'block') ? 'none' : 'flex';
         }
 
-        function toggleIssues() {
-            const issues = document.getElementById('debug-issues');
-            issues.style.display = (issues.style.display === 'block') ? 'none' : 'block';
+        function switchTab(tab) {
+            document.querySelectorAll('.debug-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.debug-content').forEach(c => c.style.display = 'none');
+            
+            if(tab === 'log') {
+                document.querySelector('.debug-tab:nth-child(1)').classList.add('active');
+                document.getElementById('log-view').style.display = 'block';
+            } else {
+                document.querySelector('.debug-tab:nth-child(2)').classList.add('active');
+                document.getElementById('issues-view').style.display = 'block';
+            }
         }
 
         function debugLog(msg) {
@@ -449,7 +501,7 @@
         const AppState = {
             mode: 'eco', gpsActive: false, watchId: null,
             lastLat: null, lastLon: null, lastTime: null,
-            lastSpeed: 0, ecoScore: 100, // Eco Physics vars
+            lastSpeed: 0, ecoScore: 100, // Eco Physics
             swiping: false, timerMode: 'manual', 
             swRunning: false, swStartTime: 0, swElapsed: 0, swInterval: null,
             autoArmed: false, autoRunning: false,
@@ -596,13 +648,10 @@
                 let ecoTarget = 100 - (delta * 5); // Hard accel drops score
                 if(ecoTarget < 0) ecoTarget = 0;
                 
-                // Smoothing
                 AppState.ecoScore = AppState.ecoScore * 0.9 + ecoTarget * 0.1;
                 AppState.lastSpeed = speedKmh;
 
-                // Visualize Eco Score
                 const circumference = 534; const arcLength = circumference * 0.75; const baseOffset = circumference * 0.25;
-                // Full ring (low offset) = Good Score (100). Empty ring (high offset) = Bad Score (0).
                 const scorePct = AppState.ecoScore / 100; 
                 const ecoOffset = baseOffset + (arcLength * (1 - scorePct));
                 
@@ -611,10 +660,9 @@
                 
                 ecoRing.style.strokeDashoffset = ecoOffset;
                 
-                // Color shift based on score
                 if (AppState.ecoScore > 80) {
                     ecoRing.style.stroke = "#10b981"; // Green
-                    ecoLeaf.className = "w-4 h-4 md:w-6 md:h-6 rounded-full bg-emerald-500 mt-2 shadow-[0_0_15px_#10b981] eco-pulse transition-all";
+                    ecoLeaf.className = "w-4 h-4 md:w-6 md:h-6 rounded-full bg-emerald-500 mt-2 shadow-[0_0_15px_#10b981] transition-all";
                 } else if (AppState.ecoScore > 40) {
                     ecoRing.style.stroke = "#eab308"; // Yellow
                     ecoLeaf.className = "w-4 h-4 md:w-6 md:h-6 rounded-full bg-yellow-500 mt-2 shadow-none transition-all";
@@ -623,7 +671,6 @@
                     ecoLeaf.className = "w-2 h-2 md:w-3 md:h-3 rounded-full bg-red-500 mt-2 shadow-none transition-all";
                 }
                 
-                // RPM Ring (Left)
                 const maxRpm = 8000;
                 const rpmOffset = baseOffset + (arcLength - (Math.min(rpm, maxRpm) / maxRpm) * arcLength);
                 document.getElementById('eco-ring-rpm').style.strokeDashoffset = rpmOffset;
@@ -645,7 +692,6 @@
             }
         }
 
-        // ZERO-TO-HUNDRED & TIMER FUNCTIONS
         function activateZeroHundred() {
             AppState.timerMode = 'auto';
             document.getElementById('timer-mode-label').innerText = "AUTO 0-100";
@@ -754,7 +800,7 @@
             } else {
                 if (!("geolocation" in navigator)) return alert("GPS not supported.");
                 
-                // REMOVED LOCALHOST CHECK - WILL TRY REGARDLESS
+                // Removed local check to force try
                 dotEco.className = "w-2 h-2 rounded-full bg-yellow-500 animate-pulse";
                 txtEco.innerText = "SEARCHING...";
                 btnEco.innerHTML = '<i data-lucide="satellite" class="w-3 h-3"></i> Stop GPS';
@@ -808,7 +854,7 @@
             const txtEco = document.getElementById('eco-status-text');
             debugLog(`GPS ERROR ${error.code}: ${error.message}`);
             if (error.code === 1) {
-                 alert("GPS DENIED. Check iPhone Settings > Privacy > Location Services > Safari");
+                 alert("GPS DENIED. Check Settings > Privacy > Location");
                  toggleGPS();
             } else if (error.code === 3) {
                 txtEco.innerText = "WEAK SIG";
