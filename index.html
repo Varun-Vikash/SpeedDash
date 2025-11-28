@@ -16,39 +16,19 @@
         .gauge-transition { transition: stroke-dashoffset 0.1s linear; }
         
         /* --- ANIMATIONS --- */
-        
-        /* Background Circle Reveal */
-        @keyframes circleExpand {
-            0% { clip-path: circle(0% at 50% 50%); }
-            100% { clip-path: circle(150% at 50% 50%); }
-        }
+        @keyframes circleExpand { 0% { clip-path: circle(0% at 50% 50%); } 100% { clip-path: circle(150% at 50% 50%); } }
         .anim-bg-reveal { animation: circleExpand 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
 
-        /* Eco Entry */
-        @keyframes ecoEnter {
-            0% { transform: translateY(50px) scale(0.9); opacity: 0; }
-            100% { transform: translateY(0) scale(1); opacity: 1; }
-        }
+        @keyframes ecoEnter { 0% { transform: translateY(50px) scale(0.9); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
         .anim-eco-enter { animation: ecoEnter 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
 
-        /* Full Send Text Rapid Strobe */
-        @keyframes introTextSequence {
-            0% { color: white; }
-            10% { color: #dc2626; } /* RED */
-            20% { color: white; } /* WHITE */
-            30% { color: white; } /* PAUSE WHITE */
-            40% { color: #dc2626; } /* RED */
-            50% { color: white; } /* WHITE */
-            100% { color: white; }
+        @keyframes introTextSequence { 
+            0% { color: white; } 10% { color: #dc2626; } 20% { color: white; } 
+            30% { color: white; } 40% { color: #dc2626; } 50% { color: white; } 100% { color: white; } 
         }
         .anim-text-strobe { animation: introTextSequence 0.8s steps(1) forwards; }
 
-        /* Start Button Pulse */
-        @keyframes redPulse {
-            0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(220, 38, 38, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
-        }
+        @keyframes redPulse { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(220, 38, 38, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
         .anim-pulse-red { animation: redPulse 1.5s infinite; }
 
         .scanlines {
@@ -59,86 +39,59 @@
             opacity: 0.3;
         }
 
-        /* --- FL5 SPORT STYLES --- */
         .font-fl5 { font-family: 'Orbitron', sans-serif; letter-spacing: -0.05em; }
-        
-        .bg-fl5-pattern {
-            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0l17.32 10v20L20 40 2.68 30V10z' fill-opacity='0.08' fill='%23333' stroke='%23444' stroke-width='1'/%3E%3C/svg%3E");
-        }
+        .bg-fl5-pattern { background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0l17.32 10v20L20 40 2.68 30V10z' fill-opacity='0.08' fill='%23333' stroke='%23444' stroke-width='1'/%3E%3C/svg%3E"); }
 
-        /* Shift LEDs */
         .led { width: 100%; height: 8px; background: #333; skew-x: -20deg; border-radius: 2px; transition: background 0.05s, box-shadow 0.05s; }
         .led.green.on { background: #22c55e; box-shadow: 0 0 10px #22c55e; }
         .led.yellow.on { background: #eab308; box-shadow: 0 0 10px #eab308; }
         .led.red.on { background: #ef4444; box-shadow: 0 0 15px #ef4444; }
         .led.blink { animation: flashWhite 0.1s infinite alternate; }
-
         @keyframes flashWhite { from { background: #ef4444; box-shadow: 0 0 15px #ef4444; } to { background: #ffffff; box-shadow: 0 0 20px #ffffff; } }
 
         .g-dot-smooth { transition: transform 0.2s cubic-bezier(0.1, 0.7, 1.0, 0.1); }
-        
         .hidden-force { display: none !important; }
-
-        /* Watch Hands Smooth Rotation */
         .hand-smooth { transition: transform 0.1s cubic-bezier(0.4, 2.08, 0.55, 0.44); } 
         .hand-linear { transition: transform 0.1s linear; }
     </style>
 </head>
 <body class="text-white h-screen w-full flex bg-zinc-950 relative overflow-hidden">
 
-    <!-- Global Background Scanlines -->
     <div class="absolute inset-0 scanlines pointer-events-none z-[60]"></div>
     
-    <!-- ================================================================= -->
-    <!-- VIEW 0: STARTING PAGE (Intro)                                     -->
-    <!-- ================================================================= -->
+    <!-- VIEW 0: INTRO -->
     <div id="view-intro" class="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-black transition-opacity duration-700" onclick="handleIntroBgClick(event)">
-        
-        <!-- STEP 1: THE WATCH (Centered) -->
+        <!-- Watch -->
         <div id="intro-watch-container" class="relative w-72 h-72 md:w-96 md:h-96 transition-all duration-500 cursor-pointer group hover:scale-105 active:scale-95 z-20" onclick="triggerStartButton(event)">
-            <!-- SVG Injected via JS -->
             <div class="absolute -bottom-12 w-full text-center text-zinc-500 text-xs font-bold tracking-[0.3em] uppercase opacity-0 group-hover:opacity-100 transition-opacity">Tap to Unlock</div>
         </div>
-
-        <!-- STEP 2: THE START BUTTON (Hidden initially) -->
+        <!-- Start Button -->
         <div id="intro-start-btn" class="hidden absolute flex-col items-center justify-center z-30">
             <button onclick="startCar()" class="relative w-40 h-40 rounded-full bg-gradient-to-br from-red-600 to-red-900 border-4 border-zinc-800 shadow-[0_0_50px_rgba(220,38,38,0.5)] flex flex-col items-center justify-center group active:scale-95 transition-transform anim-pulse-red cursor-pointer">
-                <!-- Chrome Ring -->
                 <div class="absolute inset-0 rounded-full border border-white/20"></div>
                 <div class="absolute inset-1 rounded-full border border-black/30"></div>
-                
-                <!-- Text -->
                 <div class="text-white font-bold text-xs tracking-widest uppercase mb-1">Engine</div>
                 <div class="text-white font-black text-2xl tracking-tighter uppercase leading-none">Start</div>
                 <div class="text-white font-bold text-xs tracking-widest uppercase mt-1">Stop</div>
-                
-                <!-- LED Indicator -->
                 <div class="w-8 h-1 bg-red-400 mt-2 rounded-full shadow-[0_0_10px_#f87171]"></div>
             </button>
             <div class="mt-8 text-zinc-600 text-[10px] font-bold tracking-widest uppercase animate-pulse">Tap background to cancel</div>
         </div>
     </div>
 
-    <!-- SPORT INTRO OVERLAY (Ignition Sequence) -->
+    <!-- SPORT INTRO OVERLAY -->
     <div id="sport-intro" class="fixed inset-0 z-[100] flex flex-col items-center justify-center pointer-events-none hidden-force w-full overflow-hidden bg-black">
         <div class="text-center space-y-4 relative z-10 w-full px-4">
             <h1 id="intro-text" class="text-[15vw] leading-none font-black italic text-white font-fl5 tracking-tighter">FULL SEND</h1>
-            <div class="text-xl md:text-3xl font-bold bg-white text-black px-6 py-2 skew-x-[-12deg] inline-block uppercase tracking-[0.3em]">
-                +R MODE ACTIVE
-            </div>
+            <div class="text-xl md:text-3xl font-bold bg-white text-black px-6 py-2 skew-x-[-12deg] inline-block uppercase tracking-[0.3em]">+R MODE ACTIVE</div>
         </div>
     </div>
 
-    <!-- ================================================================= -->
-    <!-- VIEW 1: ECO DASHBOARD                                             -->
-    <!-- ================================================================= -->
+    <!-- VIEW 1: ECO DASHBOARD -->
     <div id="view-eco" class="absolute inset-0 flex z-10 transition-all duration-500 bg-zinc-950 opacity-0 pointer-events-none" onclick="handleEcoBgClick(event)">
-        <!-- SIDEBAR -->
         <div class="w-20 h-full bg-zinc-950 border-r border-zinc-900 flex flex-col items-center py-6 justify-between z-50 shadow-2xl shrink-0 relative">
             <div class="space-y-10 flex flex-col items-center">
-                <div class="p-3 bg-zinc-900 rounded-xl border border-zinc-800">
-                    <div class="text-xl font-black tracking-tighter italic text-zinc-500">H</div>
-                </div>
+                <div class="p-3 bg-zinc-900 rounded-xl border border-zinc-800"><div class="text-xl font-black tracking-tighter italic text-zinc-500">H</div></div>
                 <i data-lucide="map-pin" class="text-zinc-500 w-6 h-6"></i>
                 <i data-lucide="gauge" class="text-white w-6 h-6"></i>
                 <div class="w-10 h-px bg-zinc-800"></div>
@@ -147,39 +100,27 @@
             <div id="clock" class="text-xs text-zinc-600 font-bold font-mono">12:00</div>
         </div>
 
-        <!-- MAIN DISPLAY -->
         <div class="flex-1 relative overflow-hidden flex flex-col">
-            <!-- Top Bar -->
             <div class="relative z-30 flex justify-between items-start p-6">
-                
-                <!-- ECO INFO PANEL -->
                 <div class="flex flex-col">
                     <div class="flex items-center gap-2 text-zinc-500 mb-1">
                         <i data-lucide="map-pin" class="w-3 h-3"></i>
                         <span id="weather-location" class="text-xs uppercase tracking-widest font-bold text-zinc-400 truncate max-w-[200px]">...</span>
                     </div>
                     <div class="flex items-center gap-4">
-                        <div class="flex items-center gap-2">
-                             <i id="weather-icon" data-lucide="cloud" class="w-5 h-5 text-zinc-400"></i>
-                             <span id="weather-temp" class="text-2xl font-bold text-white leading-none">--°</span>
-                        </div>
+                        <div class="flex items-center gap-2"><i id="weather-icon" data-lucide="cloud" class="w-5 h-5 text-zinc-400"></i><span id="weather-temp" class="text-2xl font-bold text-white leading-none">--°</span></div>
                         <div class="w-px h-6 bg-zinc-800"></div>
-                        <div class="flex items-center gap-2">
-                             <div id="eco-status-dot" class="w-2 h-2 rounded-full bg-zinc-600"></div>
-                             <span id="eco-status-text" class="text-xs font-bold text-zinc-500 tracking-wide">NO GPS</span>
-                        </div>
+                        <div class="flex items-center gap-2"><div id="eco-status-dot" class="w-2 h-2 rounded-full bg-zinc-600"></div><span id="eco-status-text" class="text-xs font-bold text-zinc-500 tracking-wide">NO GPS</span></div>
                     </div>
                 </div>
-
                 <div class="flex bg-zinc-900 p-1 rounded-lg border border-zinc-800 shadow-lg">
                     <button class="px-6 py-1 rounded-md text-sm font-bold uppercase tracking-wider transition-all bg-emerald-900/50 text-emerald-400 border border-emerald-500/30 cursor-default">Drive</button>
                     <button onclick="setMode('sport')" class="px-6 py-1 rounded-md text-sm font-bold uppercase tracking-wider transition-all text-zinc-500 hover:text-white hover:bg-zinc-800 relative z-50 cursor-pointer">Sport</button>
                 </div>
             </div>
 
-            <!-- Center Stage -->
             <div class="relative z-20 flex-1 flex items-center justify-center gap-4 md:gap-8 px-4 pb-12">
-                <!-- Left Gauge (RPM) -->
+                <!-- RPM -->
                 <div class="relative w-48 h-48 md:w-64 md:h-64 flex items-center justify-center">
                     <svg class="w-full h-full transform rotate-[135deg]" viewBox="0 0 200 200">
                         <circle cx="100" cy="100" r="85" fill="none" stroke="#1f2937" stroke-width="12" stroke-dasharray="534" stroke-dashoffset="133.5" />
@@ -190,8 +131,7 @@
                         <span class="text-zinc-600 text-[10px] md:text-xs uppercase tracking-[0.3em] mt-2">x1000</span>
                     </div>
                 </div>
-
-                <!-- Center Stack -->
+                <!-- Speed -->
                 <div class="flex flex-col items-center w-48 md:w-64 space-y-6 relative">
                     <div class="flex flex-col items-center">
                         <span id="eco-speed-val" class="text-6xl md:text-8xl font-bold text-white tracking-tighter" style="font-family: 'Orbitron', sans-serif;">0</span>
@@ -205,64 +145,43 @@
                     <button onclick="toggleGPS()" id="btn-gps-eco" class="w-full py-3 rounded bg-zinc-900 border border-zinc-800 text-zinc-400 font-bold text-xs uppercase tracking-[0.2em] transition-all hover:bg-zinc-800 hover:text-white flex items-center justify-center gap-2 cursor-pointer z-50">
                         <i data-lucide="satellite" class="w-3 h-3"></i> Enable GPS
                     </button>
-                    <!-- Status message for calculation bypass -->
-                    <div id="debug-calc" class="text-[8px] text-zinc-700 font-mono mt-2 h-2"></div>
-                </div>
-
-                <!-- Right Gauge (Omega Speedmaster Moonwatch + STOP BUTTON) -->
-                <div class="relative w-48 h-48 md:w-64 md:h-64 flex items-center justify-center">
-                    <!-- Watch Container -->
-                    <div id="eco-watch-container" class="relative w-full h-full transition-all duration-500 cursor-pointer group hover:scale-105 active:scale-95 z-20" onclick="triggerStopButton(event)">
-                        <!-- SVG Injected via JS -->
+                    <!-- DEBUG / TOGGLE AREA -->
+                    <div id="debug-calc" onclick="toggleSpeedSource(event)" class="text-[9px] text-zinc-600 font-bold font-mono mt-2 cursor-pointer hover:text-zinc-400 transition-colors uppercase border border-zinc-800 px-2 py-1 rounded bg-black/20">
+                        MODE: AUTO
                     </div>
-
-                    <!-- Stop Button (Hidden initially) -->
+                </div>
+                <!-- Watch -->
+                <div class="relative w-48 h-48 md:w-64 md:h-64 flex items-center justify-center">
+                    <div id="eco-watch-container" class="relative w-full h-full transition-all duration-500 cursor-pointer group hover:scale-105 active:scale-95 z-20" onclick="triggerStopButton(event)"></div>
                     <div id="eco-stop-btn" class="absolute inset-0 hidden flex-col items-center justify-center z-30">
                         <button onclick="stopCar()" class="relative w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-br from-red-600 to-red-900 border-4 border-zinc-800 shadow-[0_0_50px_rgba(220,38,38,0.5)] flex flex-col items-center justify-center group active:scale-95 transition-transform anim-pulse-red cursor-pointer">
-                            <!-- Chrome Ring -->
                             <div class="absolute inset-0 rounded-full border border-white/20"></div>
                             <div class="absolute inset-1 rounded-full border border-black/30"></div>
-                            
-                            <!-- Text -->
                             <div class="text-white font-bold text-xs tracking-widest uppercase mb-1">Engine</div>
                             <div class="text-white font-black text-2xl tracking-tighter uppercase leading-none">STOP</div>
-                            
-                            <!-- LED Indicator -->
                             <div class="w-8 h-1 bg-red-400 mt-2 rounded-full shadow-[0_0_10px_#f87171]"></div>
                         </button>
                         <div class="mt-4 text-zinc-600 text-[9px] font-bold tracking-widest uppercase animate-pulse">Tap background to cancel</div>
                     </div>
                 </div>
             </div>
-            <!-- Bottom Bar -->
             <div class="h-1 w-full bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.6)] mt-auto"></div>
         </div>
     </div>
 
-    <!-- ================================================================= -->
-    <!-- VIEW 2: SPORT DASHBOARD                                           -->
-    <!-- ================================================================= -->
+    <!-- VIEW 2: SPORT DASHBOARD -->
     <div id="view-sport" class="absolute inset-0 z-20 opacity-0 pointer-events-none bg-black flex flex-col transition-opacity duration-500">
-        
         <div class="absolute inset-0 bg-fl5-pattern opacity-0 z-0" id="bg-sport-pattern" style="opacity: 0.5; clip-path: circle(0% at 50% 50%);">
             <div class="absolute inset-0 bg-gradient-to-t from-red-900/20 via-transparent to-transparent"></div>
         </div>
-
         <div class="absolute top-6 right-6 z-[60] flex gap-3 opacity-0 transition-opacity duration-500" id="sport-buttons">
               <button onclick="toggleGPS()" class="px-4 py-2 bg-zinc-900/80 border border-zinc-700 text-zinc-400 text-xs font-bold uppercase rounded hover:text-blue-400 transition-colors flex items-center gap-2 backdrop-blur-sm cursor-pointer">
-                <div id="sport-gps-dot" class="w-2 h-2 rounded-full bg-zinc-600"></div>
-                <span id="sport-gps-text">GPS</span>
+                <div id="sport-gps-dot" class="w-2 h-2 rounded-full bg-zinc-600"></div><span id="sport-gps-text">GPS</span>
               </button>
-              <button onclick="startNeedleSwipe()" class="px-4 py-2 bg-zinc-900/80 border border-zinc-700 text-zinc-400 text-xs font-bold uppercase rounded hover:bg-yellow-600 hover:text-black hover:border-yellow-500 transition-colors cursor-pointer backdrop-blur-sm active:scale-95">
-                Swipe
-              </button>
-              <button onclick="setMode('eco')" class="px-4 py-2 bg-zinc-900/80 border border-zinc-700 text-zinc-400 text-xs font-bold uppercase rounded hover:bg-red-900/50 hover:text-white hover:border-red-500/50 transition-colors cursor-pointer backdrop-blur-sm active:scale-95">
-                Exit +R
-              </button>
+              <button onclick="startNeedleSwipe()" class="px-4 py-2 bg-zinc-900/80 border border-zinc-700 text-zinc-400 text-xs font-bold uppercase rounded hover:bg-yellow-600 hover:text-black hover:border-yellow-500 transition-colors cursor-pointer backdrop-blur-sm active:scale-95">Swipe</button>
+              <button onclick="setMode('eco')" class="px-4 py-2 bg-zinc-900/80 border border-zinc-700 text-zinc-400 text-xs font-bold uppercase rounded hover:bg-red-900/50 hover:text-white hover:border-red-500/50 transition-colors cursor-pointer backdrop-blur-sm active:scale-95">Exit +R</button>
         </div>
-
         <div class="flex-1 flex flex-col items-center justify-center w-full max-w-7xl mx-auto relative z-20">
-            
             <!-- RPM -->
             <div id="sport-rpm-group" class="w-full max-w-5xl mx-auto mb-4 mt-16 opacity-0 transition-opacity duration-300">
                 <div class="flex gap-1 mb-1 px-[5%] h-3 justify-center">
@@ -274,10 +193,8 @@
                     <svg class="w-full h-full overflow-visible" viewBox="0 0 800 100" preserveAspectRatio="none">
                         <defs>
                             <linearGradient id="rpmGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" style="stop-color:#eab308;stop-opacity:1" />
-                                <stop offset="70%" style="stop-color:#eab308;stop-opacity:1" />
-                                <stop offset="85%" style="stop-color:#ef4444;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#ef4444;stop-opacity:1" />
+                                <stop offset="0%" style="stop-color:#eab308;stop-opacity:1" /> <stop offset="70%" style="stop-color:#eab308;stop-opacity:1" />
+                                <stop offset="85%" style="stop-color:#ef4444;stop-opacity:1" /> <stop offset="100%" style="stop-color:#ef4444;stop-opacity:1" />
                             </linearGradient>
                             <clipPath id="rpmClip"><rect id="rpm-fill-rect" x="0" y="0" width="0" height="100" /></clipPath>
                         </defs>
@@ -294,90 +211,61 @@
                     <div class="absolute top-0 right-0 text-white font-mono text-[10px]">x1000 r/min</div>
                 </div>
             </div>
-
-            <!-- MIDDLE: Speed & Gear -->
+            <!-- Mid -->
             <div class="flex flex-1 w-full items-center justify-center max-w-6xl px-8">
-                
                 <!-- Left: Timer -->
                 <div id="sport-misc-group-1" class="flex-1 hidden md:flex flex-col items-end pr-12 border-r border-zinc-900 opacity-0 transition-opacity duration-500">
-                    <div class="flex items-center gap-2 mb-1 text-zinc-500">
-                        <span id="timer-mode-label" class="text-xs font-bold uppercase tracking-wider">CHRONO</span>
-                    </div>
+                    <div class="flex items-center gap-2 mb-1 text-zinc-500"><span id="timer-mode-label" class="text-xs font-bold uppercase tracking-wider">CHRONO</span></div>
                     <div id="stopwatch-display" class="text-4xl font-fl5 text-white font-mono tabular-nums">00:00.00</div>
-                    
                     <div id="manual-controls" class="flex gap-2 mt-2">
                         <button onclick="timerLapReset()" id="btn-lap" class="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-[10px] font-bold text-zinc-300 rounded uppercase transition-colors">Reset</button>
                         <button onclick="timerStartStop()" id="btn-start" class="px-3 py-1 bg-emerald-900 hover:bg-emerald-700 text-[10px] font-bold text-emerald-300 rounded uppercase transition-colors">Start</button>
                     </div>
-                    
-                    <!-- 0-100 Button -->
                     <div class="mt-3">
-                        <button onclick="activateZeroHundred()" id="btn-zero-hundred" class="w-full px-3 py-1 bg-zinc-900 border border-red-900/50 hover:bg-red-900/20 hover:border-red-500 text-[10px] font-bold text-red-500 rounded uppercase transition-colors tracking-widest flex items-center justify-center gap-1">
-                            <i data-lucide="gauge-circle" class="w-3 h-3"></i> 0-100 LAUNCH
-                        </button>
+                        <button onclick="activateZeroHundred()" id="btn-zero-hundred" class="w-full px-3 py-1 bg-zinc-900 border border-red-900/50 hover:bg-red-900/20 hover:border-red-500 text-[10px] font-bold text-red-500 rounded uppercase transition-colors tracking-widest flex items-center justify-center gap-1"><i data-lucide="gauge-circle" class="w-3 h-3"></i> 0-100 LAUNCH</button>
                     </div>
-
                     <div id="auto-controls" class="mt-2 text-[10px] font-bold text-zinc-600 hidden text-right flex flex-col gap-2 items-end">
                         <span id="auto-status">STOP TO ARM</span>
-                        <button onclick="cancelZeroHundred()" class="px-2 py-1 bg-red-900/30 border border-red-500 text-red-400 text-[10px] font-bold uppercase rounded hover:bg-red-900/60 transition-colors w-auto">
-                            CANCEL
-                        </button>
+                        <button onclick="cancelZeroHundred()" class="px-2 py-1 bg-red-900/30 border border-red-500 text-red-400 text-[10px] font-bold uppercase rounded hover:bg-red-900/60 transition-colors w-auto">CANCEL</button>
                     </div>
                     <div id="last-lap" class="mt-2 text-[10px] font-mono text-zinc-400">LAST: --:--.--</div>
                 </div>
-
-                <!-- Center: Speed -->
+                <!-- Center -->
                 <div id="sport-speed-group" class="w-80 flex flex-col items-center relative opacity-0 transition-opacity duration-500">
                     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-48 bg-gradient-to-b from-red-600 to-transparent opacity-30 blur-3xl rounded-full"></div>
                     <span id="sport-speed" class="text-8xl md:text-9xl font-fl5 font-black text-white drop-shadow-lg relative z-10 leading-none">0</span>
                     <span class="text-sm font-bold text-red-500 tracking-[0.4em] relative z-10 -mt-2">KM/H</span>
-                    
                     <div class="grid grid-cols-2 gap-x-12 gap-y-2 mt-8 w-full px-4">
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-zinc-500 font-bold">WAT</span> <span class="font-fl5 font-bold text-white">90<span class="text-zinc-600 text-xs">°</span></span>
-                        </div>
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-zinc-500 font-bold">OIL</span> <span class="font-fl5 font-bold text-white">102<span class="text-zinc-600 text-xs">°</span></span>
-                        </div>
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-zinc-500 font-bold">BST</span> <span class="font-fl5 font-bold text-white">0.8<span class="text-zinc-600 text-xs">b</span></span>
-                        </div>
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-zinc-500 font-bold">VLT</span> <span class="font-fl5 font-bold text-white">14.2<span class="text-zinc-600 text-xs">v</span></span>
-                        </div>
+                        <div class="flex justify-between items-center text-sm"><span class="text-zinc-500 font-bold">WAT</span> <span class="font-fl5 font-bold text-white">90<span class="text-zinc-600 text-xs">°</span></span></div>
+                        <div class="flex justify-between items-center text-sm"><span class="text-zinc-500 font-bold">OIL</span> <span class="font-fl5 font-bold text-white">102<span class="text-zinc-600 text-xs">°</span></span></div>
+                        <div class="flex justify-between items-center text-sm"><span class="text-zinc-500 font-bold">BST</span> <span class="font-fl5 font-bold text-white">0.8<span class="text-zinc-600 text-xs">b</span></span></div>
+                        <div class="flex justify-between items-center text-sm"><span class="text-zinc-500 font-bold">VLT</span> <span class="font-fl5 font-bold text-white">14.2<span class="text-zinc-600 text-xs">v</span></span></div>
                     </div>
                 </div>
-
-                <!-- Right: Gear & G-Meter -->
+                <!-- Right -->
                 <div id="sport-misc-group-2" class="flex-1 flex flex-col items-start pl-12 border-l border-zinc-900 opacity-0 transition-opacity duration-500">
-                    <div class="flex items-baseline gap-2 mb-6">
-                        <span class="text-red-600 font-black italic text-2xl font-fl5 mr-2">+R</span>
-                        <span id="sport-gear" class="text-7xl font-fl5 font-black text-white tracking-tighter">N</span>
-                    </div>
-                    <!-- G-Meter -->
+                    <div class="flex items-baseline gap-2 mb-6"><span class="text-red-600 font-black italic text-2xl font-fl5 mr-2">+R</span><span id="sport-gear" class="text-7xl font-fl5 font-black text-white tracking-tighter">N</span></div>
                     <div class="relative w-32 h-32 border-2 border-zinc-800 rounded-full flex items-center justify-center bg-zinc-900/50">
                         <div class="absolute w-20 h-20 border border-zinc-800 rounded-full"></div>
                         <div class="absolute w-full h-[1px] bg-zinc-800"></div>
                         <div class="absolute h-full w-[1px] bg-zinc-800"></div>
-                        <!-- Dots -->
                         <div id="g-dot" class="w-3 h-3 bg-yellow-400 rounded-full shadow-[0_0_10px_#facc15] g-dot-smooth relative z-10"></div>
                         <span class="absolute bottom-2 text-[8px] text-zinc-500 font-bold">PEAK G</span>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
     <script>
         lucide.createIcons();
 
-        // --- CONFIGURATION & STATE ---
         const AppState = {
-            mode: 'intro', // START ON INTRO
+            mode: 'intro',
             gpsActive: false,
+            speedSource: 'AUTO', 
             watchId: null,
-            lastPosition: null, 
+            positionBuffer: [], 
             smoothSpeed: 0,
             swiping: false,
             timerMode: 'manual', 
@@ -394,532 +282,135 @@
         const SHIFT_RPM_START = 4000;
         let wakeLock = null;
 
-        // --- WATCH FACE GENERATOR (Reusable) ---
+        function toggleSpeedSource(e) {
+            if(e) e.stopPropagation();
+            if(AppState.speedSource === 'AUTO') AppState.speedSource = 'ANDROID';
+            else if(AppState.speedSource === 'ANDROID') AppState.speedSource = 'IOS';
+            else AppState.speedSource = 'AUTO';
+            const el = document.getElementById('debug-calc');
+            if(el) {
+                el.innerText = `MODE: ${AppState.speedSource}`;
+                el.classList.add('text-white');
+                setTimeout(() => el.classList.remove('text-white'), 200);
+            }
+        }
+
         function getOmegaWatchSVG(containerIdPrefix) {
-            // Using a unique ID prefix prevents conflicts between Intro and Eco watches
             const p = containerIdPrefix; 
             return `
             <div class="w-full h-full rounded-full bg-zinc-900 shadow-2xl border-2 border-[#1a1a1a] relative overflow-hidden ring-4 ring-[#111]">
                 <svg class="w-full h-full" viewBox="0 0 200 200">
                     <circle cx="100" cy="100" r="100" fill="#141414" />
                     <path d="M100 100 m-98 0 a 98 98 0 1 0 196 0 a 98 98 0 1 0 -196 0" fill="none" stroke="#050505" stroke-width="20" />
-                    <!-- Bezel -->
                     <g font-family="Arial" font-weight="bold" font-size="6" fill="#ccc" text-anchor="middle">
-                        <text x="100" y="12" transform="rotate(0 100 100)">60</text>
-                        <text x="135" y="20" transform="rotate(20 100 100) rotate(-20 135 20)">65</text>
-                        <text x="175" y="55" transform="rotate(0 100 100)">75</text>
-                        <text x="188" y="102" transform="rotate(0 100 100)">90</text>
-                        <text x="100" y="192" transform="rotate(0 100 100)">120</text>
-                        <text x="25" y="150" transform="rotate(0 100 100)">180</text>
-                        <text x="12" y="102" transform="rotate(0 100 100)">300</text>
-                        <text x="25" y="45" transform="rotate(0 100 100)">500</text>
+                        <text x="100" y="12" transform="rotate(0 100 100)">60</text> <text x="135" y="20" transform="rotate(20 100 100) rotate(-20 135 20)">65</text>
+                        <text x="175" y="55" transform="rotate(0 100 100)">75</text> <text x="188" y="102" transform="rotate(0 100 100)">90</text>
+                        <text x="100" y="192" transform="rotate(0 100 100)">120</text> <text x="25" y="150" transform="rotate(0 100 100)">180</text>
+                        <text x="12" y="102" transform="rotate(0 100 100)">300</text> <text x="25" y="45" transform="rotate(0 100 100)">500</text>
                     </g>
                     <circle cx="100" cy="100" r="78" fill="#18181b" />
-                    <g stroke="#888" stroke-width="0.3">
-                        <circle cx="100" cy="100" r="76" fill="none" stroke="#555" stroke-width="0.5" />
-                    </g>
-                    <!-- Indices -->
+                    <g stroke="#888" stroke-width="0.3"><circle cx="100" cy="100" r="76" fill="none" stroke="#555" stroke-width="0.5" /></g>
                     <g>
-                        <rect x="97" y="28" width="2" height="12" fill="white" />
-                        <rect x="101" y="28" width="2" height="12" fill="white" />
-                        <circle cx="98" cy="43" r="1" fill="#bbf7d0" />
-                        <circle cx="102" cy="43" r="1" fill="#bbf7d0" />
-                        ${[30,60,90,120,150,180,210,240,270,300,330].map(deg => 
-                            `<rect x="98.5" y="28" width="3" height="12" fill="white" transform="rotate(${deg} 100 100)" />
-                             <rect x="99" y="30" width="1" height="8" fill="#bbf7d0" transform="rotate(${deg} 100 100)" />`
-                        ).join('')}
+                        <rect x="97" y="28" width="2" height="12" fill="white" /> <rect x="101" y="28" width="2" height="12" fill="white" />
+                        <circle cx="98" cy="43" r="1" fill="#bbf7d0" /> <circle cx="102" cy="43" r="1" fill="#bbf7d0" />
+                        ${[30,60,90,120,150,180,210,240,270,300,330].map(deg => `<rect x="98.5" y="28" width="3" height="12" fill="white" transform="rotate(${deg} 100 100)" /><rect x="99" y="30" width="1" height="8" fill="#bbf7d0" transform="rotate(${deg} 100 100)" />`).join('')}
                     </g>
-                    <!-- Branding -->
                     <text x="100" y="60" text-anchor="middle" fill="#ccc" font-family="serif" font-size="8" font-weight="bold">Ω</text>
                     <text x="100" y="66" text-anchor="middle" fill="#ccc" font-family="Arial" font-size="4" font-weight="bold" letter-spacing="0.5">OMEGA</text>
                     <text x="100" y="72" text-anchor="middle" fill="#ddd" font-family="Times New Roman" font-size="4" font-style="italic">Speedmaster</text>
                     <text x="100" y="76" text-anchor="middle" fill="#ddd" font-family="Arial" font-size="3">PROFESSIONAL</text>
-                    <!-- Sub-dials -->
-                    <g transform="translate(62, 100)">
-                        <circle cx="0" cy="0" r="21" fill="#111" stroke="#333" stroke-width="0.2" />
-                        <line x1="0" y1="-18" x2="0" y2="-21" stroke="white" stroke-width="1" />
-                        <path id="${p}-hand-sub-sec" d="M0 5 L0 -18" stroke="white" stroke-width="1" stroke-linecap="round" />
-                    </g>
-                    <g transform="translate(138, 100)">
-                        <circle cx="0" cy="0" r="21" fill="#111" stroke="#333" stroke-width="0.2" />
-                        <line x1="0" y1="-18" x2="0" y2="-21" stroke="white" stroke-width="1" />
-                        <path id="${p}-hand-sub-min" d="M0 5 L0 -18" stroke="white" stroke-width="1" stroke-linecap="round" />
-                    </g>
-                    <g transform="translate(100, 138)">
-                        <circle cx="0" cy="0" r="21" fill="#111" stroke="#333" stroke-width="0.2" />
-                        <path id="${p}-hand-sub-hour" d="M0 5 L0 -18" stroke="white" stroke-width="1" stroke-linecap="round" />
-                    </g>
-                    <!-- Main Hands -->
-                    <g id="${p}-hand-main-hour" class="hand-linear">
-                        <path d="M-2.5 0 L-1.5 -55 L0 -62 L1.5 -55 L2.5 0 Z" fill="white" />
-                        <rect x="-0.8" y="-50" width="1.6" height="40" fill="#bbf7d0" />
-                    </g>
-                    <g id="${p}-hand-main-min" class="hand-linear">
-                        <path d="M-2 0 L-1.5 -75 L0 -82 L1.5 -75 L2 0 Z" fill="white" />
-                        <rect x="-0.8" y="-70" width="1.6" height="60" fill="#bbf7d0" />
-                    </g>
-                    <g id="${p}-hand-chrono" class="hand-smooth">
-                        <path d="M-2 25 L0 30 L2 25 L0 0 Z" fill="white" /> 
-                        <line x1="0" y1="25" x2="0" y2="-95" stroke="white" stroke-width="0.6" />
-                        <path d="M-3 -70 L3 -70 L0 -85 Z" fill="white" />
-                        <circle cx="0" cy="0" r="2.5" fill="white" />
-                    </g>
+                    <g transform="translate(62, 100)"><circle cx="0" cy="0" r="21" fill="#111" stroke="#333" stroke-width="0.2" /><line x1="0" y1="-18" x2="0" y2="-21" stroke="white" stroke-width="1" /><path id="${p}-hand-sub-sec" d="M0 5 L0 -18" stroke="white" stroke-width="1" stroke-linecap="round" /></g>
+                    <g transform="translate(138, 100)"><circle cx="0" cy="0" r="21" fill="#111" stroke="#333" stroke-width="0.2" /><line x1="0" y1="-18" x2="0" y2="-21" stroke="white" stroke-width="1" /><path id="${p}-hand-sub-min" d="M0 5 L0 -18" stroke="white" stroke-width="1" stroke-linecap="round" /></g>
+                    <g transform="translate(100, 138)"><circle cx="0" cy="0" r="21" fill="#111" stroke="#333" stroke-width="0.2" /><path id="${p}-hand-sub-hour" d="M0 5 L0 -18" stroke="white" stroke-width="1" stroke-linecap="round" /></g>
+                    <g id="${p}-hand-main-hour" class="hand-linear"><path d="M-2.5 0 L-1.5 -55 L0 -62 L1.5 -55 L2.5 0 Z" fill="white" /><rect x="-0.8" y="-50" width="1.6" height="40" fill="#bbf7d0" /></g>
+                    <g id="${p}-hand-main-min" class="hand-linear"><path d="M-2 0 L-1.5 -75 L0 -82 L1.5 -75 L2 0 Z" fill="white" /><rect x="-0.8" y="-70" width="1.6" height="60" fill="#bbf7d0" /></g>
+                    <g id="${p}-hand-chrono" class="hand-smooth"><path d="M-2 25 L0 30 L2 25 L0 0 Z" fill="white" /> <line x1="0" y1="25" x2="0" y2="-95" stroke="white" stroke-width="0.6" /> <path d="M-3 -70 L3 -70 L0 -85 Z" fill="white" /> <circle cx="0" cy="0" r="2.5" fill="white" /></g>
                 </svg>
                 <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none"></div>
             </div>`;
         }
 
-        // --- INTRO LOGIC ---
-        function triggerStartButton(e) {
-            e.stopPropagation(); // Prevent background click from firing immediately
-            const watch = document.getElementById('intro-watch-container');
-            const btn = document.getElementById('intro-start-btn');
+        // --- MISSING FUNCTIONS RESTORED ---
+        
+        function formatTime(ms) {
+            const m = Math.floor(ms / 60000).toString().padStart(2, '0');
+            const s = Math.floor((ms % 60000) / 1000).toString().padStart(2, '0');
+            const cs = Math.floor((ms % 1000) / 10).toString().padStart(2, '0');
+            const display = document.getElementById('stopwatch-display');
+            if(display) display.innerText = `${m}:${s}.${cs}`;
+        }
+
+        function updateShiftLights(rpm) {
+            const leds = document.querySelectorAll('.led');
+            leds.forEach(l => l.classList.remove('on', 'blink'));
             
-            if(watch) {
-                watch.style.opacity = '0';
-                watch.style.transform = 'scale(0.8)';
-                setTimeout(() => {
-                    watch.classList.add('hidden');
-                    if(btn) {
-                        btn.classList.remove('hidden');
-                        btn.classList.add('flex');
-                        btn.animate([
-                            { transform: 'scale(0.5)', opacity: 0 },
-                            { transform: 'scale(1)', opacity: 1 }
-                        ], { duration: 400, easing: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)' });
-                    }
-                }, 300);
+            if (rpm >= SHIFT_RPM_START) {
+                const activeCount = Math.floor((rpm - SHIFT_RPM_START) / 300);
+                for(let i=0; i <= Math.min(activeCount, 9); i++) {
+                    if(leds[i]) leds[i].classList.add('on');
+                }
+                if(rpm > 6800) leds.forEach(l => l.classList.add('blink'));
             }
         }
 
-        function handleIntroBgClick(e) {
-            // If Start Button is visible, clicking background reverts to Watch
-            const btn = document.getElementById('intro-start-btn');
-            const watch = document.getElementById('intro-watch-container');
-            
-            if(btn && !btn.classList.contains('hidden')) {
-                // If click is NOT inside the button itself
-                if (!e.target.closest('#intro-start-btn button')) {
-                    btn.classList.add('hidden');
-                    btn.classList.remove('flex');
-                    if(watch) {
-                        watch.classList.remove('hidden');
-                        // Small timeout to allow display:block to apply before opacity transition
-                        setTimeout(() => {
-                            watch.style.opacity = '1';
-                            watch.style.transform = 'scale(1)';
-                        }, 10);
-                    }
-                }
-            }
-        }
-
-        function triggerStopButton(e) {
-            e.stopPropagation(); // Prevent background click
-            const watch = document.getElementById('eco-watch-container');
-            const btn = document.getElementById('eco-stop-btn');
-            
-            if(watch) {
-                // Dim watch
-                // Note: We don't hide the watch container fully because it holds the button too in layout,
-                // but we hide the inner SVG/content visually
-                const svg = watch.querySelector('div'); // The inner wrapper from getOmegaWatchSVG
-                if(svg) {
-                    svg.style.transition = 'all 0.3s';
-                    svg.style.opacity = '0';
-                    svg.style.transform = 'scale(0.8)';
-                }
-                
-                setTimeout(() => {
-                    if(btn) {
-                        btn.classList.remove('hidden');
-                        btn.classList.add('flex');
-                        btn.animate([
-                            { transform: 'scale(0.5)', opacity: 0 },
-                            { transform: 'scale(1)', opacity: 1 }
-                        ], { duration: 400, easing: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)' });
-                    }
-                }, 300);
-            }
-        }
-
-        function handleEcoBgClick(e) {
-            // Cancel Stop Button if visible
-            const btn = document.getElementById('eco-stop-btn');
-            const watch = document.getElementById('eco-watch-container');
-            
-            if(btn && !btn.classList.contains('hidden')) {
-                // If click is NOT on the stop button
-                if (!e.target.closest('#eco-stop-btn button')) {
-                    btn.classList.add('hidden');
-                    btn.classList.remove('flex');
-                    
-                    if(watch) {
-                        const svg = watch.querySelector('div');
-                        if(svg) {
-                            svg.style.opacity = '1';
-                            svg.style.transform = 'scale(1)';
-                        }
-                    }
-                }
-            }
-        }
-
-        function startCar() {
-            setMode('eco');
-        }
-
-        function stopCar() {
-            if(AppState.gpsActive) toggleGPS();
-            setMode('intro');
-        }
-
-        // --- WAKE LOCK ---
-        async function requestWakeLock() {
-            if ('wakeLock' in navigator) {
-                try {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                } catch (err) { console.log(err); }
-            }
-        }
-
-        // --- WEATHER & LOCATION ---
-        async function updateWeather(lat, lon) {
-            const now = Date.now();
-            const dist = getDistanceFromLatLonInKm(AppState.lastWeatherPos.lat, AppState.lastWeatherPos.lon, lat, lon);
-            if (dist < 1 && (now - AppState.lastWeatherUpdate) < 300000) return;
-
-            AppState.lastWeatherUpdate = now;
-            AppState.lastWeatherPos = { lat, lon };
-
-            try {
-                const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code`);
-                const wData = await wRes.json();
-                if (wData.current) {
-                    const temp = Math.round(wData.current.temperature_2m);
-                    document.getElementById('weather-temp').innerText = `${temp}°`;
-                    const code = wData.current.weather_code;
-                    const iconEl = document.getElementById('weather-icon');
-                    iconEl.innerHTML = ''; 
-                    let iconName = 'cloud';
-                    if(code <= 1) iconName = 'sun';
-                    else if(code <= 3) iconName = 'cloud-sun';
-                    else if(code <= 67) iconName = 'cloud-rain';
-                    else if(code <= 77) iconName = 'snowflake';
-                    else if(code > 90) iconName = 'cloud-lightning';
-                    iconEl.setAttribute('data-lucide', iconName);
-                    lucide.createIcons();
-                }
-            } catch (e) {}
-
-            try {
-                const lRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`);
-                const lData = await lRes.json();
-                const city = lData.locality || lData.city || lData.principalSubdivision || "Unknown";
-                document.getElementById('weather-location').innerText = city.toUpperCase();
-            } catch (e) {}
-        }
-
-        // --- UI TRANSITIONS ---
-        function setMode(mode) {
-            if (AppState.mode === mode && mode !== 'intro') return; // Allow re-set for intro init
-            AppState.mode = mode;
-
-            const introView = document.getElementById('view-intro');
-            const ecoView = document.getElementById('view-eco');
-            const sportView = document.getElementById('view-sport');
-            const intro = document.getElementById('sport-intro'); 
-            const introText = document.getElementById('intro-text');
-            const bgSport = document.getElementById('bg-sport-pattern');
-            
-            // Groups
-            const rpmGroup = document.getElementById('sport-rpm-group');
-            const speedGroup = document.getElementById('sport-speed-group');
-            const misc1 = document.getElementById('sport-misc-group-1');
-            const misc2 = document.getElementById('sport-misc-group-2');
-            const btns = document.getElementById('sport-buttons');
-
-            // 1. INTRO MODE (Starting Page)
-            if (mode === 'intro') {
-                if(introView) {
-                    introView.classList.remove('hidden-force');
-                    // Reset Intro State (Watch Visible, Button Hidden)
-                    const w = document.getElementById('intro-watch-container');
-                    const b = document.getElementById('intro-start-btn');
-                    if(w) { w.classList.remove('hidden'); w.style.opacity = '1'; w.style.transform = 'scale(1)'; }
-                    if(b) { b.classList.add('hidden'); b.classList.remove('flex'); }
-                    
-                    introView.style.opacity = '1';
-                }
-                if(ecoView) ecoView.style.opacity = '0';
-                if(sportView) sportView.style.opacity = '0';
-                return;
-            }
-
-            // 2. ECO MODE (Normal Drive)
-            if (mode === 'eco') {
-                if(introView) {
-                    introView.style.opacity = '0';
-                    setTimeout(() => {
-                        introView.classList.add('hidden-force');
-                    }, 700);
-                }
-
-                if(sportView) {
-                    sportView.style.opacity = '0';
-                    sportView.classList.add('pointer-events-none');
-                }
-                if(bgSport) bgSport.classList.remove('anim-bg-reveal');
-                
-                if(ecoView) {
-                    // Reset Eco Watch State (Ensure Watch is visible, Button hidden)
-                    const wEco = document.getElementById('eco-watch-container');
-                    const bEco = document.getElementById('eco-stop-btn');
-                    
-                    // Reset the inner SVG of the watch container
-                    if(wEco) {
-                        const svg = wEco.querySelector('div');
-                        if(svg) { svg.style.opacity = '1'; svg.style.transform = 'scale(1)'; }
-                    }
-                    if(bEco) { bEco.classList.add('hidden'); bEco.classList.remove('flex'); }
-
-                    ecoView.classList.remove('pointer-events-none');
-                    ecoView.style.opacity = '1';
-                    ecoView.style.transform = 'scale(1)';
-                    ecoView.classList.add('anim-eco-enter');
-                    ecoView.style.pointerEvents = 'auto';
-                    setTimeout(() => ecoView.classList.remove('anim-eco-enter'), 1000);
-                }
-            }
-
-            // 3. SPORT MODE (+R)
-            if (mode === 'sport') {
-                if(ecoView) {
-                    ecoView.style.opacity = '0';
-                    ecoView.style.pointerEvents = 'none';
-                }
-                
-                if(intro) intro.classList.remove('hidden-force');
-                if(introText) introText.classList.add('anim-text-strobe');
-                
-                if(sportView) {
-                    sportView.classList.remove('pointer-events-none');
-                    sportView.style.opacity = '1'; 
-                }
-                
-                if(rpmGroup) rpmGroup.style.opacity = '0';
-                if(speedGroup) speedGroup.style.opacity = '0';
-                if(misc1) misc1.style.opacity = '0';
-                if(misc2) misc2.style.opacity = '0';
-                if(btns) btns.style.opacity = '0';
-                
-                if(bgSport) {
-                    bgSport.style.opacity = '0.5'; 
-                    bgSport.classList.remove('anim-bg-reveal'); 
-                    bgSport.style.clipPath = 'circle(0% at 50% 50%)'; 
-                }
-
-                setTimeout(() => {
-                    if(introText) introText.classList.remove('anim-text-strobe');
-                    if(intro) intro.classList.add('hidden-force'); 
-                    if(rpmGroup) rpmGroup.style.opacity = '1'; 
-                    startNeedleSwipe();
-                }, 800);
-
-                setTimeout(() => { if(speedGroup) speedGroup.style.opacity = '1'; }, 1600);
-
-                setTimeout(() => {
-                    if(misc1) misc1.style.opacity = '1';
-                    if(misc2) misc2.style.opacity = '1';
-                    if(btns) btns.style.opacity = '1';
-                    if(bgSport) {
-                        bgSport.style.clipPath = ''; 
-                        bgSport.classList.add('anim-bg-reveal'); 
-                    }
-                }, 2100);
-            }
-        }
-
-        function startNeedleSwipe() {
-            if (AppState.swiping) return;
-            AppState.swiping = true;
-            const duration = 1500;
-            const startTime = Date.now();
-
-            function swipeFrame() {
-                const now = Date.now();
-                const elapsed = now - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                
-                let val = 0;
-                if(progress < 0.5) val = progress * 2; 
-                else val = 2 - (progress * 2); 
-                val = Math.max(0, val); 
-
-                const swipeRpm = val * 8000;
-                const rpmPct = swipeRpm / 7500; 
-                const rpmBar = document.getElementById('rpm-fill-rect');
-                if(rpmBar) rpmBar.setAttribute('width', Math.min(rpmPct, 1.07) * 800);
-                
-                const speedGrp = document.getElementById('sport-speed-group');
-                if(speedGrp && speedGrp.style.opacity === '1') {
-                    const spd = document.getElementById('sport-speed');
-                    if(spd) spd.innerText = Math.round(val * 188);
-                }
-                
-                updateShiftLights(swipeRpm);
-
-                if(progress < 1) {
-                    requestAnimationFrame(swipeFrame);
-                } else {
-                    AppState.swiping = false;
-                    const spd = document.getElementById('sport-speed');
-                    if(spd) spd.innerText = "0"; 
-                    updateDisplay(0); 
-                }
-            }
-            requestAnimationFrame(swipeFrame);
-        }
-
-        // --- WATCH FACE LOGIC ---
-        function safeSetTransform(id, transform) {
-            const el = document.getElementById(id);
-            if(el) el.setAttribute('transform', transform);
-        }
-
-        function updateWatchFace(speedKmh, prefix) {
-            const now = new Date();
-            const h = now.getHours();
-            const m = now.getMinutes();
-            const s = now.getSeconds();
-            const ms = now.getMilliseconds();
-
-            const hDeg = ((h % 12) * 30) + (m * 0.5);
-            safeSetTransform(`${prefix}-hand-main-hour`, `translate(100, 100) rotate(${hDeg})`);
-
-            const mDeg = (m * 6) + (s * 0.1);
-            safeSetTransform(`${prefix}-hand-main-min`, `translate(100, 100) rotate(${mDeg})`);
-
-            const sDeg = (s * 6) + (ms * 0.006);
-            safeSetTransform(`${prefix}-hand-sub-sec`, `rotate(${sDeg})`);
-
-            const subMinDeg = (m % 30) * 12; 
-            safeSetTransform(`${prefix}-hand-sub-min`, `rotate(${subMinDeg})`);
-
-            const subHourDeg = ((h % 12) * 30) + (m * 0.5);
-            safeSetTransform(`${prefix}-hand-sub-hour`, `rotate(${subHourDeg})`);
-
-            if (prefix === 'eco') {
-                let chronoDeg = speedKmh * 2.25; 
-                if (chronoDeg > 360) chronoDeg = 360 + (speedKmh % 10); 
-                safeSetTransform(`${prefix}-hand-chrono`, `translate(100, 100) rotate(${chronoDeg})`);
+        function timerLapReset() {
+            const btn = document.getElementById('btn-lap');
+            if (AppState.swRunning) {
+                const display = document.getElementById('stopwatch-display');
+                const last = document.getElementById('last-lap');
+                if(display && last) last.innerText = "LAP: " + display.innerText;
             } else {
-                safeSetTransform(`${prefix}-hand-chrono`, `translate(100, 100) rotate(0)`);
+                AppState.swElapsed = 0;
+                const display = document.getElementById('stopwatch-display');
+                const last = document.getElementById('last-lap');
+                if(display) display.innerText = "00:00.00";
+                if(last) last.innerText = "LAST: --:--.--";
             }
         }
 
-        function updateDisplay(targetSpeedKmh) {
-            if(AppState.swiping) return;
+        function timerStartStop() {
+            const btn = document.getElementById('btn-start');
+            const lapBtn = document.getElementById('btn-lap');
             
-            if (Math.abs(targetSpeedKmh - AppState.smoothSpeed) > 0.5) {
-                AppState.smoothSpeed = (targetSpeedKmh * 0.15) + (AppState.smoothSpeed * 0.85);
+            if (!AppState.swRunning) {
+                AppState.swRunning = true;
+                AppState.swStartTime = Date.now() - AppState.swElapsed;
+                AppState.swInterval = setInterval(() => {
+                    AppState.swElapsed = Date.now() - AppState.swStartTime;
+                    formatTime(AppState.swElapsed);
+                }, 30);
+                
+                if(btn) {
+                    btn.innerText = "STOP";
+                    btn.className = "px-3 py-1 bg-red-900 hover:bg-red-700 text-[10px] font-bold text-red-300 rounded uppercase transition-colors";
+                }
+                if(lapBtn) lapBtn.innerText = "LAP";
             } else {
-                AppState.smoothSpeed = targetSpeedKmh;
-            }
-
-            if(AppState.smoothSpeed < 1) AppState.smoothSpeed = 0;
-            
-            const roundedSpeed = Math.round(AppState.smoothSpeed);
-
-            if (AppState.timerMode === 'auto') {
-                if (roundedSpeed < 2 && !AppState.autoRunning) {
-                    AppState.autoArmed = true;
-                    document.getElementById('auto-status').innerHTML = "READY<br>LAUNCH";
-                    document.getElementById('auto-status').className = "mt-2 text-[10px] font-bold text-emerald-500 animate-pulse text-right leading-tight";
-                    if(!AppState.autoRunning) document.getElementById('stopwatch-display').innerText = "00:00.00";
-                } else if (AppState.autoArmed && roundedSpeed >= 2 && !AppState.autoRunning) {
-                    AppState.autoArmed = false;
-                    AppState.autoRunning = true;
-                    AppState.swStartTime = Date.now();
-                    document.getElementById('auto-status').innerText = "GO GO GO";
-                    document.getElementById('auto-status').className = "mt-2 text-[10px] font-bold text-red-500 text-right";
-                    
-                    AppState.swInterval = setInterval(() => {
-                        const now = Date.now();
-                        const diff = now - AppState.swStartTime;
-                        formatTime(diff);
-                    }, 30);
-                } else if (AppState.autoRunning && roundedSpeed >= 100) {
-                    clearInterval(AppState.swInterval);
-                    AppState.autoRunning = false;
-                    const finalTime = Date.now() - AppState.swStartTime;
-                    formatTime(finalTime);
-                    document.getElementById('last-lap').innerText = "0-100: " + document.getElementById('stopwatch-display').innerText;
-                    document.getElementById('auto-status').innerText = "FINISHED";
-                    document.getElementById('auto-status').className = "mt-2 text-[10px] font-bold text-emerald-400 text-right";
+                AppState.swRunning = false;
+                clearInterval(AppState.swInterval);
+                if(btn) {
+                    btn.innerText = "START";
+                    btn.className = "px-3 py-1 bg-emerald-900 hover:bg-emerald-700 text-[10px] font-bold text-emerald-300 rounded uppercase transition-colors";
                 }
+                if(lapBtn) lapBtn.innerText = "RESET";
             }
+        }
 
-            let gear = 'D'; 
-            let rpm = 800; 
+        function toggleTimerMode() {
+            AppState.timerMode = 'manual';
+            document.getElementById('timer-mode-label').innerText = "STOPWATCH";
+            document.getElementById('manual-controls').classList.remove('hidden');
+            document.getElementById('btn-zero-hundred').classList.remove('hidden');
+            document.getElementById('auto-controls').classList.add('hidden');
+            AppState.autoArmed = false;
+        }
 
-            if (roundedSpeed < 1) {
-                gear = (AppState.mode === 'eco') ? 'P' : 'N';
-                rpm = 800 + (Math.random() * 40 - 20); 
-            } 
-            else if (AppState.mode === 'eco') {
-                gear = 'D';
-                if(roundedSpeed < 40) {
-                    rpm = 800 + (roundedSpeed * 45); 
-                } else {
-                    rpm = 2400 + ((roundedSpeed - 40) * 18); 
-                }
-            } 
-            else {
-                if (roundedSpeed < 45) { gear = '1'; rpm = roundedSpeed * 155; } 
-                else if (roundedSpeed < 75) { gear = '2'; rpm = roundedSpeed * 95; } 
-                else if (roundedSpeed < 105) { gear = '3'; rpm = roundedSpeed * 70; } 
-                else if (roundedSpeed < 135) { gear = '4'; rpm = roundedSpeed * 55; } 
-                else if (roundedSpeed < 160) { gear = '5'; rpm = roundedSpeed * 45; } 
-                else if (roundedSpeed < 185) { gear = '6'; rpm = roundedSpeed * 40; } 
-                else { gear = '7'; rpm = roundedSpeed * 36; }
-            }
-
-            if (rpm > 7200) rpm = 7200 + (Math.random() * 200 - 100); 
-            if (rpm < 800 && roundedSpeed > 1) rpm = 800; 
-
-            if (AppState.mode === 'eco') {
-                document.getElementById('eco-speed-val').innerText = roundedSpeed;
-                document.getElementById('eco-gear-val').innerText = (roundedSpeed < 1 ? 'P' : 'D');
-                
-                const maxRpm = 8000;
-                const circumference = 534; 
-                const arcLength = circumference * 0.75; 
-                const baseOffset = circumference * 0.25;
-                
-                const rpmOffset = baseOffset + (arcLength - (Math.min(rpm, maxRpm) / maxRpm) * arcLength);
-                document.getElementById('eco-ring-rpm').style.strokeDashoffset = rpmOffset;
-                document.getElementById('eco-val-rpm').innerText = (rpm / 1000).toFixed(1);
-            }
-
-            if (AppState.mode === 'sport') {
-                document.getElementById('sport-speed').innerText = roundedSpeed;
-                document.getElementById('sport-gear').innerText = gear;
-                
-                const rpmPct = Math.min(rpm, 7500) / 7500;
-                const rpmBar = document.getElementById('rpm-fill-rect');
-                if(rpmBar) rpmBar.setAttribute('width', rpmPct * 800);
-                
-                updateShiftLights(rpm);
-
-                if(roundedSpeed > 5) {
-                    const moveX = (Math.random() * 60) - 30;
-                    const moveY = (Math.random() * 60) - 30;
-                    document.getElementById('g-dot').style.transform = `translate(${moveX}px, ${moveY}px)`;
-                } else {
-                    document.getElementById('g-dot').style.transform = `translate(0px, 0px)`;
-                }
-            }
+        function cancelZeroHundred() {
+            clearInterval(AppState.swInterval);
+            AppState.swRunning = false;
+            AppState.autoRunning = false;
+            AppState.autoArmed = false;
+            toggleTimerMode();
         }
 
         function activateZeroHundred() {
@@ -937,86 +428,167 @@
             updateDisplay(AppState.smoothSpeed); 
         }
 
-        function cancelZeroHundred() {
-            clearInterval(AppState.swInterval);
-            AppState.swRunning = false;
-            AppState.autoRunning = false;
-            AppState.autoArmed = false;
-            toggleTimerMode();
-        }
+        function startNeedleSwipe() {
+            if (AppState.swiping) return;
+            AppState.swiping = true;
+            const duration = 1500;
+            const startTime = Date.now();
 
-        function toggleTimerMode() {
-            AppState.timerMode = 'manual';
-            document.getElementById('timer-mode-label').innerText = "STOPWATCH";
-            document.getElementById('manual-controls').classList.remove('hidden');
-            document.getElementById('btn-zero-hundred').classList.remove('hidden');
-            document.getElementById('auto-controls').classList.add('hidden');
-            AppState.autoArmed = false;
-        }
+            // DISABLE CSS SMOOTHING FOR SWIPE (Makes it instant/snappy like Sport mode)
+            const ringRpm = document.getElementById('eco-ring-rpm');
+            const ringSpeed = document.getElementById('eco-ring-speed');
+            if(ringRpm) ringRpm.classList.remove('gauge-transition');
+            if(ringSpeed) ringSpeed.classList.remove('gauge-transition');
 
-        function timerStartStop() {
-            const btn = document.getElementById('btn-start');
-            const lapBtn = document.getElementById('btn-lap');
-            
-            if (!AppState.swRunning) {
-                AppState.swRunning = true;
-                AppState.swStartTime = Date.now() - AppState.swElapsed;
-                AppState.swInterval = setInterval(() => {
-                    AppState.swElapsed = Date.now() - AppState.swStartTime;
-                    formatTime(AppState.swElapsed);
-                }, 30);
+            function swipeFrame() {
+                const now = Date.now();
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
                 
-                btn.innerText = "STOP";
-                btn.className = "px-3 py-1 bg-red-900 hover:bg-red-700 text-[10px] font-bold text-red-300 rounded uppercase transition-colors";
-                lapBtn.innerText = "LAP";
-            } else {
-                AppState.swRunning = false;
-                clearInterval(AppState.swInterval);
-                btn.innerText = "START";
-                btn.className = "px-3 py-1 bg-emerald-900 hover:bg-emerald-700 text-[10px] font-bold text-emerald-300 rounded uppercase transition-colors";
-                lapBtn.innerText = "RESET";
-            }
-        }
+                // Ease-in-out cubic for a more "premium" feel than linear
+                // t<.5 ? 2*t*t : -1+(4-2*t)*t
+                let ease = progress < 0.5 ? 2 * progress * progress : -1 + (4 - 2 * progress) * progress;
+                
+                // Triangle logic for up/down: 0 -> 1 -> 0
+                let val = 0;
+                if(progress < 0.5) val = (progress * 2); // Linear up
+                else val = 2 - (progress * 2); // Linear down
+                
+                // Apply easing to the value for a nicer "needle" physics feel
+                // We use a slight curve so it accelerates off 0 and decelerates at top
+                val = val * (1 - Math.pow(val - 1, 2)); // Subtle smoothing
+                val = Math.max(0, val); 
+                if(progress < 0.5) val = progress * 2; else val = 2 - (progress * 2); // Fallback to linear if math gets weird, sticking to robust linear for reliability
+                val = Math.max(0, val);
 
-        function timerLapReset() {
-            const lapBtn = document.getElementById('btn-lap');
-            if (AppState.swRunning) {
-                const current = document.getElementById('stopwatch-display').innerText;
-                document.getElementById('last-lap').innerText = "LAP: " + current;
-            } else {
-                AppState.swElapsed = 0;
-                document.getElementById('stopwatch-display').innerText = "00:00.00";
-                document.getElementById('last-lap').innerText = "LAST: --:--.--";
-            }
-        }
-
-        function formatTime(ms) {
-            const m = Math.floor(ms / 60000).toString().padStart(2, '0');
-            const s = Math.floor((ms % 60000) / 1000).toString().padStart(2, '0');
-            const cs = Math.floor((ms % 1000) / 10).toString().padStart(2, '0');
-            document.getElementById('stopwatch-display').innerText = `${m}:${s}.${cs}`;
-        }
-
-        function updateShiftLights(rpm) {
-            const leds = document.querySelectorAll('.led');
-            leds.forEach(l => l.classList.remove('on', 'blink'));
-            
-            if (rpm >= SHIFT_RPM_START) {
-                const activeCount = Math.floor((rpm - SHIFT_RPM_START) / 300);
-                for(let i=0; i <= Math.min(activeCount, 9); i++) {
-                    if(leds[i]) leds[i].classList.add('on');
+                const swipeRpm = val * 8000;
+                const rpmPct = swipeRpm / 7500; 
+                
+                // Sport
+                const rpmBar = document.getElementById('rpm-fill-rect');
+                if(rpmBar) rpmBar.setAttribute('width', Math.min(rpmPct, 1.07) * 800);
+                const speedGrp = document.getElementById('sport-speed-group');
+                if(speedGrp && speedGrp.style.opacity === '1') {
+                    const spd = document.getElementById('sport-speed');
+                    if(spd) spd.innerText = Math.round(val * 188);
                 }
-                if(rpm > 6800) leds.forEach(l => l.classList.add('blink'));
+                
+                // Eco - Animate Rings
+                if (AppState.mode === 'eco') {
+                    const circumference = 534; 
+                    const arcLength = circumference * 0.75; 
+                    const baseOffset = circumference * 0.25;
+
+                    const rpmOffset = baseOffset + (arcLength - (Math.min(swipeRpm, 8000) / 8000) * arcLength);
+                    if(ringRpm) ringRpm.style.strokeDashoffset = rpmOffset;
+                    const elRpmText = document.getElementById('eco-val-rpm');
+                    if(elRpmText) elRpmText.innerText = (swipeRpm / 1000).toFixed(1);
+
+                    const swipeSpeed = val * 200;
+                    const speedOffset = baseOffset + (arcLength - (Math.min(swipeSpeed, 200) / 200) * arcLength);
+                    if(ringSpeed) ringSpeed.style.strokeDashoffset = speedOffset;
+                    const elSpeedText = document.getElementById('eco-speed-val');
+                    if(elSpeedText) elSpeedText.innerText = Math.round(swipeSpeed);
+                }
+                
+                updateShiftLights(swipeRpm);
+
+                if(progress < 1) {
+                    requestAnimationFrame(swipeFrame);
+                } else {
+                    AppState.swiping = false;
+                    const spd = document.getElementById('sport-speed');
+                    if(spd) spd.innerText = "0"; 
+                    
+                    const ecoSpd = document.getElementById('eco-speed-val');
+                    if(ecoSpd) ecoSpd.innerText = "0";
+                    
+                    // RE-ENABLE CSS SMOOTHING (For GPS updates)
+                    if(ringRpm) ringRpm.classList.add('gauge-transition');
+                    if(ringSpeed) ringSpeed.classList.add('gauge-transition');
+
+                    updateDisplay(0); 
+                }
+            }
+            requestAnimationFrame(swipeFrame);
+        }
+
+        // --- INTRO/OUTRO LOGIC ---
+        function triggerStartButton(e) {
+            e.stopPropagation();
+            const watch = document.getElementById('intro-watch-container');
+            const btn = document.getElementById('intro-start-btn');
+            if(watch) {
+                watch.style.opacity = '0';
+                watch.style.transform = 'scale(0.8)';
+                setTimeout(() => {
+                    watch.classList.add('hidden');
+                    if(btn) {
+                        btn.classList.remove('hidden');
+                        btn.classList.add('flex');
+                        btn.animate([{ transform: 'scale(0.5)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], { duration: 400 });
+                    }
+                }, 300);
             }
         }
 
+        function handleIntroBgClick(e) {
+            const btn = document.getElementById('intro-start-btn');
+            const watch = document.getElementById('intro-watch-container');
+            if(btn && !btn.classList.contains('hidden')) {
+                if (!e.target.closest('#intro-start-btn button')) {
+                    btn.classList.add('hidden');
+                    btn.classList.remove('flex');
+                    if(watch) {
+                        watch.classList.remove('hidden');
+                        setTimeout(() => { watch.style.opacity = '1'; watch.style.transform = 'scale(1)'; }, 10);
+                    }
+                }
+            }
+        }
+
+        function triggerStopButton(e) {
+            e.stopPropagation();
+            const watch = document.getElementById('eco-watch-container');
+            const btn = document.getElementById('eco-stop-btn');
+            if(watch) {
+                const svg = watch.querySelector('div');
+                if(svg) { svg.style.transition = 'all 0.3s'; svg.style.opacity = '0'; svg.style.transform = 'scale(0.8)'; }
+                setTimeout(() => {
+                    if(btn) {
+                        btn.classList.remove('hidden');
+                        btn.classList.add('flex');
+                        btn.animate([{ transform: 'scale(0.5)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], { duration: 400 });
+                    }
+                }, 300);
+            }
+        }
+
+        function handleEcoBgClick(e) {
+            const btn = document.getElementById('eco-stop-btn');
+            const watch = document.getElementById('eco-watch-container');
+            if(btn && !btn.classList.contains('hidden')) {
+                if (!e.target.closest('#eco-stop-btn button')) {
+                    btn.classList.add('hidden');
+                    btn.classList.remove('flex');
+                    if(watch) {
+                        const svg = watch.querySelector('div');
+                        if(svg) { svg.style.opacity = '1'; svg.style.transform = 'scale(1)'; }
+                    }
+                }
+            }
+        }
+
+        function startCar() { setMode('eco'); }
+        function stopCar() { if(AppState.gpsActive) toggleGPS(); setMode('intro'); }
+
+        async function requestWakeLock() { if ('wakeLock' in navigator) try { wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {} }
+
+        // --- CORE GPS LOGIC ---
         function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-            var R = 6371; 
-            var dLat = deg2rad(lat2-lat1);
-            var dLon = deg2rad(lon2-lon1); 
+            var R = 6371; var dLat = deg2rad(lat2-lat1); var dLon = deg2rad(lon2-lon1); 
             var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); 
-            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-            return R * c; 
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); return R * c; 
         }
         function deg2rad(deg) { return deg * (Math.PI/180); }
 
@@ -1029,45 +601,25 @@
             
             if (AppState.gpsActive) {
                 if (AppState.watchId) navigator.geolocation.clearWatch(AppState.watchId);
-                if (wakeLock) wakeLock.release();
-                wakeLock = null;
+                if (wakeLock) wakeLock.release(); wakeLock = null;
                 AppState.gpsActive = false;
-                
-                dotEco.className = "w-2 h-2 rounded-full bg-zinc-600";
-                txtEco.innerText = "GPS PAUSED";
-                btnEco.innerHTML = '<i data-lucide="satellite" class="w-3 h-3"></i> Enable GPS';
-                
-                dotSport.className = "w-2 h-2 rounded-full bg-zinc-600";
-                if(btnSportText) btnSportText.innerText = "GPS";
-                
-                document.getElementById('debug-calc').innerText = "";
+                AppState.positionBuffer = []; // Clear history
+                dotEco.className = "w-2 h-2 rounded-full bg-zinc-600"; txtEco.innerText = "GPS PAUSED"; btnEco.innerHTML = '<i data-lucide="satellite" class="w-3 h-3"></i> Enable GPS';
+                dotSport.className = "w-2 h-2 rounded-full bg-zinc-600"; if(btnSportText) btnSportText.innerText = "GPS";
+                const dbg = document.getElementById('debug-calc');
+                if(dbg) dbg.innerText = `MODE: ${AppState.speedSource}`;
                 updateDisplay(0);
             } else {
-                if (!("geolocation" in navigator)) {
-                    alert("GPS not supported.");
-                    return;
-                }
-                
-                requestWakeLock(); 
-
-                dotEco.className = "w-2 h-2 rounded-full bg-yellow-500 animate-pulse";
-                txtEco.innerText = "SEARCHING...";
-                btnEco.innerHTML = '<i data-lucide="satellite" class="w-3 h-3"></i> Stop GPS';
-                
-                dotSport.className = "w-2 h-2 rounded-full bg-yellow-500 animate-pulse";
-                if(btnSportText) btnSportText.innerText = "SEARCH";
+                if (!("geolocation" in navigator)) { alert("GPS not supported."); return; }
+                requestWakeLock();
+                dotEco.className = "w-2 h-2 rounded-full bg-yellow-500 animate-pulse"; txtEco.innerText = "SEARCHING..."; btnEco.innerHTML = '<i data-lucide="satellite" class="w-3 h-3"></i> Stop GPS';
+                dotSport.className = "w-2 h-2 rounded-full bg-yellow-500 animate-pulse"; if(btnSportText) btnSportText.innerText = "SEARCH";
                 
                 AppState.gpsActive = true;
-                AppState.lastPosition = null; 
+                AppState.positionBuffer = []; 
                 
-                const optionsHigh = { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 };
-                const optionsLow = { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 };
-
-                AppState.watchId = navigator.geolocation.watchPosition(
-                    handleSuccess,
-                    (error) => handleError(error, optionsLow),
-                    optionsHigh
-                );
+                // Force High Accuracy
+                AppState.watchId = navigator.geolocation.watchPosition(handleSuccess, (e) => console.log(e), { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 });
                 lucide.createIcons();
             }
         }
@@ -1078,80 +630,186 @@
             document.getElementById('sport-gps-dot').className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
             document.getElementById('sport-gps-text').innerText = "LOCKED";
 
+            const now = Date.now();
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
-            const timestamp = position.timestamp;
             let speedMps = position.coords.speed;
+            
+            // --- CORE SPEED LOGIC ---
+            
+            // 1. Buffer Logic (Always populate)
+            if (position.coords.accuracy < 60 || AppState.positionBuffer.length === 0) {
+                AppState.positionBuffer.push({ lat, lon, time: now, acc: position.coords.accuracy });
+            }
+            if (AppState.positionBuffer.length > 5) AppState.positionBuffer.shift();
 
-            let calcMethod = "NATIVE";
-            if (speedMps === null || speedMps < 0) {
-                if (AppState.lastPosition) {
-                    const distKm = getDistanceFromLatLonInKm(AppState.lastPosition.lat, AppState.lastPosition.lon, lat, lon);
-                    const distMeters = distKm * 1000;
-                    const timeDiffSeconds = (timestamp - AppState.lastPosition.time) / 1000;
-                    
-                    if (timeDiffSeconds > 0 && distMeters > 2.5) {
-                        speedMps = distMeters / timeDiffSeconds;
-                        calcMethod = "CALC";
-                    } else {
-                        speedMps = 0;
-                        calcMethod = "IDLE";
-                    }
-                } else {
-                    speedMps = 0;
-                }
-                AppState.lastPosition = { lat: lat, lon: lon, time: timestamp };
+            // 2. Select Source
+            let finalSpeed = 0;
+            let debugTag = "";
+
+            if (AppState.speedSource === 'ANDROID') {
+                // Forced Native
+                finalSpeed = speedMps || 0;
+                debugTag = "ANDROID";
+            } else if (AppState.speedSource === 'IOS') {
+                // Forced Calc
+                finalSpeed = calculateSpeedFromBuffer();
+                debugTag = "IOS (CALC)";
             } else {
-                AppState.lastPosition = { lat: lat, lon: lon, time: timestamp };
+                // AUTO: Prefer Native, Fallback to Calc
+                if (speedMps !== null && speedMps >= 0) {
+                    finalSpeed = speedMps;
+                    debugTag = "AUTO (NAT)";
+                } else {
+                    finalSpeed = calculateSpeedFromBuffer();
+                    debugTag = "AUTO (CALC)";
+                }
+            }
+
+            // Helper for calc logic
+            function calculateSpeedFromBuffer() {
+                if (AppState.positionBuffer.length < 2) return 0;
+                const pNew = AppState.positionBuffer[AppState.positionBuffer.length - 1];
+                const pOld = AppState.positionBuffer[0]; 
+                const distKm = getDistanceFromLatLonInKm(pOld.lat, pOld.lon, pNew.lat, pNew.lon);
+                const distM = distKm * 1000;
+                const timeDiff = (pNew.time - pOld.time) / 1000;
+                if (timeDiff > 0.5) {
+                    const rawSpeed = distM / timeDiff;
+                    return (rawSpeed > 0.7) ? rawSpeed : 0; // Jitter clamp
+                }
+                return 0;
             }
 
             const elDebug = document.getElementById('debug-calc');
-            if(elDebug) elDebug.innerText = `${calcMethod} | ACC: ${Math.round(position.coords.accuracy)}m`;
+            if(elDebug) elDebug.innerText = `MODE: ${AppState.speedSource} | ${debugTag}`;
 
-            let speedKmph = (speedMps || 0) * 3.6;
+            let speedKmph = (finalSpeed || 0) * 3.6;
             if (speedKmph < 2) speedKmph = 0; 
             
             updateDisplay(speedKmph);
             updateWeather(lat, lon);
         }
 
-        function handleError(error, fallbackOptions) {
-             if (error.code === 3) { 
-                if (AppState.watchId) navigator.geolocation.clearWatch(AppState.watchId);
-                AppState.watchId = navigator.geolocation.watchPosition(
-                    handleSuccess,
-                    (e) => console.log("Final Error", e),
-                    fallbackOptions
-                );
+        // --- UI & LOOP ---
+        function safeSetTransform(id, transform) { const el = document.getElementById(id); if(el) el.setAttribute('transform', transform); }
+
+        function updateWatchFace(speedKmh, prefix) {
+            const now = new Date();
+            const h = now.getHours(); const m = now.getMinutes(); const s = now.getSeconds(); const ms = now.getMilliseconds();
+            safeSetTransform(`${prefix}-hand-main-hour`, `translate(100, 100) rotate(${((h % 12) * 30) + (m * 0.5)})`);
+            safeSetTransform(`${prefix}-hand-main-min`, `translate(100, 100) rotate(${(m * 6) + (s * 0.1)})`);
+            safeSetTransform(`${prefix}-hand-sub-sec`, `rotate(${(s * 6) + (ms * 0.006)})`);
+            safeSetTransform(`${prefix}-hand-sub-min`, `rotate(${(m % 30) * 12})`);
+            safeSetTransform(`${prefix}-hand-sub-hour`, `rotate(${((h % 12) * 30) + (m * 0.5)})`);
+            if (prefix === 'eco') {
+                let chronoDeg = speedKmh * 2.25; 
+                if (chronoDeg > 360) chronoDeg = 360 + (speedKmh % 10); 
+                safeSetTransform(`${prefix}-hand-chrono`, `translate(100, 100) rotate(${chronoDeg})`);
+            } else {
+                safeSetTransform(`${prefix}-hand-chrono`, `translate(100, 100) rotate(0)`);
+            }
+        }
+
+        function updateDisplay(targetSpeedKmh) {
+            if(AppState.swiping) return;
+            if (Math.abs(targetSpeedKmh - AppState.smoothSpeed) > 0.5) { AppState.smoothSpeed = (targetSpeedKmh * 0.15) + (AppState.smoothSpeed * 0.85); } 
+            else { AppState.smoothSpeed = targetSpeedKmh; }
+            if(AppState.smoothSpeed < 1) AppState.smoothSpeed = 0;
+            const roundedSpeed = Math.round(AppState.smoothSpeed);
+
+            if (AppState.timerMode === 'auto') {
+                if (roundedSpeed < 2 && !AppState.autoRunning) {
+                    AppState.autoArmed = true; document.getElementById('auto-status').innerHTML = "READY<br>LAUNCH"; document.getElementById('auto-status').className = "mt-2 text-[10px] font-bold text-emerald-500 animate-pulse text-right leading-tight";
+                    if(!AppState.autoRunning) document.getElementById('stopwatch-display').innerText = "00:00.00";
+                } else if (AppState.autoArmed && roundedSpeed >= 2 && !AppState.autoRunning) {
+                    AppState.autoArmed = false; AppState.autoRunning = true; AppState.swStartTime = Date.now();
+                    document.getElementById('auto-status').innerText = "GO GO GO"; document.getElementById('auto-status').className = "mt-2 text-[10px] font-bold text-red-500 text-right";
+                    AppState.swInterval = setInterval(() => { formatTime(Date.now() - AppState.swStartTime); }, 30);
+                } else if (AppState.autoRunning && roundedSpeed >= 100) {
+                    clearInterval(AppState.swInterval); AppState.autoRunning = false;
+                    formatTime(Date.now() - AppState.swStartTime); document.getElementById('last-lap').innerText = "0-100: " + document.getElementById('stopwatch-display').innerText;
+                    document.getElementById('auto-status').innerText = "FINISHED"; document.getElementById('auto-status').className = "mt-2 text-[10px] font-bold text-emerald-400 text-right";
+                }
+            }
+
+            let gear = 'D'; let rpm = 800; 
+            if (roundedSpeed < 1) { gear = (AppState.mode === 'eco') ? 'P' : 'N'; rpm = 800 + (Math.random() * 40 - 20); } 
+            else if (AppState.mode === 'eco') { gear = 'D'; rpm = (roundedSpeed < 40) ? 800 + (roundedSpeed * 45) : 2400 + ((roundedSpeed - 40) * 18); } 
+            else {
+                if (roundedSpeed < 45) { gear = '1'; rpm = roundedSpeed * 155; } else if (roundedSpeed < 75) { gear = '2'; rpm = roundedSpeed * 95; } else if (roundedSpeed < 105) { gear = '3'; rpm = roundedSpeed * 70; } else if (roundedSpeed < 135) { gear = '4'; rpm = roundedSpeed * 55; } else if (roundedSpeed < 160) { gear = '5'; rpm = roundedSpeed * 45; } else if (roundedSpeed < 185) { gear = '6'; rpm = roundedSpeed * 40; } else { gear = '7'; rpm = roundedSpeed * 36; }
+            }
+            if (rpm > 7200) rpm = 7200 + (Math.random() * 200 - 100); if (rpm < 800 && roundedSpeed > 1) rpm = 800; 
+
+            if (AppState.mode === 'eco') {
+                document.getElementById('eco-speed-val').innerText = roundedSpeed; document.getElementById('eco-gear-val').innerText = (roundedSpeed < 1 ? 'P' : 'D');
+                const rpmOffset = (534 * 0.25) + ((534 * 0.75) - (Math.min(rpm, 8000) / 8000) * (534 * 0.75));
+                document.getElementById('eco-ring-rpm').style.strokeDashoffset = rpmOffset; document.getElementById('eco-val-rpm').innerText = (rpm / 1000).toFixed(1);
+            }
+            if (AppState.mode === 'sport') {
+                document.getElementById('sport-speed').innerText = roundedSpeed; document.getElementById('sport-gear').innerText = gear;
+                document.getElementById('rpm-fill-rect').setAttribute('width', (Math.min(rpm, 7500) / 7500) * 800);
+                updateShiftLights(rpm);
+                if(roundedSpeed > 5) { const m = (Math.random() * 60) - 30; document.getElementById('g-dot').style.transform = `translate(${m}px, ${m}px)`; } 
+                else { document.getElementById('g-dot').style.transform = `translate(0px, 0px)`; }
+            }
+        }
+
+        // --- UI TRANSITIONS ---
+        function setMode(mode) {
+            if (AppState.mode === mode && mode !== 'intro') return;
+            AppState.mode = mode;
+            const introView = document.getElementById('view-intro'); const ecoView = document.getElementById('view-eco'); const sportView = document.getElementById('view-sport');
+            const intro = document.getElementById('sport-intro'); const introText = document.getElementById('intro-text'); const bgSport = document.getElementById('bg-sport-pattern');
+            
+            if (mode === 'intro') {
+                if(introView) { introView.classList.remove('hidden-force'); introView.style.opacity = '1'; 
+                    const w = document.getElementById('intro-watch-container'); const b = document.getElementById('intro-start-btn');
+                    if(w) { w.classList.remove('hidden'); w.style.opacity = '1'; w.style.transform = 'scale(1)'; }
+                    if(b) { b.classList.add('hidden'); b.classList.remove('flex'); }
+                }
+                if(ecoView) ecoView.style.opacity = '0'; if(sportView) sportView.style.opacity = '0';
+            }
+            if (mode === 'eco') {
+                if(introView) { introView.style.opacity = '0'; setTimeout(() => introView.classList.add('hidden-force'), 700); }
+                if(sportView) { sportView.style.opacity = '0'; sportView.classList.add('pointer-events-none'); }
+                if(bgSport) bgSport.classList.remove('anim-bg-reveal');
+                if(ecoView) {
+                    const wEco = document.getElementById('eco-watch-container'); const bEco = document.getElementById('eco-stop-btn');
+                    if(wEco) { const svg = wEco.querySelector('div'); if(svg) { svg.style.opacity = '1'; svg.style.transform = 'scale(1)'; } }
+                    if(bEco) { bEco.classList.add('hidden'); bEco.classList.remove('flex'); }
+                    ecoView.classList.remove('pointer-events-none'); ecoView.style.opacity = '1'; ecoView.style.transform = 'scale(1)'; ecoView.classList.add('anim-eco-enter'); ecoView.style.pointerEvents = 'auto';
+                    
+                    setTimeout(() => {
+                        ecoView.classList.remove('anim-eco-enter'); 
+                        startNeedleSwipe(); 
+                    }, 1000);
+                }
+            }
+            if (mode === 'sport') {
+                if(ecoView) { ecoView.style.opacity = '0'; ecoView.style.pointerEvents = 'none'; }
+                if(intro) intro.classList.remove('hidden-force'); if(introText) introText.classList.add('anim-text-strobe');
+                if(sportView) { sportView.classList.remove('pointer-events-none'); sportView.style.opacity = '1'; }
+                document.getElementById('sport-rpm-group').style.opacity = '0'; document.getElementById('sport-speed-group').style.opacity = '0'; 
+                document.getElementById('sport-misc-group-1').style.opacity = '0'; document.getElementById('sport-misc-group-2').style.opacity = '0'; document.getElementById('sport-buttons').style.opacity = '0';
+                if(bgSport) { bgSport.style.opacity = '0.5'; bgSport.classList.remove('anim-bg-reveal'); bgSport.style.clipPath = 'circle(0% at 50% 50%)'; }
+                setTimeout(() => { if(introText) introText.classList.remove('anim-text-strobe'); if(intro) intro.classList.add('hidden-force'); document.getElementById('sport-rpm-group').style.opacity = '1'; startNeedleSwipe(); }, 800);
+                setTimeout(() => { document.getElementById('sport-speed-group').style.opacity = '1'; }, 1600);
+                setTimeout(() => { document.getElementById('sport-misc-group-1').style.opacity = '1'; document.getElementById('sport-misc-group-2').style.opacity = '1'; document.getElementById('sport-buttons').style.opacity = '1'; if(bgSport) { bgSport.style.clipPath = ''; bgSport.classList.add('anim-bg-reveal'); } }, 2100);
             }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             const introWatchContainer = document.getElementById('intro-watch-container');
             const ecoWatchContainer = document.getElementById('eco-watch-container');
-            
             if(introWatchContainer) introWatchContainer.innerHTML = getOmegaWatchSVG('intro');
             if(ecoWatchContainer) ecoWatchContainer.innerHTML = getOmegaWatchSVG('eco');
-
-            setInterval(() => {
-                const now = new Date();
-                document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            }, 1000);
-
+            setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}); }, 1000);
             setMode('intro');
-            
             function loop() {
-                if (AppState.mode === 'intro') {
-                    updateWatchFace(0, 'intro');
-                }
-                if (AppState.mode === 'eco') {
-                    updateWatchFace(AppState.smoothSpeed, 'eco');
-                }
-
-                if(AppState.gpsActive || AppState.swiping) {
-                   if(AppState.gpsActive) updateDisplay(AppState.smoothSpeed); 
-                }
-                
+                if (AppState.mode === 'intro') updateWatchFace(0, 'intro');
+                if (AppState.mode === 'eco') updateWatchFace(AppState.smoothSpeed, 'eco');
+                if(AppState.gpsActive || AppState.swiping) if(AppState.gpsActive) updateDisplay(AppState.smoothSpeed);
                 requestAnimationFrame(loop);
             }
             loop();
