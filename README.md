@@ -3,7 +3,7 @@ Jazz 1200 Ultimate 🏎️💨
 
 Turn your tablet into a futuristic secondary dashboard. Features dual driving modes, real-time GPS telemetry, and track-ready performance tools.
 
-🚀 Launch Live Demo <[!-- Replace https://www.google.com/search?q=%23 with your hosted link --](https://speeddash.vercel.app/)>
+🚀 Launch Live Demo <(https://speeddash.vercel.app/)>
 
 📸 Interface
 
