@@ -146,7 +146,7 @@
                         <i data-lucide="satellite" class="w-3 h-3"></i> Enable GPS
                     </button>
                     <!-- DEBUG / TOGGLE AREA -->
-                    <div id="debug-calc" onclick="toggleSpeedSource(event)" class="text-[9px] text-zinc-600 font-bold font-mono mt-2 cursor-pointer hover:text-zinc-400 transition-colors uppercase border border-zinc-800 px-2 py-1 rounded bg-black/20">
+                    <div id="debug-calc" onclick="toggleSpeedSource(event)" class="text-[9px] text-zinc-600 font-bold font-mono mt-2 cursor-pointer hover:text-zinc-400 transition-colors uppercase border border-zinc-800 px-2 py-1 rounded bg-black/20 truncate max-w-full">
                         MODE: AUTO
                     </div>
                 </div>
@@ -265,6 +265,7 @@
             gpsActive: false,
             speedSource: 'AUTO', 
             watchId: null,
+            pollIntervalId: null,
             positionBuffer: [], 
             smoothSpeed: 0,
             swiping: false,
@@ -285,13 +286,18 @@
         function toggleSpeedSource(e) {
             if(e) e.stopPropagation();
             if(AppState.speedSource === 'AUTO') AppState.speedSource = 'ANDROID';
-            else if(AppState.speedSource === 'ANDROID') AppState.speedSource = 'IOS';
+            else if(AppState.speedSource === 'ANDROID') AppState.speedSource = 'IOS (POLL)';
             else AppState.speedSource = 'AUTO';
             const el = document.getElementById('debug-calc');
             if(el) {
                 el.innerText = `MODE: ${AppState.speedSource}`;
                 el.classList.add('text-white');
                 setTimeout(() => el.classList.remove('text-white'), 200);
+            }
+            // Reset GPS to apply new strategy
+            if(AppState.gpsActive) {
+                toggleGPS(); // OFF
+                setTimeout(() => toggleGPS(), 100); // ON
             }
         }
 
@@ -601,6 +607,7 @@
             
             if (AppState.gpsActive) {
                 if (AppState.watchId) navigator.geolocation.clearWatch(AppState.watchId);
+                if (AppState.pollIntervalId) clearInterval(AppState.pollIntervalId);
                 if (wakeLock) wakeLock.release(); wakeLock = null;
                 AppState.gpsActive = false;
                 AppState.positionBuffer = []; // Clear history
@@ -618,8 +625,17 @@
                 AppState.gpsActive = true;
                 AppState.positionBuffer = []; 
                 
-                // Force High Accuracy
-                AppState.watchId = navigator.geolocation.watchPosition(handleSuccess, (e) => console.log(e), { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 });
+                // HYBRID ENGINE: Watch + Poll
+                const opts = { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 };
+                AppState.watchId = navigator.geolocation.watchPosition(handleSuccess, (e) => console.log(e), opts);
+                
+                // FORCE POLL every 1s for iOS "wake up"
+                if (AppState.speedSource === 'IOS (POLL)') {
+                    AppState.pollIntervalId = setInterval(() => {
+                        navigator.geolocation.getCurrentPosition(handleSuccess, (e)=>{}, opts);
+                    }, 1000);
+                }
+                
                 lucide.createIcons();
             }
         }
@@ -637,8 +653,8 @@
             
             // --- CORE SPEED LOGIC ---
             
-            // 1. Buffer Logic (Always populate)
-            if (position.coords.accuracy < 60 || AppState.positionBuffer.length === 0) {
+            // 1. Buffer Logic (Always populate with relaxed accuracy for iOS)
+            if (position.coords.accuracy < 150 || AppState.positionBuffer.length === 0) {
                 AppState.positionBuffer.push({ lat, lon, time: now, acc: position.coords.accuracy });
             }
             if (AppState.positionBuffer.length > 5) AppState.positionBuffer.shift();
@@ -646,25 +662,6 @@
             // 2. Select Source
             let finalSpeed = 0;
             let debugTag = "";
-
-            if (AppState.speedSource === 'ANDROID') {
-                // Forced Native
-                finalSpeed = speedMps || 0;
-                debugTag = "ANDROID";
-            } else if (AppState.speedSource === 'IOS') {
-                // Forced Calc
-                finalSpeed = calculateSpeedFromBuffer();
-                debugTag = "IOS (CALC)";
-            } else {
-                // AUTO: Prefer Native, Fallback to Calc
-                if (speedMps !== null && speedMps >= 0) {
-                    finalSpeed = speedMps;
-                    debugTag = "AUTO (NAT)";
-                } else {
-                    finalSpeed = calculateSpeedFromBuffer();
-                    debugTag = "AUTO (CALC)";
-                }
-            }
 
             // Helper for calc logic
             function calculateSpeedFromBuffer() {
@@ -676,19 +673,47 @@
                 const timeDiff = (pNew.time - pOld.time) / 1000;
                 if (timeDiff > 0.5) {
                     const rawSpeed = distM / timeDiff;
-                    return (rawSpeed > 0.7) ? rawSpeed : 0; // Jitter clamp
+                    return (rawSpeed > 0.5) ? rawSpeed : 0; // Relaxed jitter clamp
                 }
                 return 0;
             }
 
+            if (AppState.speedSource === 'ANDROID') {
+                finalSpeed = speedMps || 0;
+                debugTag = "ANDROID";
+            } else if (AppState.speedSource.startsWith('IOS')) {
+                // Force calculation for iOS
+                finalSpeed = calculateSpeedFromBuffer();
+                debugTag = "IOS";
+            } else {
+                // AUTO
+                if (speedMps !== null && speedMps >= 0) {
+                    finalSpeed = speedMps;
+                    debugTag = "AUTO (NAT)";
+                } else {
+                    finalSpeed = calculateSpeedFromBuffer();
+                    debugTag = "AUTO (CALC)";
+                }
+            }
+
             const elDebug = document.getElementById('debug-calc');
-            if(elDebug) elDebug.innerText = `MODE: ${AppState.speedSource} | ${debugTag}`;
+            if(elDebug) {
+                // Show coordinate delta to prove data flow
+                const latStr = lat.toFixed(4);
+                const lonStr = lon.toFixed(4);
+                elDebug.innerText = `${debugTag} | ${latStr}, ${lonStr}`;
+            }
 
             let speedKmph = (finalSpeed || 0) * 3.6;
             if (speedKmph < 2) speedKmph = 0; 
             
             updateDisplay(speedKmph);
             updateWeather(lat, lon);
+            
+            // Motion API Hook (Just accessing it helps keep GPS alive on iOS)
+            if (window.DeviceMotionEvent) {
+                window.addEventListener('devicemotion', (e) => {}, { once: true });
+            }
         }
 
         // --- UI & LOOP ---
@@ -744,7 +769,15 @@
             if (AppState.mode === 'eco') {
                 document.getElementById('eco-speed-val').innerText = roundedSpeed; document.getElementById('eco-gear-val').innerText = (roundedSpeed < 1 ? 'P' : 'D');
                 const rpmOffset = (534 * 0.25) + ((534 * 0.75) - (Math.min(rpm, 8000) / 8000) * (534 * 0.75));
-                document.getElementById('eco-ring-rpm').style.strokeDashoffset = rpmOffset; document.getElementById('eco-val-rpm').innerText = (rpm / 1000).toFixed(1);
+                const elRpmRing = document.getElementById('eco-ring-rpm');
+                if(elRpmRing) elRpmRing.style.strokeDashoffset = rpmOffset; 
+                document.getElementById('eco-val-rpm').innerText = (rpm / 1000).toFixed(1);
+                
+                // Speed Ring - also dynamic now
+                const baseOffset = 534 * 0.25; const arcLength = 534 * 0.75;
+                const speedOffset = baseOffset + (arcLength - (Math.min(roundedSpeed, 200) / 200) * arcLength);
+                const elSpeedRing = document.getElementById('eco-ring-speed');
+                if(elSpeedRing) elSpeedRing.style.strokeDashoffset = speedOffset;
             }
             if (AppState.mode === 'sport') {
                 document.getElementById('sport-speed').innerText = roundedSpeed; document.getElementById('sport-gear').innerText = gear;
