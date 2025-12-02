@@ -35,30 +35,6 @@
         }
         .anim-pulse-red { animation: redPulse 1.5s infinite; }
 
-        /* CYBERPUNK MAP STYLES */
-        .cyber-grid {
-            background-image: 
-                linear-gradient(0deg, transparent 24%, rgba(6, 182, 212, 0.3) 25%, rgba(6, 182, 212, 0.3) 26%, transparent 27%, transparent 74%, rgba(6, 182, 212, 0.3) 75%, rgba(6, 182, 212, 0.3) 76%, transparent 77%, transparent),
-                linear-gradient(90deg, transparent 24%, rgba(6, 182, 212, 0.3) 25%, rgba(6, 182, 212, 0.3) 26%, transparent 27%, transparent 74%, rgba(6, 182, 212, 0.3) 75%, rgba(6, 182, 212, 0.3) 76%, transparent 77%, transparent);
-            background-size: 5vmin 5vmin;
-            transform: perspective(50vh) rotateX(60deg);
-            width: 200%;
-            height: 200%;
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            transform-origin: center center;
-        }
-        
-        .radar-sweep {
-            background: conic-gradient(from 0deg, transparent 0deg, transparent 270deg, rgba(6, 182, 212, 0.1) 300deg, rgba(6, 182, 212, 0.6) 360deg);
-            border-radius: 50%;
-            animation: radarSpin 4s linear infinite;
-        }
-        @keyframes radarSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-        .glitch-text { text-shadow: 2px 0 rgba(255,0,255,0.7), -2px 0 rgba(0,255,255,0.7); }
-
         .scanlines {
             background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
             background-size: 100% 0.5vmin;
@@ -90,20 +66,20 @@
     <!-- VIEW 0: INTRO -->
     <div id="view-intro" class="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-black transition-opacity duration-700" onclick="handleIntroBgClick(event)">
         <!-- Watch -->
-        <div id="intro-watch-container" class="relative w-[45vmin] h-[45vmin] transition-all duration-500 cursor-pointer group hover:scale-105 active:scale-95 z-20" onclick="triggerStartButton(event)">
-            <div class="absolute bottom-[-15%] w-full text-center text-zinc-500 text-[1.5vmin] font-bold tracking-[0.3em] uppercase opacity-0 group-hover:opacity-100 transition-opacity">Tap to Unlock</div>
+        <div id="intro-watch-container" class="relative w-[60vmin] h-[60vmin] md:w-[45vmin] md:h-[45vmin] transition-all duration-500 cursor-pointer group hover:scale-105 active:scale-95 z-20" onclick="triggerStartButton(event)">
+            <div class="absolute bottom-[-15%] w-full text-center text-zinc-500 text-[2vmin] md:text-[1.5vmin] font-bold tracking-[0.3em] uppercase opacity-0 group-hover:opacity-100 transition-opacity">Tap to Unlock</div>
         </div>
         <!-- Start Button -->
         <div id="intro-start-btn" class="hidden absolute flex-col items-center justify-center z-30">
-            <button onclick="startCar()" class="relative w-[22vmin] h-[22vmin] rounded-full bg-gradient-to-br from-red-600 to-red-900 border-[0.5vmin] border-zinc-800 shadow-[0_0_6vmin_rgba(220,38,38,0.5)] flex flex-col items-center justify-center group active:scale-95 transition-transform anim-pulse-red cursor-pointer">
+            <button onclick="startCar()" class="relative w-[30vmin] h-[30vmin] md:w-[22vmin] md:h-[22vmin] rounded-full bg-gradient-to-br from-red-600 to-red-900 border-[0.5vmin] border-zinc-800 shadow-[0_0_6vmin_rgba(220,38,38,0.5)] flex flex-col items-center justify-center group active:scale-95 transition-transform anim-pulse-red cursor-pointer">
                 <div class="absolute inset-0 rounded-full border border-white/20"></div>
                 <div class="absolute inset-[0.2vmin] rounded-full border border-black/30"></div>
-                <div class="text-white font-bold text-[1.8vmin] tracking-widest uppercase mb-[0.5vmin]">Engine</div>
-                <div class="text-white font-black text-[4vmin] tracking-tighter uppercase leading-none">Start</div>
-                <div class="text-white font-bold text-[1.8vmin] tracking-widest uppercase mt-[0.5vmin]">Stop</div>
-                <div class="w-[5vmin] h-[0.6vmin] bg-red-400 mt-[1.5vmin] rounded-full shadow-[0_0_1vmin_#f87171]"></div>
+                <div class="text-white font-bold text-[2.5vmin] md:text-[1.8vmin] tracking-widest uppercase mb-[0.5vmin]">Engine</div>
+                <div class="text-white font-black text-[5vmin] md:text-[4vmin] tracking-tighter uppercase leading-none">Start</div>
+                <div class="text-white font-bold text-[2.5vmin] md:text-[1.8vmin] tracking-widest uppercase mt-[0.5vmin]">Stop</div>
+                <div class="w-[7vmin] h-[0.8vmin] md:w-[5vmin] md:h-[0.6vmin] bg-red-400 mt-[1.5vmin] rounded-full shadow-[0_0_1vmin_#f87171]"></div>
             </button>
-            <div class="mt-[3vmin] text-zinc-600 text-[1.2vmin] font-bold tracking-widest uppercase animate-pulse">Tap background to cancel</div>
+            <div class="mt-[3vmin] text-zinc-600 text-[1.5vmin] md:text-[1.2vmin] font-bold tracking-widest uppercase animate-pulse">Tap background to cancel</div>
         </div>
     </div>
 
@@ -115,138 +91,90 @@
         </div>
     </div>
 
-    <!-- VIEW 3: CYBERPUNK MAP (New) -->
-    <div id="view-map" class="absolute inset-0 z-[80] bg-black flex flex-col items-center justify-center overflow-hidden opacity-0 pointer-events-none transition-opacity duration-500">
-        <!-- Animated 3D Grid -->
-        <div id="map-grid" class="cyber-grid opacity-50"></div>
-        
-        <!-- Radar Overlay -->
-        <div class="absolute inset-0 flex items-center justify-center">
-            <div class="w-[80vmin] h-[80vmin] border border-cyan-900/50 rounded-full relative">
-                <div class="absolute inset-0 border border-cyan-500/20 rounded-full scale-75"></div>
-                <div class="absolute inset-0 border border-cyan-500/10 rounded-full scale-50"></div>
-                <!-- Crosshairs -->
-                <div class="absolute inset-0 flex items-center justify-center">
-                    <div class="w-full h-[1px] bg-cyan-900/30"></div>
-                    <div class="h-full w-[1px] bg-cyan-900/30 absolute"></div>
-                </div>
-                <!-- Scanning Sweep -->
-                <div class="absolute inset-0 radar-sweep opacity-50"></div>
-            </div>
-        </div>
-
-        <!-- Central Car Icon -->
-        <div class="absolute z-20 text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]">
-            <i data-lucide="navigation" class="w-[5vmin] h-[5vmin] fill-current"></i>
-        </div>
-
-        <!-- HUD Data Overlays -->
-        <div class="absolute top-[4vmin] left-[4vmin] z-30 font-mono text-cyan-500 text-[1.5vmin] space-y-[0.5vmin]">
-            <div class="text-cyan-300 font-bold text-[2vmin] glitch-text">TACTICAL NAV SYSTEM</div>
-            <div>LAT: <span id="map-lat" class="text-white">--.----</span></div>
-            <div>LON: <span id="map-lon" class="text-white">--.----</span></div>
-            <div>ALT: <span id="map-alt" class="text-white">--</span> M</div>
-            <div class="mt-[2vmin] pt-[1vmin] border-t border-cyan-900">
-                <div>HDG: <span class="text-white">000° N</span></div>
-                <div>SPD: <span class="text-white" id="map-speed">0</span> KM/H</div>
-            </div>
-        </div>
-
-        <!-- Decorative Elements -->
-        <div class="absolute bottom-[4vmin] right-[4vmin] z-30 text-right">
-            <div class="text-[10vmin] font-black text-cyan-900/20 leading-none">MAP</div>
-            <div class="text-cyan-700 font-mono text-[1.2vmin]">SATELLITE UPLINK: ACTIVE</div>
-        </div>
-
-        <!-- Close Button -->
-        <button onclick="setMode('eco')" class="absolute top-[4vmin] right-[4vmin] z-50 px-[3vmin] py-[1vmin] border border-cyan-500/50 text-cyan-400 text-[1.5vmin] font-bold uppercase rounded hover:bg-cyan-900/30 transition-all flex items-center gap-[1vmin]">
-            <i data-lucide="x" class="w-[2vmin] h-[2vmin]"></i> Close Link
-        </button>
-    </div>
-
     <!-- VIEW 1: ECO DASHBOARD -->
-    <div id="view-eco" class="absolute inset-0 flex z-10 transition-all duration-500 bg-zinc-950 opacity-0 pointer-events-none" onclick="handleEcoBgClick(event)">
-        <!-- SIDEBAR (Scalable) -->
-        <div class="w-[8vw] min-w-[60px] h-full bg-zinc-950 border-r border-zinc-900 flex flex-col items-center py-[3vh] justify-between z-50 shadow-2xl shrink-0 relative hidden md:flex">
-            <div class="space-y-[5vh] flex flex-col items-center">
-                <div class="p-[1vmin] bg-zinc-900 rounded-[1vmin] border border-zinc-800"><div class="text-[3vmin] font-black tracking-tighter italic text-zinc-500">H</div></div>
-                <!-- Updated MAP Button -->
-                <button onclick="setMode('map')" class="group relative flex items-center justify-center w-[5vmin] h-[5vmin] rounded-full hover:bg-cyan-900/20 transition-all duration-300">
-                    <div class="absolute inset-0 rounded-full border border-cyan-500/0 group-hover:border-cyan-500/50 transition-all scale-0 group-hover:scale-100"></div>
-                    <i data-lucide="map-pin" class="text-zinc-500 group-hover:text-cyan-400 w-[3vmin] h-[3vmin] transition-colors"></i>
-                </button>
-                <i data-lucide="gauge" class="text-white w-[3vmin] h-[3vmin]"></i>
-                <div class="w-[4vmin] h-px bg-zinc-800"></div>
-                <i data-lucide="settings-2" class="text-zinc-500 w-[3vmin] h-[3vmin]"></i>
+    <div id="view-eco" class="absolute inset-0 flex flex-col md:flex-row z-10 transition-all duration-500 bg-zinc-950 opacity-0 pointer-events-none" onclick="handleEcoBgClick(event)">
+        <!-- NAVIGATION BAR (Left Sidebar Desktop / Bottom Bar Mobile) -->
+        <div class="fixed bottom-0 w-full h-[12vmin] md:static md:w-[8vw] md:min-w-[60px] md:h-full bg-zinc-950 border-t md:border-t-0 md:border-r border-zinc-900 flex flex-row md:flex-col items-center justify-around md:justify-between py-[2vmin] md:py-[3vh] z-50 shadow-2xl shrink-0">
+            <div class="space-y-0 md:space-y-[5vh] flex flex-row md:flex-col items-center gap-[5vmin] md:gap-0">
+                <div class="p-[1vmin] bg-zinc-900 rounded-[1vmin] border border-zinc-800"><div class="text-[4vmin] md:text-[3vmin] font-black tracking-tighter italic text-zinc-500">H</div></div>
+                
+                <!-- Static Map Pin -->
+                <i data-lucide="map-pin" class="text-zinc-500 w-[5vmin] h-[5vmin] md:w-[3vmin] md:h-[3vmin]"></i>
+                
+                <i data-lucide="gauge" class="text-white w-[5vmin] h-[5vmin] md:w-[3vmin] md:h-[3vmin]"></i>
+                <div class="w-px h-[4vmin] md:w-[4vmin] md:h-px bg-zinc-800"></div>
+                <i data-lucide="settings-2" class="text-zinc-500 w-[5vmin] h-[5vmin] md:w-[3vmin] md:h-[3vmin]"></i>
             </div>
-            <div id="clock" class="text-[1.5vmin] text-zinc-600 font-bold font-mono">12:00</div>
+            <div id="clock" class="text-[3vmin] md:text-[1.5vmin] text-zinc-600 font-bold font-mono hidden md:block">12:00</div>
         </div>
 
         <!-- MAIN CONTENT -->
-        <div class="flex-1 relative overflow-hidden flex flex-col">
+        <div class="flex-1 relative overflow-hidden flex flex-col mb-[12vmin] md:mb-0">
             <!-- TOP BAR -->
             <div class="relative z-30 flex justify-between items-start p-[2vmin]">
                 <div class="flex flex-col">
                     <div class="flex items-center gap-[1vmin] text-zinc-500 mb-[0.5vmin]">
-                        <i data-lucide="map-pin" class="w-[2vmin] h-[2vmin]"></i>
-                        <span id="weather-location" class="text-[1.5vmin] uppercase tracking-widest font-bold text-zinc-400 truncate max-w-[20vmin]">...</span>
+                        <i data-lucide="map-pin" class="w-[3vmin] h-[3vmin] md:w-[2vmin] md:h-[2vmin]"></i>
+                        <span id="weather-location" class="text-[2.5vmin] md:text-[1.5vmin] uppercase tracking-widest font-bold text-zinc-400 truncate max-w-[30vmin] md:max-w-[20vmin]">...</span>
                     </div>
                     <div class="flex items-center gap-[2vmin]">
-                        <div class="flex items-center gap-[1vmin]"><i id="weather-icon" data-lucide="cloud" class="w-[2.5vmin] h-[2.5vmin] text-zinc-400"></i><span id="weather-temp" class="text-[3vmin] font-bold text-white leading-none">--°</span></div>
+                        <div class="flex items-center gap-[1vmin]"><i id="weather-icon" data-lucide="cloud" class="w-[4vmin] h-[4vmin] md:w-[2.5vmin] md:h-[2.5vmin] text-zinc-400"></i><span id="weather-temp" class="text-[4vmin] md:text-[3vmin] font-bold text-white leading-none">--°</span></div>
                         <div class="w-px h-[3vmin] bg-zinc-800"></div>
-                        <div class="flex items-center gap-[1vmin]"><div id="eco-status-dot" class="w-[1vmin] h-[1vmin] rounded-full bg-zinc-600"></div><span id="eco-status-text" class="text-[1.2vmin] font-bold text-zinc-500 tracking-wide">NO GPS</span></div>
+                        <div class="flex items-center gap-[1vmin]"><div id="eco-status-dot" class="w-[1.5vmin] h-[1.5vmin] md:w-[1vmin] md:h-[1vmin] rounded-full bg-zinc-600"></div><span id="eco-status-text" class="text-[2vmin] md:text-[1.2vmin] font-bold text-zinc-500 tracking-wide">NO GPS</span></div>
                     </div>
                 </div>
                 <div class="flex bg-zinc-900 p-[0.5vmin] rounded-[1vmin] border border-zinc-800 shadow-lg">
-                    <button class="px-[3vmin] py-[0.8vmin] rounded-[0.5vmin] text-[1.5vmin] font-bold uppercase tracking-wider transition-all bg-emerald-900/50 text-emerald-400 border border-emerald-500/30 cursor-default">Drive</button>
-                    <button onclick="setMode('sport')" class="px-[3vmin] py-[0.8vmin] rounded-[0.5vmin] text-[1.5vmin] font-bold uppercase tracking-wider transition-all text-zinc-500 hover:text-white hover:bg-zinc-800 relative z-50 cursor-pointer">Sport</button>
+                    <button class="px-[3vmin] py-[0.8vmin] rounded-[0.5vmin] text-[2vmin] md:text-[1.5vmin] font-bold uppercase tracking-wider transition-all bg-emerald-900/50 text-emerald-400 border border-emerald-500/30 cursor-default">Drive</button>
+                    <button onclick="setMode('sport')" class="px-[3vmin] py-[0.8vmin] rounded-[0.5vmin] text-[2vmin] md:text-[1.5vmin] font-bold uppercase tracking-wider transition-all text-zinc-500 hover:text-white hover:bg-zinc-800 relative z-50 cursor-pointer">Sport</button>
                 </div>
             </div>
 
-            <!-- CENTER STAGE (Dynamic Layout) -->
-            <div class="relative z-20 flex-1 flex items-center justify-center gap-[4vw] px-[2vmin] pb-[6vmin] w-full h-full">
+            <!-- CENTER STAGE (Stackable Layout) -->
+            <div class="relative z-20 flex-1 flex flex-col md:flex-row items-center justify-center gap-[2vmin] md:gap-[4vw] px-[2vmin] pb-[4vmin] w-full h-full">
                 <!-- RPM -->
-                <div class="relative w-[30vmin] h-[30vmin] flex items-center justify-center">
+                <div class="relative w-[35vmin] h-[35vmin] md:w-[30vmin] md:h-[30vmin] flex items-center justify-center order-2 md:order-1">
                     <svg class="w-full h-full transform rotate-[135deg]" viewBox="0 0 200 200">
                         <circle cx="100" cy="100" r="85" fill="none" stroke="#1f2937" stroke-width="12" stroke-dasharray="534" stroke-dashoffset="133.5" />
                         <circle id="eco-ring-rpm" cx="100" cy="100" r="85" fill="none" stroke="#10b981" stroke-width="12" stroke-dasharray="534" stroke-dashoffset="534" class="gauge-transition" />
                     </svg>
                     <div class="absolute inset-0 flex flex-col items-center justify-center mt-[3vmin]">
-                        <span id="eco-val-rpm" class="text-[6vmin] font-bold tracking-tighter text-white leading-none">0.0</span>
-                        <span class="text-zinc-600 text-[1.5vmin] uppercase tracking-[0.3em] mt-1">x1000</span>
+                        <span id="eco-val-rpm" class="text-[7vmin] md:text-[6vmin] font-bold tracking-tighter text-white leading-none">0.0</span>
+                        <span class="text-zinc-600 text-[2vmin] md:text-[1.5vmin] uppercase tracking-[0.3em] mt-1">x1000</span>
                     </div>
                 </div>
+                
                 <!-- Center Info -->
-                <div class="flex flex-col items-center w-[30vmin] space-y-[2vmin] relative">
+                <div class="flex flex-col items-center w-[40vmin] md:w-[30vmin] space-y-[2vmin] relative order-1 md:order-2">
                     <div class="flex flex-col items-center">
-                        <span id="eco-speed-val" class="text-[14vmin] font-bold text-white tracking-tighter leading-none" style="font-family: 'Orbitron', sans-serif;">0</span>
-                        <span class="text-zinc-500 text-[1.5vmin] uppercase tracking-[0.4em]">KM/H</span>
+                        <span id="eco-speed-val" class="text-[20vmin] md:text-[14vmin] font-bold text-white tracking-tighter leading-none" style="font-family: 'Orbitron', sans-serif;">0</span>
+                        <span class="text-zinc-500 text-[2vmin] md:text-[1.5vmin] uppercase tracking-[0.4em]">KM/H</span>
                     </div>
                     <div class="relative group">
-                        <div class="w-[10vmin] h-[10vmin] bg-zinc-900 rounded-[1.5vmin] border border-zinc-800 flex items-center justify-center shadow-2xl">
-                            <span id="eco-gear-val" class="text-[6vmin] font-bold text-white">P</span>
+                        <div class="w-[12vmin] h-[12vmin] md:w-[10vmin] md:h-[10vmin] bg-zinc-900 rounded-[1.5vmin] border border-zinc-800 flex items-center justify-center shadow-2xl">
+                            <span id="eco-gear-val" class="text-[8vmin] md:text-[6vmin] font-bold text-white">P</span>
                         </div>
                     </div>
-                    <button onclick="toggleGPS()" id="btn-gps-eco" class="w-full py-[1.5vmin] rounded-[0.5vmin] bg-zinc-900 border border-zinc-800 text-zinc-400 font-bold text-[1.2vmin] uppercase tracking-[0.2em] transition-all hover:bg-zinc-800 hover:text-white flex items-center justify-center gap-[1vmin] cursor-pointer z-50">
-                        <i data-lucide="satellite" class="w-[1.5vmin] h-[1.5vmin]"></i> Enable GPS
+                    <button onclick="toggleGPS()" id="btn-gps-eco" class="w-full py-[1.5vmin] rounded-[0.5vmin] bg-zinc-900 border border-zinc-800 text-zinc-400 font-bold text-[2vmin] md:text-[1.2vmin] uppercase tracking-[0.2em] transition-all hover:bg-zinc-800 hover:text-white flex items-center justify-center gap-[1vmin] cursor-pointer z-50">
+                        <i data-lucide="satellite" class="w-[2vmin] h-[2vmin] md:w-[1.5vmin] md:h-[1.5vmin]"></i> Enable GPS
                     </button>
                     <!-- DEBUG -->
-                    <div id="debug-calc" onclick="toggleSpeedSource(event)" class="text-[1.2vmin] text-zinc-600 font-bold font-mono mt-2 cursor-pointer hover:text-zinc-400 transition-colors uppercase border border-zinc-800 px-[1vmin] py-[0.5vmin] rounded bg-black/20 truncate max-w-full">
+                    <div id="debug-calc" onclick="toggleSpeedSource(event)" class="text-[1.5vmin] md:text-[1.2vmin] text-zinc-600 font-bold font-mono mt-2 cursor-pointer hover:text-zinc-400 transition-colors uppercase border border-zinc-800 px-[1vmin] py-[0.5vmin] rounded bg-black/20 truncate max-w-full">
                         MODE: AUTO
                     </div>
                 </div>
+                
                 <!-- Watch -->
-                <div class="relative w-[30vmin] h-[30vmin] flex items-center justify-center">
+                <div class="relative w-[35vmin] h-[35vmin] md:w-[30vmin] md:h-[30vmin] flex items-center justify-center order-3">
                     <div id="eco-watch-container" class="relative w-full h-full transition-all duration-500 cursor-pointer group hover:scale-105 active:scale-95 z-20" onclick="triggerStopButton(event)"></div>
                     <div id="eco-stop-btn" class="absolute inset-0 hidden flex-col items-center justify-center z-30">
-                        <button onclick="stopCar()" class="relative w-[20vmin] h-[20vmin] rounded-full bg-gradient-to-br from-red-600 to-red-900 border-[0.5vmin] border-zinc-800 shadow-[0_0_50px_rgba(220,38,38,0.5)] flex flex-col items-center justify-center group active:scale-95 transition-transform anim-pulse-red cursor-pointer">
+                        <button onclick="stopCar()" class="relative w-[25vmin] h-[25vmin] md:w-[20vmin] md:h-[20vmin] rounded-full bg-gradient-to-br from-red-600 to-red-900 border-[0.5vmin] border-zinc-800 shadow-[0_0_50px_rgba(220,38,38,0.5)] flex flex-col items-center justify-center group active:scale-95 transition-transform anim-pulse-red cursor-pointer">
                             <div class="absolute inset-0 rounded-full border border-white/20"></div>
                             <div class="absolute inset-[0.2vmin] rounded-full border border-black/30"></div>
-                            <div class="text-white font-bold text-[1.8vmin] tracking-widest uppercase mb-[0.5vmin]">Engine</div>
-                            <div class="text-white font-black text-[4vmin] tracking-tighter uppercase leading-none">STOP</div>
-                            <div class="w-[5vmin] h-[0.6vmin] bg-red-400 mt-[1.5vmin] rounded-full shadow-[0_0_1vmin_#f87171]"></div>
+                            <div class="text-white font-bold text-[2.5vmin] md:text-[1.8vmin] tracking-widest uppercase mb-[0.5vmin]">Engine</div>
+                            <div class="text-white font-black text-[5vmin] md:text-[4vmin] tracking-tighter uppercase leading-none">STOP</div>
+                            <div class="w-[6vmin] h-[0.8vmin] md:w-[5vmin] md:h-[0.6vmin] bg-red-400 mt-[1.5vmin] rounded-full shadow-[0_0_1vmin_#f87171]"></div>
                         </button>
-                        <div class="mt-[3vmin] text-zinc-600 text-[1.2vmin] font-bold tracking-widest uppercase animate-pulse">Tap background to cancel</div>
+                        <div class="mt-[3vmin] text-zinc-600 text-[2vmin] md:text-[1.2vmin] font-bold tracking-widest uppercase animate-pulse">Tap background to cancel</div>
                     </div>
                 </div>
             </div>
@@ -260,21 +188,21 @@
             <div class="absolute inset-0 bg-gradient-to-t from-red-900/20 via-transparent to-transparent"></div>
         </div>
         <div class="absolute top-[2vmin] right-[2vmin] z-[60] flex gap-[1vmin] opacity-0 transition-opacity duration-500" id="sport-buttons">
-              <button onclick="toggleGPS()" class="px-[2vmin] py-[1vmin] bg-zinc-900/80 border border-zinc-700 text-zinc-400 text-[1.2vmin] font-bold uppercase rounded-[0.5vmin] hover:text-blue-400 transition-colors flex items-center gap-[1vmin] backdrop-blur-sm cursor-pointer">
-                <div id="sport-gps-dot" class="w-[1vmin] h-[1vmin] rounded-full bg-zinc-600"></div><span id="sport-gps-text">GPS</span>
+              <button onclick="toggleGPS()" class="px-[2vmin] py-[1vmin] bg-zinc-900/80 border border-zinc-700 text-zinc-400 text-[1.5vmin] md:text-[1.2vmin] font-bold uppercase rounded-[0.5vmin] hover:text-blue-400 transition-colors flex items-center gap-[1vmin] backdrop-blur-sm cursor-pointer">
+                <div id="sport-gps-dot" class="w-[1.5vmin] h-[1.5vmin] md:w-[1vmin] md:h-[1vmin] rounded-full bg-zinc-600"></div><span id="sport-gps-text">GPS</span>
               </button>
-              <button onclick="startNeedleSwipe()" class="px-[2vmin] py-[1vmin] bg-zinc-900/80 border border-zinc-700 text-zinc-400 text-[1.2vmin] font-bold uppercase rounded-[0.5vmin] hover:bg-yellow-600 hover:text-black hover:border-yellow-500 transition-colors cursor-pointer backdrop-blur-sm active:scale-95">Swipe</button>
-              <button onclick="setMode('eco')" class="px-[2vmin] py-[1vmin] bg-zinc-900/80 border border-zinc-700 text-zinc-400 text-[1.2vmin] font-bold uppercase rounded-[0.5vmin] hover:bg-red-900/50 hover:text-white hover:border-red-500/50 transition-colors cursor-pointer backdrop-blur-sm active:scale-95">Exit +R</button>
+              <button onclick="startNeedleSwipe()" class="px-[2vmin] py-[1vmin] bg-zinc-900/80 border border-zinc-700 text-zinc-400 text-[1.5vmin] md:text-[1.2vmin] font-bold uppercase rounded-[0.5vmin] hover:bg-yellow-600 hover:text-black hover:border-yellow-500 transition-colors cursor-pointer backdrop-blur-sm active:scale-95">Swipe</button>
+              <button onclick="setMode('eco')" class="px-[2vmin] py-[1vmin] bg-zinc-900/80 border border-zinc-700 text-zinc-400 text-[1.5vmin] md:text-[1.2vmin] font-bold uppercase rounded-[0.5vmin] hover:bg-red-900/50 hover:text-white hover:border-red-500/50 transition-colors cursor-pointer backdrop-blur-sm active:scale-95">Exit +R</button>
         </div>
         <div class="flex-1 flex flex-col items-center justify-center w-full h-full relative z-20 px-[2vmin]">
             <!-- RPM -->
-            <div id="sport-rpm-group" class="w-full max-w-[80vw] mx-auto mb-[2vh] mt-[5vh] opacity-0 transition-opacity duration-300">
-                <div class="flex gap-[0.5vmin] mb-[0.5vmin] px-[5%] h-[1.5vh] justify-center">
+            <div id="sport-rpm-group" class="w-full max-w-[90vw] md:max-w-[80vw] mx-auto mb-[2vh] mt-[5vh] opacity-0 transition-opacity duration-300">
+                <div class="flex gap-[0.5vmin] mb-[0.5vmin] px-[5%] h-[2vh] md:h-[1.5vh] justify-center">
                     <div class="led green" id="led-1"></div><div class="led green" id="led-2"></div><div class="led green" id="led-3"></div><div class="led green" id="led-4"></div><div class="led green" id="led-5"></div>
                     <div class="led yellow" id="led-6"></div><div class="led yellow" id="led-7"></div><div class="led yellow" id="led-8"></div>
                     <div class="led red" id="led-9"></div><div class="led red" id="led-10"></div>
                 </div>
-                <div class="relative w-full h-[12vh]">
+                <div class="relative w-full h-[15vh] md:h-[12vh]">
                     <svg class="w-full h-full overflow-visible" viewBox="0 0 800 100" preserveAspectRatio="none">
                         <defs>
                             <linearGradient id="rpmGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -290,52 +218,54 @@
                         </g>
                         <path d="M 0 90 L 150 15 L 800 15" fill="none" stroke="url(#rpmGradient)" stroke-width="12" stroke-linecap="butt" clip-path="url(#rpmClip)" filter="drop-shadow(0 0 1vmin rgba(234,179,8,0.6))" />
                     </svg>
-                    <div class="absolute top-[2vh] left-0 w-full flex justify-between px-[18%] text-[2vmin] font-bold text-zinc-500 font-fl5">
+                    <div class="absolute top-[2vh] left-0 w-full flex justify-between px-[18%] text-[3vmin] md:text-[2vmin] font-bold text-zinc-500 font-fl5">
                         <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span class="text-red-500">6</span><span class="text-red-500">7</span>
                     </div>
-                    <div class="absolute top-0 right-0 text-white font-mono text-[1.5vmin]">x1000 r/min</div>
+                    <div class="absolute top-0 right-0 text-white font-mono text-[2vmin] md:text-[1.5vmin]">x1000 r/min</div>
                 </div>
             </div>
             <!-- Mid -->
-            <div class="flex flex-1 w-full items-center justify-center max-w-[95vw] px-[2vmin]">
-                <!-- Left: Timer -->
-                <div id="sport-misc-group-1" class="flex-1 hidden md:flex flex-col items-end pr-[4vw] border-r border-zinc-900 opacity-0 transition-opacity duration-500">
-                    <div class="flex items-center gap-[1vmin] mb-[0.5vmin] text-zinc-500"><span id="timer-mode-label" class="text-[1.5vmin] font-bold uppercase tracking-wider">CHRONO</span></div>
-                    <div id="stopwatch-display" class="text-[6vmin] font-fl5 text-white font-mono tabular-nums leading-none">00:00.00</div>
+            <div class="flex flex-col md:flex-row flex-1 w-full items-center justify-center max-w-[95vw] px-[2vmin]">
+                <!-- Center (Speed) - Order 1 on mobile -->
+                <div id="sport-speed-group" class="w-[50vmin] md:w-[40vmin] flex flex-col items-center relative opacity-0 transition-opacity duration-500 order-1 md:order-2">
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[45vmin] h-[40vmin] md:w-[35vmin] md:h-[30vmin] bg-gradient-to-b from-red-600 to-transparent opacity-30 blur-3xl rounded-full"></div>
+                    <span id="sport-speed" class="text-[25vmin] md:text-[20vmin] font-fl5 font-black text-white drop-shadow-lg relative z-10 leading-none">0</span>
+                    <span class="text-[3vmin] md:text-[2.5vmin] font-bold text-red-500 tracking-[0.4em] relative z-10 -mt-[3vmin]">KM/H</span>
+                    <div class="grid grid-cols-2 gap-x-[4vmin] gap-y-[1vmin] mt-[4vmin] w-full px-[2vmin]">
+                        <div class="flex justify-between items-center text-[2.5vmin] md:text-[1.5vmin]"><span class="text-zinc-500 font-bold">WAT</span> <span class="font-fl5 font-bold text-white">90<span class="text-zinc-600 text-[1.5vmin] md:text-[1vmin]">°</span></span></div>
+                        <div class="flex justify-between items-center text-[2.5vmin] md:text-[1.5vmin]"><span class="text-zinc-500 font-bold">OIL</span> <span class="font-fl5 font-bold text-white">102<span class="text-zinc-600 text-[1.5vmin] md:text-[1vmin]">°</span></span></div>
+                        <div class="flex justify-between items-center text-[2.5vmin] md:text-[1.5vmin]"><span class="text-zinc-500 font-bold">BST</span> <span class="font-fl5 font-bold text-white">0.8<span class="text-zinc-600 text-[1.5vmin] md:text-[1vmin]">b</span></span></div>
+                        <div class="flex justify-between items-center text-[2.5vmin] md:text-[1.5vmin]"><span class="text-zinc-500 font-bold">VLT</span> <span class="font-fl5 font-bold text-white">14.2<span class="text-zinc-600 text-[1.5vmin] md:text-[1vmin]">v</span></span></div>
+                    </div>
+                </div>
+                
+                <!-- Left: Timer - Order 2 on mobile -->
+                <div id="sport-misc-group-1" class="flex-1 hidden md:flex flex-col items-end pr-[4vw] border-r border-zinc-900 opacity-0 transition-opacity duration-500 order-2 md:order-1 mt-[4vmin] md:mt-0">
+                    <div class="flex items-center gap-[1vmin] mb-[0.5vmin] text-zinc-500"><span id="timer-mode-label" class="text-[2vmin] md:text-[1.5vmin] font-bold uppercase tracking-wider">CHRONO</span></div>
+                    <div id="stopwatch-display" class="text-[8vmin] md:text-[6vmin] font-fl5 text-white font-mono tabular-nums leading-none">00:00.00</div>
                     <div id="manual-controls" class="flex gap-[1vmin] mt-[1vmin]">
-                        <button onclick="timerLapReset()" id="btn-lap" class="px-[2vmin] py-[0.5vmin] bg-zinc-800 hover:bg-zinc-700 text-[1.2vmin] font-bold text-zinc-300 rounded uppercase transition-colors">Reset</button>
-                        <button onclick="timerStartStop()" id="btn-start" class="px-[2vmin] py-[0.5vmin] bg-emerald-900 hover:bg-emerald-700 text-[1.2vmin] font-bold text-emerald-300 rounded uppercase transition-colors">Start</button>
+                        <button onclick="timerLapReset()" id="btn-lap" class="px-[3vmin] py-[1vmin] md:px-[2vmin] md:py-[0.5vmin] bg-zinc-800 hover:bg-zinc-700 text-[2vmin] md:text-[1.2vmin] font-bold text-zinc-300 rounded uppercase transition-colors">Reset</button>
+                        <button onclick="timerStartStop()" id="btn-start" class="px-[3vmin] py-[1vmin] md:px-[2vmin] md:py-[0.5vmin] bg-emerald-900 hover:bg-emerald-700 text-[2vmin] md:text-[1.2vmin] font-bold text-emerald-300 rounded uppercase transition-colors">Start</button>
                     </div>
                     <div class="mt-[1.5vmin]">
-                        <button onclick="activateZeroHundred()" id="btn-zero-hundred" class="w-full px-[2vmin] py-[0.5vmin] bg-zinc-900 border border-red-900/50 hover:bg-red-900/20 hover:border-red-500 text-[1.2vmin] font-bold text-red-500 rounded uppercase transition-colors tracking-widest flex items-center justify-center gap-[1vmin]"><i data-lucide="gauge-circle" class="w-[1.5vmin] h-[1.5vmin]"></i> 0-100 LAUNCH</button>
+                        <button onclick="activateZeroHundred()" id="btn-zero-hundred" class="w-full px-[3vmin] py-[1vmin] md:px-[2vmin] md:py-[0.5vmin] bg-zinc-900 border border-red-900/50 hover:bg-red-900/20 hover:border-red-500 text-[2vmin] md:text-[1.2vmin] font-bold text-red-500 rounded uppercase transition-colors tracking-widest flex items-center justify-center gap-[1vmin]"><i data-lucide="gauge-circle" class="w-[2.5vmin] h-[2.5vmin] md:w-[1.5vmin] md:h-[1.5vmin]"></i> 0-100 LAUNCH</button>
                     </div>
-                    <div id="auto-controls" class="mt-[1vmin] text-[1.2vmin] font-bold text-zinc-600 hidden text-right flex flex-col gap-[1vmin] items-end">
+                    <div id="auto-controls" class="mt-[1vmin] text-[2vmin] md:text-[1.2vmin] font-bold text-zinc-600 hidden text-right flex flex-col gap-[1vmin] items-end">
                         <span id="auto-status">STOP TO ARM</span>
-                        <button onclick="cancelZeroHundred()" class="px-[1vmin] py-[0.5vmin] bg-red-900/30 border border-red-500 text-red-400 text-[1vmin] font-bold uppercase rounded hover:bg-red-900/60 transition-colors w-auto">CANCEL</button>
+                        <button onclick="cancelZeroHundred()" class="px-[2vmin] py-[1vmin] md:px-[1vmin] md:py-[0.5vmin] bg-red-900/30 border border-red-500 text-red-400 text-[1.5vmin] md:text-[1vmin] font-bold uppercase rounded hover:bg-red-900/60 transition-colors w-auto">CANCEL</button>
                     </div>
-                    <div id="last-lap" class="mt-[1vmin] text-[1.2vmin] font-mono text-zinc-400">LAST: --:--.--</div>
+                    <div id="last-lap" class="mt-[1vmin] text-[2vmin] md:text-[1.2vmin] font-mono text-zinc-400">LAST: --:--.--</div>
                 </div>
-                <!-- Center -->
-                <div id="sport-speed-group" class="w-[40vmin] flex flex-col items-center relative opacity-0 transition-opacity duration-500">
-                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[35vmin] h-[30vmin] bg-gradient-to-b from-red-600 to-transparent opacity-30 blur-3xl rounded-full"></div>
-                    <span id="sport-speed" class="text-[20vmin] font-fl5 font-black text-white drop-shadow-lg relative z-10 leading-none">0</span>
-                    <span class="text-[2.5vmin] font-bold text-red-500 tracking-[0.4em] relative z-10 -mt-[3vmin]">KM/H</span>
-                    <div class="grid grid-cols-2 gap-x-[4vmin] gap-y-[1vmin] mt-[4vmin] w-full px-[2vmin]">
-                        <div class="flex justify-between items-center text-[1.5vmin]"><span class="text-zinc-500 font-bold">WAT</span> <span class="font-fl5 font-bold text-white">90<span class="text-zinc-600 text-[1vmin]">°</span></span></div>
-                        <div class="flex justify-between items-center text-[1.5vmin]"><span class="text-zinc-500 font-bold">OIL</span> <span class="font-fl5 font-bold text-white">102<span class="text-zinc-600 text-[1vmin]">°</span></span></div>
-                        <div class="flex justify-between items-center text-[1.5vmin]"><span class="text-zinc-500 font-bold">BST</span> <span class="font-fl5 font-bold text-white">0.8<span class="text-zinc-600 text-[1vmin]">b</span></span></div>
-                        <div class="flex justify-between items-center text-[1.5vmin]"><span class="text-zinc-500 font-bold">VLT</span> <span class="font-fl5 font-bold text-white">14.2<span class="text-zinc-600 text-[1vmin]">v</span></span></div>
-                    </div>
-                </div>
-                <!-- Right -->
-                <div id="sport-misc-group-2" class="flex-1 flex flex-col items-start pl-[4vw] border-l border-zinc-900 opacity-0 transition-opacity duration-500">
-                    <div class="flex items-baseline gap-[1vmin] mb-[4vmin]"><span class="text-red-600 font-black italic text-[5vmin] font-fl5 mr-[1vmin]">+R</span><span id="sport-gear" class="text-[14vmin] font-fl5 font-black text-white tracking-tighter">N</span></div>
-                    <div class="relative w-[20vmin] h-[20vmin] border-[0.3vmin] border-zinc-800 rounded-full flex items-center justify-center bg-zinc-900/50">
-                        <div class="absolute w-[12vmin] h-[12vmin] border border-zinc-800 rounded-full"></div>
+                
+                <!-- Right: Gear & G-Meter - Order 3 on mobile -->
+                <div id="sport-misc-group-2" class="flex-1 flex flex-row md:flex-col items-center md:items-start justify-center md:justify-start pl-0 md:pl-[4vw] border-t md:border-t-0 md:border-l border-zinc-900 opacity-0 transition-opacity duration-500 order-3 pt-[4vmin] md:pt-0 mt-[4vmin] md:mt-0 w-full md:w-auto gap-[4vmin] md:gap-0">
+                    <div class="flex items-baseline gap-[1vmin] mb-0 md:mb-[4vmin]"><span class="text-red-600 font-black italic text-[6vmin] md:text-[5vmin] font-fl5 mr-[1vmin]">+R</span><span id="sport-gear" class="text-[16vmin] md:text-[14vmin] font-fl5 font-black text-white tracking-tighter">N</span></div>
+                    <div class="relative w-[25vmin] h-[25vmin] md:w-[20vmin] md:h-[20vmin] border-[0.3vmin] border-zinc-800 rounded-full flex items-center justify-center bg-zinc-900/50">
+                        <div class="absolute w-[15vmin] h-[15vmin] md:w-[12vmin] md:h-[12vmin] border border-zinc-800 rounded-full"></div>
                         <div class="absolute w-full h-[1px] bg-zinc-800"></div>
                         <div class="absolute h-full w-[1px] bg-zinc-800"></div>
-                        <div id="g-dot" class="w-[1.5vmin] h-[1.5vmin] bg-yellow-400 rounded-full shadow-[0_0_10px_#facc15] g-dot-smooth relative z-10"></div>
-                        <span class="absolute bottom-[2vmin] text-[1.2vmin] text-zinc-500 font-bold">PEAK G</span>
+                        <div id="g-dot" class="w-[2vmin] h-[2vmin] md:w-[1.5vmin] md:h-[1.5vmin] bg-yellow-400 rounded-full shadow-[0_0_10px_#facc15] g-dot-smooth relative z-10"></div>
+                        <span class="absolute bottom-[2vmin] text-[1.5vmin] md:text-[1.2vmin] text-zinc-500 font-bold">PEAK G</span>
                     </div>
                 </div>
             </div>
@@ -672,16 +602,16 @@
                 if (wakeLock) wakeLock.release(); wakeLock = null;
                 AppState.gpsActive = false;
                 AppState.positionBuffer = []; 
-                dotEco.className = "w-[1vmin] h-[1vmin] rounded-full bg-zinc-600"; txtEco.innerText = "GPS PAUSED"; btnEco.innerHTML = '<i data-lucide="satellite" class="w-[1.5vmin] h-[1.5vmin]"></i> Enable GPS';
-                if(dotSport) dotSport.className = "w-[1vmin] h-[1vmin] rounded-full bg-zinc-600"; 
+                dotEco.className = "w-[1.5vmin] h-[1.5vmin] md:w-[1vmin] md:h-[1vmin] rounded-full bg-zinc-600"; txtEco.innerText = "GPS PAUSED"; btnEco.innerHTML = '<i data-lucide="satellite" class="w-[1.5vmin] h-[1.5vmin]"></i> Enable GPS';
+                if(dotSport) dotSport.className = "w-[1.5vmin] h-[1.5vmin] md:w-[1vmin] md:h-[1vmin] rounded-full bg-zinc-600"; 
                 if(btnSportText) btnSportText.innerText = "GPS";
                 const dbg = document.getElementById('debug-calc'); if(dbg) dbg.innerText = `MODE: ${AppState.speedSource}`;
                 updateDisplay(0);
             } else {
                 if (!("geolocation" in navigator)) { alert("GPS not supported."); return; }
                 requestWakeLock();
-                dotEco.className = "w-[1vmin] h-[1vmin] rounded-full bg-yellow-500 animate-pulse"; txtEco.innerText = "SEARCHING..."; btnEco.innerHTML = '<i data-lucide="satellite" class="w-[1.5vmin] h-[1.5vmin]"></i> Stop GPS';
-                dotSport.className = "w-[1vmin] h-[1vmin] rounded-full bg-yellow-500 animate-pulse"; 
+                dotEco.className = "w-[1.5vmin] h-[1.5vmin] md:w-[1vmin] md:h-[1vmin] rounded-full bg-yellow-500 animate-pulse"; txtEco.innerText = "SEARCHING..."; btnEco.innerHTML = '<i data-lucide="satellite" class="w-[1.5vmin] h-[1.5vmin]"></i> Stop GPS';
+                dotSport.className = "w-[1.5vmin] h-[1.5vmin] md:w-[1vmin] md:h-[1vmin] rounded-full bg-yellow-500 animate-pulse"; 
                 if(btnSportText) btnSportText.innerText = "SEARCH";
                 
                 AppState.gpsActive = true;
@@ -699,9 +629,9 @@
         }
 
         function handleSuccess(position) {
-            document.getElementById('eco-status-dot').className = "w-[1vmin] h-[1vmin] rounded-full bg-emerald-500 animate-pulse";
+            document.getElementById('eco-status-dot').className = "w-[1.5vmin] h-[1.5vmin] md:w-[1vmin] md:h-[1vmin] rounded-full bg-emerald-500 animate-pulse";
             document.getElementById('eco-status-text').innerText = "GPS LOCKED";
-            const sportDot = document.getElementById('sport-gps-dot'); if(sportDot) sportDot.className = "w-[1vmin] h-[1vmin] rounded-full bg-emerald-500 animate-pulse";
+            const sportDot = document.getElementById('sport-gps-dot'); if(sportDot) sportDot.className = "w-[1.5vmin] h-[1.5vmin] md:w-[1vmin] md:h-[1vmin] rounded-full bg-emerald-500 animate-pulse";
             const sportTxt = document.getElementById('sport-gps-text'); if(sportTxt) sportTxt.innerText = "LOCKED";
 
             const fixTime = position.timestamp; const lat = position.coords.latitude; const lon = position.coords.longitude;
