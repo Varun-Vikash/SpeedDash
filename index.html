@@ -30,14 +30,14 @@
 
         @keyframes redPulse { 
             0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); } 
-            70% { box-shadow: 0 0 0 2vmin rgba(220, 38, 38, 0); } 
+            70% { box-shadow: 0 0 0 20px rgba(220, 38, 38, 0); } 
             100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } 
         }
         .anim-pulse-red { animation: redPulse 1.5s infinite; }
 
         .scanlines {
             background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
-            background-size: 100% 0.5vmin;
+            background-size: 100% 4px;
             pointer-events: none;
             z-index: 50;
             opacity: 0.3;
@@ -46,12 +46,13 @@
         .font-fl5 { font-family: 'Orbitron', sans-serif; letter-spacing: -0.05em; }
         .bg-fl5-pattern { background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0l17.32 10v20L20 40 2.68 30V10z' fill-opacity='0.08' fill='%23333' stroke='%23444' stroke-width='1'/%3E%3C/svg%3E"); }
 
-        .led { width: 100%; height: 1vmin; background: #333; skew-x: -20deg; border-radius: 0.2vmin; transition: background 0.05s, box-shadow 0.05s; }
-        .led.green.on { background: #22c55e; box-shadow: 0 0 1vmin #22c55e; }
-        .led.yellow.on { background: #eab308; box-shadow: 0 0 1vmin #eab308; }
-        .led.red.on { background: #ef4444; box-shadow: 0 0 1.5vmin #ef4444; }
+        /* Dynamic LED sizing */
+        .led { width: 100%; height: 100%; background: #333; skew-x: -20deg; border-radius: 2px; transition: background 0.05s, box-shadow 0.05s; }
+        .led.green.on { background: #22c55e; box-shadow: 0 0 10px #22c55e; }
+        .led.yellow.on { background: #eab308; box-shadow: 0 0 10px #eab308; }
+        .led.red.on { background: #ef4444; box-shadow: 0 0 15px #ef4444; }
         .led.blink { animation: flashWhite 0.1s infinite alternate; }
-        @keyframes flashWhite { from { background: #ef4444; box-shadow: 0 0 1.5vmin #ef4444; } to { background: #ffffff; box-shadow: 0 0 2vmin #ffffff; } }
+        @keyframes flashWhite { from { background: #ef4444; box-shadow: 0 0 15px #ef4444; } to { background: #ffffff; box-shadow: 0 0 20px #ffffff; } }
 
         .g-dot-smooth { transition: transform 0.2s cubic-bezier(0.1, 0.7, 1.0, 0.1); }
         .hidden-force { display: none !important; }
@@ -65,120 +66,116 @@
     
     <!-- VIEW 0: INTRO -->
     <div id="view-intro" class="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-black transition-opacity duration-700" onclick="handleIntroBgClick(event)">
-        <!-- Watch -->
-        <div id="intro-watch-container" class="relative w-[60vmin] h-[60vmin] md:w-[45vmin] md:h-[45vmin] transition-all duration-500 cursor-pointer group hover:scale-105 active:scale-95 z-20" onclick="triggerStartButton(event)">
-            <div class="absolute bottom-[-15%] w-full text-center text-zinc-500 text-[2vmin] md:text-[1.5vmin] font-bold tracking-[0.3em] uppercase opacity-0 group-hover:opacity-100 transition-opacity">Tap to Unlock</div>
+        <!-- Watch: 70vw in Portrait, 45vh in Landscape -->
+        <div id="intro-watch-container" class="relative portrait:w-[70vw] portrait:h-[70vw] landscape:w-[45vh] landscape:h-[45vh] transition-all duration-500 cursor-pointer group hover:scale-105 active:scale-95 z-20" onclick="triggerStartButton(event)">
+            <div class="absolute -bottom-12 w-full text-center text-zinc-500 text-xs font-bold tracking-[0.3em] uppercase opacity-0 group-hover:opacity-100 transition-opacity">Tap to Unlock</div>
         </div>
         <!-- Start Button -->
         <div id="intro-start-btn" class="hidden absolute flex-col items-center justify-center z-30">
-            <button onclick="startCar()" class="relative w-[30vmin] h-[30vmin] md:w-[22vmin] md:h-[22vmin] rounded-full bg-gradient-to-br from-red-600 to-red-900 border-[0.5vmin] border-zinc-800 shadow-[0_0_6vmin_rgba(220,38,38,0.5)] flex flex-col items-center justify-center group active:scale-95 transition-transform anim-pulse-red cursor-pointer">
+            <button onclick="startCar()" class="relative portrait:w-[40vw] portrait:h-[40vw] landscape:w-[25vh] landscape:h-[25vh] rounded-full bg-gradient-to-br from-red-600 to-red-900 border-4 border-zinc-800 shadow-[0_0_50px_rgba(220,38,38,0.5)] flex flex-col items-center justify-center group active:scale-95 transition-transform anim-pulse-red cursor-pointer">
                 <div class="absolute inset-0 rounded-full border border-white/20"></div>
-                <div class="absolute inset-[0.2vmin] rounded-full border border-black/30"></div>
-                <div class="text-white font-bold text-[2.5vmin] md:text-[1.8vmin] tracking-widest uppercase mb-[0.5vmin]">Engine</div>
-                <div class="text-white font-black text-[5vmin] md:text-[4vmin] tracking-tighter uppercase leading-none">Start</div>
-                <div class="text-white font-bold text-[2.5vmin] md:text-[1.8vmin] tracking-widest uppercase mt-[0.5vmin]">Stop</div>
-                <div class="w-[7vmin] h-[0.8vmin] md:w-[5vmin] md:h-[0.6vmin] bg-red-400 mt-[1.5vmin] rounded-full shadow-[0_0_1vmin_#f87171]"></div>
+                <div class="absolute inset-1 rounded-full border border-black/30"></div>
+                <div class="text-white font-bold portrait:text-[3vw] landscape:text-[1.5vh] tracking-widest uppercase mb-1">Engine</div>
+                <div class="text-white font-black portrait:text-[8vw] landscape:text-[4vh] tracking-tighter uppercase leading-none">Start</div>
+                <div class="text-white font-bold portrait:text-[3vw] landscape:text-[1.5vh] tracking-widest uppercase mt-1">Stop</div>
+                <div class="portrait:w-[10vw] portrait:h-[1vw] landscape:w-[5vh] landscape:h-[0.5vh] bg-red-400 mt-2 rounded-full shadow-[0_0_10px_#f87171]"></div>
             </button>
-            <div class="mt-[3vmin] text-zinc-600 text-[1.5vmin] md:text-[1.2vmin] font-bold tracking-widest uppercase animate-pulse">Tap background to cancel</div>
+            <div class="mt-8 text-zinc-600 portrait:text-[2.5vw] landscape:text-[1.2vh] font-bold tracking-widest uppercase animate-pulse">Tap background to cancel</div>
         </div>
     </div>
 
     <!-- SPORT INTRO OVERLAY -->
     <div id="sport-intro" class="fixed inset-0 z-[100] flex flex-col items-center justify-center pointer-events-none hidden-force w-full overflow-hidden bg-black">
-        <div class="text-center space-y-[2vmin] relative z-10 w-full px-4">
-            <h1 id="intro-text" class="text-[15vmin] leading-none font-black italic text-white font-fl5 tracking-tighter">FULL SEND</h1>
-            <div class="text-[3vmin] font-bold bg-white text-black px-[4vmin] py-[1vmin] skew-x-[-12deg] inline-block uppercase tracking-[0.3em]">+R MODE ACTIVE</div>
+        <div class="text-center space-y-4 relative z-10 w-full px-4">
+            <h1 id="intro-text" class="portrait:text-[15vw] landscape:text-[15vh] leading-none font-black italic text-white font-fl5 tracking-tighter">FULL SEND</h1>
+            <div class="portrait:text-[4vw] landscape:text-[3vh] font-bold bg-white text-black px-6 py-2 skew-x-[-12deg] inline-block uppercase tracking-[0.3em]">+R MODE ACTIVE</div>
         </div>
     </div>
 
     <!-- VIEW 1: ECO DASHBOARD -->
-    <div id="view-eco" class="absolute inset-0 flex flex-col md:flex-row z-10 transition-all duration-500 bg-zinc-950 opacity-0 pointer-events-none" onclick="handleEcoBgClick(event)">
-        <!-- NAVIGATION BAR (Left Sidebar Desktop / Bottom Bar Mobile) -->
-        <div class="fixed bottom-0 w-full h-[12vmin] md:static md:w-[8vw] md:min-w-[60px] md:h-full bg-zinc-950 border-t md:border-t-0 md:border-r border-zinc-900 flex flex-row md:flex-col items-center justify-around md:justify-between py-[2vmin] md:py-[3vh] z-50 shadow-2xl shrink-0">
-            <div class="space-y-0 md:space-y-[5vh] flex flex-row md:flex-col items-center gap-[5vmin] md:gap-0">
-                <div class="p-[1vmin] bg-zinc-900 rounded-[1vmin] border border-zinc-800"><div class="text-[4vmin] md:text-[3vmin] font-black tracking-tighter italic text-zinc-500">H</div></div>
-                
-                <!-- Static Map Pin -->
-                <i data-lucide="map-pin" class="text-zinc-500 w-[5vmin] h-[5vmin] md:w-[3vmin] md:h-[3vmin]"></i>
-                
-                <i data-lucide="gauge" class="text-white w-[5vmin] h-[5vmin] md:w-[3vmin] md:h-[3vmin]"></i>
-                <div class="w-px h-[4vmin] md:w-[4vmin] md:h-px bg-zinc-800"></div>
-                <i data-lucide="settings-2" class="text-zinc-500 w-[5vmin] h-[5vmin] md:w-[3vmin] md:h-[3vmin]"></i>
+    <div id="view-eco" class="absolute inset-0 flex flex-col landscape:flex-row z-10 transition-all duration-500 bg-zinc-950 opacity-0 pointer-events-none" onclick="handleEcoBgClick(event)">
+        <!-- SIDEBAR: Bottom Bar (Portrait) / Left Sidebar (Landscape) -->
+        <div class="portrait:fixed portrait:bottom-0 portrait:w-full portrait:h-[12vh] landscape:static landscape:w-[8vw] landscape:h-full bg-zinc-950 portrait:border-t landscape:border-r border-zinc-900 flex portrait:flex-row landscape:flex-col items-center portrait:justify-around landscape:justify-between portrait:py-2 landscape:py-6 z-50 shadow-2xl shrink-0">
+            <div class="landscape:space-y-10 portrait:flex portrait:gap-8 landscape:flex-col landscape:items-center">
+                <div class="p-3 bg-zinc-900 rounded-xl border border-zinc-800"><div class="portrait:text-[5vw] landscape:text-[3vh] font-black tracking-tighter italic text-zinc-500">H</div></div>
+                <i data-lucide="map-pin" class="text-zinc-500 portrait:w-[6vw] portrait:h-[6vw] landscape:w-[3vh] landscape:h-[3vh]"></i>
+                <i data-lucide="gauge" class="text-white portrait:w-[6vw] portrait:h-[6vw] landscape:w-[3vh] landscape:h-[3vh]"></i>
+                <div class="portrait:w-px portrait:h-8 landscape:w-10 landscape:h-px bg-zinc-800"></div>
+                <i data-lucide="settings-2" class="text-zinc-500 portrait:w-[6vw] portrait:h-[6vw] landscape:w-[3vh] landscape:h-[3vh]"></i>
             </div>
-            <div id="clock" class="text-[3vmin] md:text-[1.5vmin] text-zinc-600 font-bold font-mono hidden md:block">12:00</div>
+            <div id="clock" class="text-xs text-zinc-600 font-bold font-mono portrait:hidden landscape:block">12:00</div>
         </div>
 
         <!-- MAIN CONTENT -->
-        <div class="flex-1 relative overflow-hidden flex flex-col mb-[12vmin] md:mb-0">
+        <div class="flex-1 relative overflow-hidden flex flex-col portrait:mb-[12vh]">
             <!-- TOP BAR -->
-            <div class="relative z-30 flex justify-between items-start p-[2vmin]">
+            <div class="relative z-30 flex justify-between items-start p-4 md:p-6">
                 <div class="flex flex-col">
-                    <div class="flex items-center gap-[1vmin] text-zinc-500 mb-[0.5vmin]">
-                        <i data-lucide="map-pin" class="w-[3vmin] h-[3vmin] md:w-[2vmin] md:h-[2vmin]"></i>
-                        <span id="weather-location" class="text-[2.5vmin] md:text-[1.5vmin] uppercase tracking-widest font-bold text-zinc-400 truncate max-w-[30vmin] md:max-w-[20vmin]">...</span>
+                    <div class="flex items-center gap-2 text-zinc-500 mb-1">
+                        <i data-lucide="map-pin" class="portrait:w-[4vw] landscape:w-[2vh]"></i>
+                        <span id="weather-location" class="portrait:text-[3vw] landscape:text-[1.5vh] uppercase tracking-widest font-bold text-zinc-400 truncate max-w-[200px]">...</span>
                     </div>
-                    <div class="flex items-center gap-[2vmin]">
-                        <div class="flex items-center gap-[1vmin]"><i id="weather-icon" data-lucide="cloud" class="w-[4vmin] h-[4vmin] md:w-[2.5vmin] md:h-[2.5vmin] text-zinc-400"></i><span id="weather-temp" class="text-[4vmin] md:text-[3vmin] font-bold text-white leading-none">--°</span></div>
-                        <div class="w-px h-[3vmin] bg-zinc-800"></div>
-                        <div class="flex items-center gap-[1vmin]"><div id="eco-status-dot" class="w-[1.5vmin] h-[1.5vmin] md:w-[1vmin] md:h-[1vmin] rounded-full bg-zinc-600"></div><span id="eco-status-text" class="text-[2vmin] md:text-[1.2vmin] font-bold text-zinc-500 tracking-wide">NO GPS</span></div>
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-2"><i id="weather-icon" data-lucide="cloud" class="portrait:w-[6vw] landscape:w-[3vh] text-zinc-400"></i><span id="weather-temp" class="portrait:text-[5vw] landscape:text-[3vh] font-bold text-white leading-none">--°</span></div>
+                        <div class="w-px h-6 bg-zinc-800"></div>
+                        <div class="flex items-center gap-2"><div id="eco-status-dot" class="w-2 h-2 rounded-full bg-zinc-600"></div><span id="eco-status-text" class="portrait:text-[2.5vw] landscape:text-[1.2vh] font-bold text-zinc-500 tracking-wide">NO GPS</span></div>
                     </div>
                 </div>
-                <div class="flex bg-zinc-900 p-[0.5vmin] rounded-[1vmin] border border-zinc-800 shadow-lg">
-                    <button class="px-[3vmin] py-[0.8vmin] rounded-[0.5vmin] text-[2vmin] md:text-[1.5vmin] font-bold uppercase tracking-wider transition-all bg-emerald-900/50 text-emerald-400 border border-emerald-500/30 cursor-default">Drive</button>
-                    <button onclick="setMode('sport')" class="px-[3vmin] py-[0.8vmin] rounded-[0.5vmin] text-[2vmin] md:text-[1.5vmin] font-bold uppercase tracking-wider transition-all text-zinc-500 hover:text-white hover:bg-zinc-800 relative z-50 cursor-pointer">Sport</button>
+                <div class="flex bg-zinc-900 p-1 rounded-lg border border-zinc-800 shadow-lg">
+                    <button class="px-6 py-1 rounded-md portrait:text-[3vw] landscape:text-[1.5vh] font-bold uppercase tracking-wider transition-all bg-emerald-900/50 text-emerald-400 border border-emerald-500/30 cursor-default">Drive</button>
+                    <button onclick="setMode('sport')" class="px-6 py-1 rounded-md portrait:text-[3vw] landscape:text-[1.5vh] font-bold uppercase tracking-wider transition-all text-zinc-500 hover:text-white hover:bg-zinc-800 relative z-50 cursor-pointer">Sport</button>
                 </div>
             </div>
 
-            <!-- CENTER STAGE (Stackable Layout) -->
-            <div class="relative z-20 flex-1 flex flex-col md:flex-row items-center justify-center gap-[2vmin] md:gap-[4vw] px-[2vmin] pb-[4vmin] w-full h-full">
+            <!-- CENTER STAGE -->
+            <!-- Portrait: Flex Column, Large Widths. Landscape: Flex Row, Height-based sizes -->
+            <div class="relative z-20 flex-1 flex flex-col landscape:flex-row items-center justify-center portrait:gap-8 landscape:gap-[4vw] px-4 pb-12 w-full h-full">
                 <!-- RPM -->
-                <div class="relative w-[35vmin] h-[35vmin] md:w-[30vmin] md:h-[30vmin] flex items-center justify-center order-2 md:order-1">
+                <div class="relative portrait:w-[65vw] portrait:h-[65vw] landscape:w-[35vh] landscape:h-[35vh] flex items-center justify-center portrait:order-2 landscape:order-1">
                     <svg class="w-full h-full transform rotate-[135deg]" viewBox="0 0 200 200">
                         <circle cx="100" cy="100" r="85" fill="none" stroke="#1f2937" stroke-width="12" stroke-dasharray="534" stroke-dashoffset="133.5" />
                         <circle id="eco-ring-rpm" cx="100" cy="100" r="85" fill="none" stroke="#10b981" stroke-width="12" stroke-dasharray="534" stroke-dashoffset="534" class="gauge-transition" />
                     </svg>
-                    <div class="absolute inset-0 flex flex-col items-center justify-center mt-[3vmin]">
-                        <span id="eco-val-rpm" class="text-[7vmin] md:text-[6vmin] font-bold tracking-tighter text-white leading-none">0.0</span>
-                        <span class="text-zinc-600 text-[2vmin] md:text-[1.5vmin] uppercase tracking-[0.3em] mt-1">x1000</span>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center mt-6">
+                        <span id="eco-val-rpm" class="portrait:text-[12vw] landscape:text-[6vh] font-bold tracking-tighter text-white">0.0</span>
+                        <span class="text-zinc-600 portrait:text-[3vw] landscape:text-[1.5vh] uppercase tracking-[0.3em] mt-2">x1000</span>
                     </div>
                 </div>
-                
                 <!-- Center Info -->
-                <div class="flex flex-col items-center w-[40vmin] md:w-[30vmin] space-y-[2vmin] relative order-1 md:order-2">
+                <div class="flex flex-col items-center portrait:w-full landscape:w-[30vh] portrait:space-y-4 landscape:space-y-6 relative portrait:order-1 landscape:order-2">
                     <div class="flex flex-col items-center">
-                        <span id="eco-speed-val" class="text-[20vmin] md:text-[14vmin] font-bold text-white tracking-tighter leading-none" style="font-family: 'Orbitron', sans-serif;">0</span>
-                        <span class="text-zinc-500 text-[2vmin] md:text-[1.5vmin] uppercase tracking-[0.4em]">KM/H</span>
+                        <span id="eco-speed-val" class="portrait:text-[25vw] landscape:text-[14vh] font-bold text-white tracking-tighter leading-none" style="font-family: 'Orbitron', sans-serif;">0</span>
+                        <span class="text-zinc-500 portrait:text-[3vw] landscape:text-[1.5vh] uppercase tracking-[0.4em]">KM/H</span>
                     </div>
                     <div class="relative group">
-                        <div class="w-[12vmin] h-[12vmin] md:w-[10vmin] md:h-[10vmin] bg-zinc-900 rounded-[1.5vmin] border border-zinc-800 flex items-center justify-center shadow-2xl">
-                            <span id="eco-gear-val" class="text-[8vmin] md:text-[6vmin] font-bold text-white">P</span>
+                        <div class="portrait:w-[15vw] portrait:h-[15vw] landscape:w-[10vh] landscape:h-[10vh] bg-zinc-900 rounded-xl border border-zinc-800 flex items-center justify-center shadow-2xl">
+                            <span id="eco-gear-val" class="portrait:text-[8vw] landscape:text-[6vh] font-bold text-white">P</span>
                         </div>
                     </div>
-                    <button onclick="toggleGPS()" id="btn-gps-eco" class="w-full py-[1.5vmin] rounded-[0.5vmin] bg-zinc-900 border border-zinc-800 text-zinc-400 font-bold text-[2vmin] md:text-[1.2vmin] uppercase tracking-[0.2em] transition-all hover:bg-zinc-800 hover:text-white flex items-center justify-center gap-[1vmin] cursor-pointer z-50">
-                        <i data-lucide="satellite" class="w-[2vmin] h-[2vmin] md:w-[1.5vmin] md:h-[1.5vmin]"></i> Enable GPS
+                    <button onclick="toggleGPS()" id="btn-gps-eco" class="w-full py-3 rounded bg-zinc-900 border border-zinc-800 text-zinc-400 font-bold portrait:text-[3vw] landscape:text-[1.2vh] uppercase tracking-[0.2em] transition-all hover:bg-zinc-800 hover:text-white flex items-center justify-center gap-2 cursor-pointer z-50">
+                        <i data-lucide="satellite" class="w-3 h-3"></i> Enable GPS
                     </button>
                     <!-- DEBUG -->
-                    <div id="debug-calc" onclick="toggleSpeedSource(event)" class="text-[1.5vmin] md:text-[1.2vmin] text-zinc-600 font-bold font-mono mt-2 cursor-pointer hover:text-zinc-400 transition-colors uppercase border border-zinc-800 px-[1vmin] py-[0.5vmin] rounded bg-black/20 truncate max-w-full">
+                    <div id="debug-calc" onclick="toggleSpeedSource(event)" class="portrait:text-[2.5vw] landscape:text-[1vh] text-zinc-600 font-bold font-mono mt-2 cursor-pointer hover:text-zinc-400 transition-colors uppercase border border-zinc-800 px-2 py-1 rounded bg-black/20 truncate max-w-full">
                         MODE: AUTO
                     </div>
                 </div>
-                
                 <!-- Watch -->
-                <div class="relative w-[35vmin] h-[35vmin] md:w-[30vmin] md:h-[30vmin] flex items-center justify-center order-3">
+                <div class="relative portrait:w-[65vw] portrait:h-[65vw] landscape:w-[35vh] landscape:h-[35vh] flex items-center justify-center portrait:order-3 landscape:order-3">
                     <div id="eco-watch-container" class="relative w-full h-full transition-all duration-500 cursor-pointer group hover:scale-105 active:scale-95 z-20" onclick="triggerStopButton(event)"></div>
                     <div id="eco-stop-btn" class="absolute inset-0 hidden flex-col items-center justify-center z-30">
-                        <button onclick="stopCar()" class="relative w-[25vmin] h-[25vmin] md:w-[20vmin] md:h-[20vmin] rounded-full bg-gradient-to-br from-red-600 to-red-900 border-[0.5vmin] border-zinc-800 shadow-[0_0_50px_rgba(220,38,38,0.5)] flex flex-col items-center justify-center group active:scale-95 transition-transform anim-pulse-red cursor-pointer">
+                        <button onclick="stopCar()" class="relative portrait:w-[40vw] portrait:h-[40vw] landscape:w-[20vh] landscape:h-[20vh] rounded-full bg-gradient-to-br from-red-600 to-red-900 border-4 border-zinc-800 shadow-[0_0_50px_rgba(220,38,38,0.5)] flex flex-col items-center justify-center group active:scale-95 transition-transform anim-pulse-red cursor-pointer">
                             <div class="absolute inset-0 rounded-full border border-white/20"></div>
-                            <div class="absolute inset-[0.2vmin] rounded-full border border-black/30"></div>
-                            <div class="text-white font-bold text-[2.5vmin] md:text-[1.8vmin] tracking-widest uppercase mb-[0.5vmin]">Engine</div>
-                            <div class="text-white font-black text-[5vmin] md:text-[4vmin] tracking-tighter uppercase leading-none">STOP</div>
-                            <div class="w-[6vmin] h-[0.8vmin] md:w-[5vmin] md:h-[0.6vmin] bg-red-400 mt-[1.5vmin] rounded-full shadow-[0_0_1vmin_#f87171]"></div>
+                            <div class="absolute inset-1 rounded-full border border-black/30"></div>
+                            <div class="text-white font-bold portrait:text-[3vw] landscape:text-[1.5vh] tracking-widest uppercase mb-1">Engine</div>
+                            <div class="text-white font-black portrait:text-[8vw] landscape:text-[4vh] tracking-tighter uppercase leading-none">STOP</div>
+                            <div class="portrait:w-[10vw] portrait:h-[1vw] landscape:w-[5vh] landscape:h-[0.5vh] bg-red-400 mt-2 rounded-full shadow-[0_0_10px_#f87171]"></div>
                         </button>
-                        <div class="mt-[3vmin] text-zinc-600 text-[2vmin] md:text-[1.2vmin] font-bold tracking-widest uppercase animate-pulse">Tap background to cancel</div>
+                        <div class="mt-4 text-zinc-600 portrait:text-[2.5vw] landscape:text-[1.2vh] font-bold tracking-widest uppercase animate-pulse">Tap background to cancel</div>
                     </div>
                 </div>
             </div>
-            <div class="h-[0.5vmin] w-full bg-emerald-500 shadow-[0_0_2vmin_rgba(16,185,129,0.6)] mt-auto"></div>
+            <div class="h-1 w-full bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.6)] mt-auto"></div>
         </div>
     </div>
 
@@ -187,22 +184,22 @@
         <div class="absolute inset-0 bg-fl5-pattern opacity-0 z-0" id="bg-sport-pattern" style="opacity: 0.5; clip-path: circle(0% at 50% 50%);">
             <div class="absolute inset-0 bg-gradient-to-t from-red-900/20 via-transparent to-transparent"></div>
         </div>
-        <div class="absolute top-[2vmin] right-[2vmin] z-[60] flex gap-[1vmin] opacity-0 transition-opacity duration-500" id="sport-buttons">
-              <button onclick="toggleGPS()" class="px-[2vmin] py-[1vmin] bg-zinc-900/80 border border-zinc-700 text-zinc-400 text-[1.5vmin] md:text-[1.2vmin] font-bold uppercase rounded-[0.5vmin] hover:text-blue-400 transition-colors flex items-center gap-[1vmin] backdrop-blur-sm cursor-pointer">
-                <div id="sport-gps-dot" class="w-[1.5vmin] h-[1.5vmin] md:w-[1vmin] md:h-[1vmin] rounded-full bg-zinc-600"></div><span id="sport-gps-text">GPS</span>
+        <div class="absolute top-6 right-6 z-[60] flex gap-3 opacity-0 transition-opacity duration-500" id="sport-buttons">
+              <button onclick="toggleGPS()" class="px-4 py-2 bg-zinc-900/80 border border-zinc-700 text-zinc-400 portrait:text-[2.5vw] landscape:text-[1.2vh] font-bold uppercase rounded hover:text-blue-400 transition-colors flex items-center gap-2 backdrop-blur-sm cursor-pointer">
+                <div id="sport-gps-dot" class="w-2 h-2 rounded-full bg-zinc-600"></div><span id="sport-gps-text">GPS</span>
               </button>
-              <button onclick="startNeedleSwipe()" class="px-[2vmin] py-[1vmin] bg-zinc-900/80 border border-zinc-700 text-zinc-400 text-[1.5vmin] md:text-[1.2vmin] font-bold uppercase rounded-[0.5vmin] hover:bg-yellow-600 hover:text-black hover:border-yellow-500 transition-colors cursor-pointer backdrop-blur-sm active:scale-95">Swipe</button>
-              <button onclick="setMode('eco')" class="px-[2vmin] py-[1vmin] bg-zinc-900/80 border border-zinc-700 text-zinc-400 text-[1.5vmin] md:text-[1.2vmin] font-bold uppercase rounded-[0.5vmin] hover:bg-red-900/50 hover:text-white hover:border-red-500/50 transition-colors cursor-pointer backdrop-blur-sm active:scale-95">Exit +R</button>
+              <button onclick="startNeedleSwipe()" class="px-4 py-2 bg-zinc-900/80 border border-zinc-700 text-zinc-400 portrait:text-[2.5vw] landscape:text-[1.2vh] font-bold uppercase rounded hover:bg-yellow-600 hover:text-black hover:border-yellow-500 transition-colors cursor-pointer backdrop-blur-sm active:scale-95">Swipe</button>
+              <button onclick="setMode('eco')" class="px-4 py-2 bg-zinc-900/80 border border-zinc-700 text-zinc-400 portrait:text-[2.5vw] landscape:text-[1.2vh] font-bold uppercase rounded hover:bg-red-900/50 hover:text-white hover:border-red-500/50 transition-colors cursor-pointer backdrop-blur-sm active:scale-95">Exit +R</button>
         </div>
-        <div class="flex-1 flex flex-col items-center justify-center w-full h-full relative z-20 px-[2vmin]">
+        <div class="flex-1 flex flex-col items-center justify-center w-full h-full relative z-20 px-4">
             <!-- RPM -->
-            <div id="sport-rpm-group" class="w-full max-w-[90vw] md:max-w-[80vw] mx-auto mb-[2vh] mt-[5vh] opacity-0 transition-opacity duration-300">
-                <div class="flex gap-[0.5vmin] mb-[0.5vmin] px-[5%] h-[2vh] md:h-[1.5vh] justify-center">
+            <div id="sport-rpm-group" class="w-full max-w-[95vw] md:max-w-[80vw] mx-auto mb-[2vh] mt-[5vh] opacity-0 transition-opacity duration-300">
+                <div class="flex gap-1 mb-1 px-[5%] h-[2vh] landscape:h-[3vh] justify-center">
                     <div class="led green" id="led-1"></div><div class="led green" id="led-2"></div><div class="led green" id="led-3"></div><div class="led green" id="led-4"></div><div class="led green" id="led-5"></div>
                     <div class="led yellow" id="led-6"></div><div class="led yellow" id="led-7"></div><div class="led yellow" id="led-8"></div>
                     <div class="led red" id="led-9"></div><div class="led red" id="led-10"></div>
                 </div>
-                <div class="relative w-full h-[15vh] md:h-[12vh]">
+                <div class="relative w-full h-[15vh]">
                     <svg class="w-full h-full overflow-visible" viewBox="0 0 800 100" preserveAspectRatio="none">
                         <defs>
                             <linearGradient id="rpmGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -218,54 +215,52 @@
                         </g>
                         <path d="M 0 90 L 150 15 L 800 15" fill="none" stroke="url(#rpmGradient)" stroke-width="12" stroke-linecap="butt" clip-path="url(#rpmClip)" filter="drop-shadow(0 0 1vmin rgba(234,179,8,0.6))" />
                     </svg>
-                    <div class="absolute top-[2vh] left-0 w-full flex justify-between px-[18%] text-[3vmin] md:text-[2vmin] font-bold text-zinc-500 font-fl5">
+                    <div class="absolute top-[20%] left-0 w-full flex justify-between px-[18%] portrait:text-[3vw] landscape:text-[2vh] font-bold text-zinc-500 font-fl5">
                         <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span class="text-red-500">6</span><span class="text-red-500">7</span>
                     </div>
-                    <div class="absolute top-0 right-0 text-white font-mono text-[2vmin] md:text-[1.5vmin]">x1000 r/min</div>
+                    <div class="absolute top-0 right-0 text-white font-mono portrait:text-[2.5vw] landscape:text-[1.5vh]">x1000 r/min</div>
                 </div>
             </div>
             <!-- Mid -->
-            <div class="flex flex-col md:flex-row flex-1 w-full items-center justify-center max-w-[95vw] px-[2vmin]">
-                <!-- Center (Speed) - Order 1 on mobile -->
-                <div id="sport-speed-group" class="w-[50vmin] md:w-[40vmin] flex flex-col items-center relative opacity-0 transition-opacity duration-500 order-1 md:order-2">
-                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[45vmin] h-[40vmin] md:w-[35vmin] md:h-[30vmin] bg-gradient-to-b from-red-600 to-transparent opacity-30 blur-3xl rounded-full"></div>
-                    <span id="sport-speed" class="text-[25vmin] md:text-[20vmin] font-fl5 font-black text-white drop-shadow-lg relative z-10 leading-none">0</span>
-                    <span class="text-[3vmin] md:text-[2.5vmin] font-bold text-red-500 tracking-[0.4em] relative z-10 -mt-[3vmin]">KM/H</span>
-                    <div class="grid grid-cols-2 gap-x-[4vmin] gap-y-[1vmin] mt-[4vmin] w-full px-[2vmin]">
-                        <div class="flex justify-between items-center text-[2.5vmin] md:text-[1.5vmin]"><span class="text-zinc-500 font-bold">WAT</span> <span class="font-fl5 font-bold text-white">90<span class="text-zinc-600 text-[1.5vmin] md:text-[1vmin]">°</span></span></div>
-                        <div class="flex justify-between items-center text-[2.5vmin] md:text-[1.5vmin]"><span class="text-zinc-500 font-bold">OIL</span> <span class="font-fl5 font-bold text-white">102<span class="text-zinc-600 text-[1.5vmin] md:text-[1vmin]">°</span></span></div>
-                        <div class="flex justify-between items-center text-[2.5vmin] md:text-[1.5vmin]"><span class="text-zinc-500 font-bold">BST</span> <span class="font-fl5 font-bold text-white">0.8<span class="text-zinc-600 text-[1.5vmin] md:text-[1vmin]">b</span></span></div>
-                        <div class="flex justify-between items-center text-[2.5vmin] md:text-[1.5vmin]"><span class="text-zinc-500 font-bold">VLT</span> <span class="font-fl5 font-bold text-white">14.2<span class="text-zinc-600 text-[1.5vmin] md:text-[1vmin]">v</span></span></div>
+            <div class="flex flex-col landscape:flex-row flex-1 w-full items-center justify-center max-w-[95vw] px-4">
+                <!-- Center (Speed) -->
+                <div id="sport-speed-group" class="portrait:w-[60vw] landscape:w-[45vh] flex flex-col items-center relative opacity-0 transition-opacity duration-500 portrait:order-1 landscape:order-2">
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 portrait:w-[50vw] portrait:h-[40vw] landscape:w-[35vh] landscape:h-[25vh] bg-gradient-to-b from-red-600 to-transparent opacity-30 blur-3xl rounded-full"></div>
+                    <span id="sport-speed" class="portrait:text-[30vw] landscape:text-[20vh] font-fl5 font-black text-white drop-shadow-lg relative z-10 leading-none">0</span>
+                    <span class="portrait:text-[4vw] landscape:text-[2vh] font-bold text-red-500 tracking-[0.4em] relative z-10 -mt-[1vh]">KM/H</span>
+                    <div class="grid grid-cols-2 gap-x-8 gap-y-2 mt-4 w-full px-4">
+                        <div class="flex justify-between items-center portrait:text-[3vw] landscape:text-[1.5vh]"><span class="text-zinc-500 font-bold">WAT</span> <span class="font-fl5 font-bold text-white">90<span class="text-zinc-600 text-xs">°</span></span></div>
+                        <div class="flex justify-between items-center portrait:text-[3vw] landscape:text-[1.5vh]"><span class="text-zinc-500 font-bold">OIL</span> <span class="font-fl5 font-bold text-white">102<span class="text-zinc-600 text-xs">°</span></span></div>
+                        <div class="flex justify-between items-center portrait:text-[3vw] landscape:text-[1.5vh]"><span class="text-zinc-500 font-bold">BST</span> <span class="font-fl5 font-bold text-white">0.8<span class="text-zinc-600 text-xs">b</span></span></div>
+                        <div class="flex justify-between items-center portrait:text-[3vw] landscape:text-[1.5vh]"><span class="text-zinc-500 font-bold">VLT</span> <span class="font-fl5 font-bold text-white">14.2<span class="text-zinc-600 text-xs">v</span></span></div>
                     </div>
                 </div>
-                
-                <!-- Left: Timer - Order 2 on mobile -->
-                <div id="sport-misc-group-1" class="flex-1 hidden md:flex flex-col items-end pr-[4vw] border-r border-zinc-900 opacity-0 transition-opacity duration-500 order-2 md:order-1 mt-[4vmin] md:mt-0">
-                    <div class="flex items-center gap-[1vmin] mb-[0.5vmin] text-zinc-500"><span id="timer-mode-label" class="text-[2vmin] md:text-[1.5vmin] font-bold uppercase tracking-wider">CHRONO</span></div>
-                    <div id="stopwatch-display" class="text-[8vmin] md:text-[6vmin] font-fl5 text-white font-mono tabular-nums leading-none">00:00.00</div>
-                    <div id="manual-controls" class="flex gap-[1vmin] mt-[1vmin]">
-                        <button onclick="timerLapReset()" id="btn-lap" class="px-[3vmin] py-[1vmin] md:px-[2vmin] md:py-[0.5vmin] bg-zinc-800 hover:bg-zinc-700 text-[2vmin] md:text-[1.2vmin] font-bold text-zinc-300 rounded uppercase transition-colors">Reset</button>
-                        <button onclick="timerStartStop()" id="btn-start" class="px-[3vmin] py-[1vmin] md:px-[2vmin] md:py-[0.5vmin] bg-emerald-900 hover:bg-emerald-700 text-[2vmin] md:text-[1.2vmin] font-bold text-emerald-300 rounded uppercase transition-colors">Start</button>
+                <!-- Left: Timer -->
+                <div id="sport-misc-group-1" class="flex-1 hidden md:flex flex-col items-end pr-[4vw] border-r border-zinc-900 opacity-0 transition-opacity duration-500 portrait:order-2 landscape:order-1 portrait:mt-8 landscape:mt-0">
+                    <div class="flex items-center gap-2 mb-1 text-zinc-500"><span id="timer-mode-label" class="portrait:text-[3vw] landscape:text-[1.5vh] font-bold uppercase tracking-wider">CHRONO</span></div>
+                    <div id="stopwatch-display" class="portrait:text-[8vw] landscape:text-[5vh] font-fl5 text-white font-mono tabular-nums">00:00.00</div>
+                    <div id="manual-controls" class="flex gap-2 mt-2">
+                        <button onclick="timerLapReset()" id="btn-lap" class="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 portrait:text-[2.5vw] landscape:text-[1.2vh] font-bold text-zinc-300 rounded uppercase transition-colors">Reset</button>
+                        <button onclick="timerStartStop()" id="btn-start" class="px-3 py-1 bg-emerald-900 hover:bg-emerald-700 portrait:text-[2.5vw] landscape:text-[1.2vh] font-bold text-emerald-300 rounded uppercase transition-colors">Start</button>
                     </div>
-                    <div class="mt-[1.5vmin]">
-                        <button onclick="activateZeroHundred()" id="btn-zero-hundred" class="w-full px-[3vmin] py-[1vmin] md:px-[2vmin] md:py-[0.5vmin] bg-zinc-900 border border-red-900/50 hover:bg-red-900/20 hover:border-red-500 text-[2vmin] md:text-[1.2vmin] font-bold text-red-500 rounded uppercase transition-colors tracking-widest flex items-center justify-center gap-[1vmin]"><i data-lucide="gauge-circle" class="w-[2.5vmin] h-[2.5vmin] md:w-[1.5vmin] md:h-[1.5vmin]"></i> 0-100 LAUNCH</button>
+                    <div class="mt-3">
+                        <button onclick="activateZeroHundred()" id="btn-zero-hundred" class="w-full px-3 py-1 bg-zinc-900 border border-red-900/50 hover:bg-red-900/20 hover:border-red-500 portrait:text-[2.5vw] landscape:text-[1.2vh] font-bold text-red-500 rounded uppercase transition-colors tracking-widest flex items-center justify-center gap-1"><i data-lucide="gauge-circle" class="w-3 h-3"></i> 0-100 LAUNCH</button>
                     </div>
-                    <div id="auto-controls" class="mt-[1vmin] text-[2vmin] md:text-[1.2vmin] font-bold text-zinc-600 hidden text-right flex flex-col gap-[1vmin] items-end">
+                    <div id="auto-controls" class="mt-2 portrait:text-[2.5vw] landscape:text-[1.2vh] font-bold text-zinc-600 hidden text-right flex flex-col gap-2 items-end">
                         <span id="auto-status">STOP TO ARM</span>
-                        <button onclick="cancelZeroHundred()" class="px-[2vmin] py-[1vmin] md:px-[1vmin] md:py-[0.5vmin] bg-red-900/30 border border-red-500 text-red-400 text-[1.5vmin] md:text-[1vmin] font-bold uppercase rounded hover:bg-red-900/60 transition-colors w-auto">CANCEL</button>
+                        <button onclick="cancelZeroHundred()" class="px-2 py-1 bg-red-900/30 border border-red-500 text-red-400 font-bold uppercase rounded hover:bg-red-900/60 transition-colors w-auto">CANCEL</button>
                     </div>
-                    <div id="last-lap" class="mt-[1vmin] text-[2vmin] md:text-[1.2vmin] font-mono text-zinc-400">LAST: --:--.--</div>
+                    <div id="last-lap" class="mt-2 portrait:text-[2.5vw] landscape:text-[1.2vh] font-mono text-zinc-400">LAST: --:--.--</div>
                 </div>
-                
-                <!-- Right: Gear & G-Meter - Order 3 on mobile -->
-                <div id="sport-misc-group-2" class="flex-1 flex flex-row md:flex-col items-center md:items-start justify-center md:justify-start pl-0 md:pl-[4vw] border-t md:border-t-0 md:border-l border-zinc-900 opacity-0 transition-opacity duration-500 order-3 pt-[4vmin] md:pt-0 mt-[4vmin] md:mt-0 w-full md:w-auto gap-[4vmin] md:gap-0">
-                    <div class="flex items-baseline gap-[1vmin] mb-0 md:mb-[4vmin]"><span class="text-red-600 font-black italic text-[6vmin] md:text-[5vmin] font-fl5 mr-[1vmin]">+R</span><span id="sport-gear" class="text-[16vmin] md:text-[14vmin] font-fl5 font-black text-white tracking-tighter">N</span></div>
-                    <div class="relative w-[25vmin] h-[25vmin] md:w-[20vmin] md:h-[20vmin] border-[0.3vmin] border-zinc-800 rounded-full flex items-center justify-center bg-zinc-900/50">
-                        <div class="absolute w-[15vmin] h-[15vmin] md:w-[12vmin] md:h-[12vmin] border border-zinc-800 rounded-full"></div>
+                <!-- Right: Gear & G-Meter -->
+                <div id="sport-misc-group-2" class="flex-1 flex flex-col items-start portrait:items-center landscape:items-start pl-0 landscape:pl-[4vw] border-l-0 landscape:border-l border-zinc-900 opacity-0 transition-opacity duration-500 portrait:order-3 landscape:order-3 portrait:mt-8 landscape:mt-0">
+                    <div class="flex items-baseline gap-2 mb-6"><span class="text-red-600 font-black italic portrait:text-[8vw] landscape:text-[4vh] font-fl5 mr-2">+R</span><span id="sport-gear" class="portrait:text-[20vw] landscape:text-[12vh] font-fl5 font-black text-white tracking-tighter">N</span></div>
+                    <div class="relative portrait:w-[40vw] portrait:h-[40vw] landscape:w-[20vh] landscape:h-[20vh] border-2 border-zinc-800 rounded-full flex items-center justify-center bg-zinc-900/50">
+                        <div class="absolute portrait:w-[25vw] portrait:h-[25vw] landscape:w-[12vh] landscape:h-[12vh] border border-zinc-800 rounded-full"></div>
                         <div class="absolute w-full h-[1px] bg-zinc-800"></div>
                         <div class="absolute h-full w-[1px] bg-zinc-800"></div>
-                        <div id="g-dot" class="w-[2vmin] h-[2vmin] md:w-[1.5vmin] md:h-[1.5vmin] bg-yellow-400 rounded-full shadow-[0_0_10px_#facc15] g-dot-smooth relative z-10"></div>
-                        <span class="absolute bottom-[2vmin] text-[1.5vmin] md:text-[1.2vmin] text-zinc-500 font-bold">PEAK G</span>
+                        <div id="g-dot" class="w-3 h-3 bg-yellow-400 rounded-full shadow-[0_0_10px_#facc15] g-dot-smooth relative z-10"></div>
+                        <span class="absolute bottom-2 text-[10px] text-zinc-500 font-bold">PEAK G</span>
                     </div>
                 </div>
             </div>
@@ -318,7 +313,7 @@
         function getOmegaWatchSVG(containerIdPrefix) {
             const p = containerIdPrefix; 
             return `
-            <div class="w-full h-full rounded-full bg-zinc-900 shadow-2xl border-[0.4vmin] border-[#1a1a1a] relative overflow-hidden ring-[0.8vmin] ring-[#111]">
+            <div class="w-full h-full rounded-full bg-zinc-900 shadow-2xl border-2 border-[#1a1a1a] relative overflow-hidden ring-4 ring-[#111]">
                 <svg class="w-full h-full" viewBox="0 0 200 200">
                     <circle cx="100" cy="100" r="100" fill="#141414" />
                     <path d="M100 100 m-98 0 a 98 98 0 1 0 196 0 a 98 98 0 1 0 -196 0" fill="none" stroke="#050505" stroke-width="20" />
@@ -400,7 +395,7 @@
                 
                 if(btn) {
                     btn.innerText = "STOP";
-                    btn.className = "px-[2vmin] py-[0.5vmin] bg-red-900 hover:bg-red-700 text-[1.2vmin] font-bold text-red-300 rounded uppercase transition-colors";
+                    btn.className = "px-3 py-1 bg-red-900 hover:bg-red-700 portrait:text-[2.5vw] landscape:text-[1.2vh] font-bold text-red-300 rounded uppercase transition-colors";
                 }
                 if(lapBtn) lapBtn.innerText = "LAP";
             } else {
@@ -408,7 +403,7 @@
                 clearInterval(AppState.swInterval);
                 if(btn) {
                     btn.innerText = "START";
-                    btn.className = "px-[2vmin] py-[0.5vmin] bg-emerald-900 hover:bg-emerald-700 text-[1.2vmin] font-bold text-emerald-300 rounded uppercase transition-colors";
+                    btn.className = "px-3 py-1 bg-emerald-900 hover:bg-emerald-700 portrait:text-[2.5vw] landscape:text-[1.2vh] font-bold text-emerald-300 rounded uppercase transition-colors";
                 }
                 if(lapBtn) lapBtn.innerText = "RESET";
             }
@@ -637,14 +632,6 @@
             const fixTime = position.timestamp; const lat = position.coords.latitude; const lon = position.coords.longitude;
             let speedMps = position.coords.speed; let debugDist = 0;
             
-            // Map Data Updates
-            if(AppState.mode === 'map') {
-                document.getElementById('map-lat').innerText = lat.toFixed(4);
-                document.getElementById('map-lon').innerText = lon.toFixed(4);
-                if(position.coords.altitude) document.getElementById('map-alt').innerText = Math.round(position.coords.altitude);
-                document.getElementById('map-speed').innerText = Math.round((speedMps || 0) * 3.6);
-            }
-
             AppState.positionBuffer.push({ lat, lon, time: fixTime, acc: position.coords.accuracy });
             if (AppState.positionBuffer.length > 5) AppState.positionBuffer.shift();
 
@@ -703,16 +690,16 @@
 
             if (AppState.timerMode === 'auto') {
                 if (roundedSpeed < 2 && !AppState.autoRunning) {
-                    AppState.autoArmed = true; document.getElementById('auto-status').innerHTML = "READY<br>LAUNCH"; document.getElementById('auto-status').className = "mt-2 text-[1.5vmin] font-bold text-emerald-500 animate-pulse text-right leading-tight";
+                    AppState.autoArmed = true; document.getElementById('auto-status').innerHTML = "READY<br>LAUNCH"; document.getElementById('auto-status').className = "mt-2 portrait:text-[2.5vw] landscape:text-[1.2vh] font-bold text-emerald-500 animate-pulse text-right leading-tight";
                     if(!AppState.autoRunning) document.getElementById('stopwatch-display').innerText = "00:00.00";
                 } else if (AppState.autoArmed && roundedSpeed >= 2 && !AppState.autoRunning) {
                     AppState.autoArmed = false; AppState.autoRunning = true; AppState.swStartTime = Date.now();
-                    document.getElementById('auto-status').innerText = "GO GO GO"; document.getElementById('auto-status').className = "mt-2 text-[1.5vmin] font-bold text-red-500 text-right";
+                    document.getElementById('auto-status').innerText = "GO GO GO"; document.getElementById('auto-status').className = "mt-2 portrait:text-[2.5vw] landscape:text-[1.2vh] font-bold text-red-500 text-right";
                     AppState.swInterval = setInterval(() => { formatTime(Date.now() - AppState.swStartTime); }, 30);
                 } else if (AppState.autoRunning && roundedSpeed >= 100) {
                     clearInterval(AppState.swInterval); AppState.autoRunning = false;
                     formatTime(Date.now() - AppState.swStartTime); document.getElementById('last-lap').innerText = "0-100: " + document.getElementById('stopwatch-display').innerText;
-                    document.getElementById('auto-status').innerText = "FINISHED"; document.getElementById('auto-status').className = "mt-2 text-[1.5vmin] font-bold text-emerald-400 text-right";
+                    document.getElementById('auto-status').innerText = "FINISHED"; document.getElementById('auto-status').className = "mt-2 portrait:text-[2.5vw] landscape:text-[1.2vh] font-bold text-emerald-400 text-right";
                 }
             }
 
@@ -729,9 +716,6 @@
                 const rpmOffset = (534 * 0.25) + ((534 * 0.75) - (Math.min(rpm, 8000) / 8000) * (534 * 0.75));
                 const elRpmRing = document.getElementById('eco-ring-rpm'); if(elRpmRing) elRpmRing.style.strokeDashoffset = rpmOffset; 
                 document.getElementById('eco-val-rpm').innerText = (rpm / 1000).toFixed(1);
-                const baseOffset = 534 * 0.25; const arcLength = 534 * 0.75;
-                const speedOffset = baseOffset + (arcLength - (Math.min(roundedSpeed, 200) / 200) * arcLength);
-                const elSpeedRing = document.getElementById('eco-ring-speed'); if(elSpeedRing) elSpeedRing.style.strokeDashoffset = speedOffset;
             }
             if (AppState.mode === 'sport') {
                 document.getElementById('sport-speed').innerText = roundedSpeed; document.getElementById('sport-gear').innerText = gear;
@@ -746,147 +730,40 @@
         function setMode(mode) {
             if (AppState.mode === mode && mode !== 'intro') return;
             AppState.mode = mode;
-            const introView = document.getElementById('view-intro'); 
-            const ecoView = document.getElementById('view-eco'); 
-            const sportView = document.getElementById('view-sport');
-            const mapView = document.getElementById('view-map'); // MAP VIEW REFERENCE
-            const intro = document.getElementById('sport-intro'); 
-            const introText = document.getElementById('intro-text'); 
-            const bgSport = document.getElementById('bg-sport-pattern');
+            const introView = document.getElementById('view-intro'); const ecoView = document.getElementById('view-eco'); const sportView = document.getElementById('view-sport');
+            const intro = document.getElementById('sport-intro'); const introText = document.getElementById('intro-text'); const bgSport = document.getElementById('bg-sport-pattern');
             
-            // MAP MODE
-            if (mode === 'map') {
-                if(introView) { introView.style.opacity = '0'; introView.classList.add('hidden-force'); }
-                if(ecoView) { ecoView.style.opacity = '0'; ecoView.classList.add('pointer-events-none'); }
-                if(sportView) { sportView.style.opacity = '0'; sportView.classList.add('pointer-events-none'); }
-                if(mapView) {
-                    mapView.classList.remove('pointer-events-none');
-                    mapView.style.opacity = '1';
-                }
-                if(bgSport) bgSport.classList.remove('anim-bg-reveal');
-                return;
-            }
-
             if (mode === 'intro') {
-                if(introView) { 
-                    introView.classList.remove('hidden-force'); 
-                    introView.style.opacity = '1'; 
-                    // Reset Intro Watch
-                    const w = document.getElementById('intro-watch-container'); 
-                    const b = document.getElementById('intro-start-btn');
+                if(introView) { introView.classList.remove('hidden-force'); introView.style.opacity = '1'; 
+                    const w = document.getElementById('intro-watch-container'); const b = document.getElementById('intro-start-btn');
                     if(w) { w.classList.remove('hidden'); w.style.opacity = '1'; w.style.transform = 'scale(1)'; }
                     if(b) { b.classList.add('hidden'); b.classList.remove('flex'); }
                 }
-                if(ecoView) ecoView.style.opacity = '0'; 
-                if(sportView) sportView.style.opacity = '0';
-                if(mapView) { mapView.style.opacity = '0'; mapView.classList.add('pointer-events-none'); }
+                if(ecoView) ecoView.style.opacity = '0'; if(sportView) sportView.style.opacity = '0';
             }
-            
             if (mode === 'eco') {
-                if(mapView) { mapView.style.opacity = '0'; mapView.classList.add('pointer-events-none'); }
-                if(introView) { 
-                    introView.style.opacity = '0'; 
-                    setTimeout(() => introView.classList.add('hidden-force'), 700); 
-                }
-                if(sportView) { 
-                    sportView.style.opacity = '0'; 
-                    sportView.classList.add('pointer-events-none'); 
-                }
+                if(introView) { introView.style.opacity = '0'; setTimeout(() => introView.classList.add('hidden-force'), 700); }
+                if(sportView) { sportView.style.opacity = '0'; sportView.classList.add('pointer-events-none'); }
                 if(bgSport) bgSport.classList.remove('anim-bg-reveal');
-                
                 if(ecoView) {
-                    const wEco = document.getElementById('eco-watch-container'); 
-                    const bEco = document.getElementById('eco-stop-btn');
-                    if(wEco) { 
-                        const svg = wEco.querySelector('div'); 
-                        if(svg) { svg.style.opacity = '1'; svg.style.transform = 'scale(1)'; } 
-                    }
+                    const wEco = document.getElementById('eco-watch-container'); const bEco = document.getElementById('eco-stop-btn');
+                    if(wEco) { const svg = wEco.querySelector('div'); if(svg) { svg.style.opacity = '1'; svg.style.transform = 'scale(1)'; } }
                     if(bEco) { bEco.classList.add('hidden'); bEco.classList.remove('flex'); }
-                    
-                    ecoView.classList.remove('pointer-events-none'); 
-                    ecoView.style.opacity = '1'; 
-                    ecoView.style.transform = 'scale(1)'; 
-                    ecoView.classList.add('anim-eco-enter'); 
-                    ecoView.style.pointerEvents = 'auto';
-                    
-                    setTimeout(() => {
-                        ecoView.classList.remove('anim-eco-enter'); 
-                        startNeedleSwipe(); 
-                    }, 1000);
+                    ecoView.classList.remove('pointer-events-none'); ecoView.style.opacity = '1'; ecoView.style.transform = 'scale(1)'; ecoView.classList.add('anim-eco-enter'); ecoView.style.pointerEvents = 'auto';
+                    setTimeout(() => { ecoView.classList.remove('anim-eco-enter'); startNeedleSwipe(); }, 1000);
                 }
             }
-            
             if (mode === 'sport') {
-                if(mapView) { mapView.style.opacity = '0'; mapView.classList.add('pointer-events-none'); }
-                if(ecoView) { 
-                    ecoView.style.opacity = '0'; 
-                    ecoView.style.pointerEvents = 'none'; 
-                }
-                if(intro) intro.classList.remove('hidden-force'); 
-                if(introText) introText.classList.add('anim-text-strobe');
-                
-                if(sportView) { 
-                    sportView.classList.remove('pointer-events-none'); 
-                    sportView.style.opacity = '1'; 
-                }
-                
-                const rpmGroup = document.getElementById('sport-rpm-group');
-                const speedGroup = document.getElementById('sport-speed-group');
-                const misc1 = document.getElementById('sport-misc-group-1');
-                const misc2 = document.getElementById('sport-misc-group-2');
-                const btns = document.getElementById('sport-buttons');
-                
-                if(rpmGroup) rpmGroup.style.opacity = '0'; 
-                if(speedGroup) speedGroup.style.opacity = '0'; 
-                if(misc1) misc1.style.opacity = '0'; 
-                if(misc2) misc2.style.opacity = '0'; 
-                if(btns) btns.style.opacity = '0';
-                
-                if(bgSport) { 
-                    bgSport.style.opacity = '0.5'; 
-                    bgSport.classList.remove('anim-bg-reveal'); 
-                    bgSport.style.clipPath = 'circle(0% at 50% 50%)'; 
-                }
-
-                setTimeout(() => { 
-                    if(introText) introText.classList.remove('anim-text-strobe'); 
-                    if(intro) intro.classList.add('hidden-force'); 
-                    if(rpmGroup) rpmGroup.style.opacity = '1'; 
-                    startNeedleSwipe(); 
-                }, 800);
-
-                setTimeout(() => { if(speedGroup) speedGroup.style.opacity = '1'; }, 1600);
-
-                setTimeout(() => { 
-                    if(misc1) misc1.style.opacity = '1'; 
-                    if(misc2) misc2.style.opacity = '1'; 
-                    if(btns) btns.style.opacity = '1'; 
-                    if(bgSport) { 
-                        bgSport.style.clipPath = ''; 
-                        bgSport.classList.add('anim-bg-reveal'); 
-                    } 
-                }, 2100);
+                if(ecoView) { ecoView.style.opacity = '0'; ecoView.style.pointerEvents = 'none'; }
+                if(intro) intro.classList.remove('hidden-force'); if(introText) introText.classList.add('anim-text-strobe');
+                if(sportView) { sportView.classList.remove('pointer-events-none'); sportView.style.opacity = '1'; }
+                document.getElementById('sport-rpm-group').style.opacity = '0'; document.getElementById('sport-speed-group').style.opacity = '0'; 
+                document.getElementById('sport-misc-group-1').style.opacity = '0'; document.getElementById('sport-misc-group-2').style.opacity = '0'; document.getElementById('sport-buttons').style.opacity = '0';
+                if(bgSport) { bgSport.style.opacity = '0.5'; bgSport.classList.remove('anim-bg-reveal'); bgSport.style.clipPath = 'circle(0% at 50% 50%)'; }
+                setTimeout(() => { if(introText) introText.classList.remove('anim-text-strobe'); if(intro) intro.classList.add('hidden-force'); document.getElementById('sport-rpm-group').style.opacity = '1'; startNeedleSwipe(); }, 800);
+                setTimeout(() => { document.getElementById('sport-speed-group').style.opacity = '1'; }, 1600);
+                setTimeout(() => { document.getElementById('sport-misc-group-1').style.opacity = '1'; document.getElementById('sport-misc-group-2').style.opacity = '1'; document.getElementById('sport-buttons').style.opacity = '1'; if(bgSport) { bgSport.style.clipPath = ''; bgSport.classList.add('anim-bg-reveal'); } }, 2100);
             }
-        }
-
-        // --- WEATHER & LOCATION (Stubs as provided) ---
-        async function updateWeather(lat, lon) {
-            // Already handled in handleSuccess for update cycle
-            // Keeping stub logic from original structure if needed
-            const now = Date.now();
-            const dist = getDistanceFromLatLonInKm(AppState.lastWeatherPos.lat, AppState.lastWeatherPos.lon, lat, lon);
-            if (dist < 1 && (now - AppState.lastWeatherUpdate) < 300000) return;
-            AppState.lastWeatherUpdate = now;
-            AppState.lastWeatherPos = { lat, lon };
-            try {
-                const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code`);
-                const wData = await wRes.json();
-                if(wData.current) {
-                    document.getElementById('weather-temp').innerText = `${Math.round(wData.current.temperature_2m)}°`;
-                    // ... icon logic ...
-                }
-            } catch(e) {}
-            // ... location fetch ...
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -900,18 +777,6 @@
                 if (AppState.mode === 'intro') updateWatchFace(0, 'intro');
                 if (AppState.mode === 'eco') updateWatchFace(AppState.smoothSpeed, 'eco');
                 if(AppState.gpsActive || AppState.swiping) if(AppState.gpsActive) updateDisplay(AppState.smoothSpeed);
-                // Map Animation Loop
-                if(AppState.mode === 'map') {
-                    const grid = document.getElementById('map-grid');
-                    if(grid) {
-                        // Move grid position based on simulated speed
-                        // Just use a time-based offset accelerated by speed
-                        const now = Date.now();
-                        const speedFactor = Math.max(1, AppState.smoothSpeed);
-                        const offset = (now * speedFactor * 0.05) % 100;
-                        grid.style.backgroundPosition = `0 ${offset}px`;
-                    }
-                }
                 requestAnimationFrame(loop);
             }
             loop();
