@@ -77,77 +77,8 @@
     
     <!-- VIEW 0: INTRO -->
     <div id="view-intro" class="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-black transition-opacity duration-700" onclick="handleIntroBgClick(event)">
-        <!-- Car Silhouette Animation -->
-        <div id="intro-car-container" class="relative portrait:w-[90vw] portrait:h-[50vw] landscape:w-[80vh] landscape:h-[45vh] transition-all duration-500 cursor-pointer group hover:scale-105 active:scale-95 z-20" onclick="triggerStartButton(event)">
-            <svg id="car-silhouette-svg" class="w-full h-full" viewBox="0 0 1560 760" preserveAspectRatio="xMidYMid meet">
-                <!-- Main grille outline paths -->
-                <g id="grille-lines" stroke="white" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <!-- Top grille line -->
-                    <path id="line-top" d="M 130 280 Q 390 260 780 260 Q 1170 260 1430 280" stroke-dasharray="2000" stroke-dashoffset="2000"/>
-                    
-                    <!-- Left DRL housing -->
-                    <path id="line-left-drl" d="M 130 280 L 150 310 Q 180 380 200 420 L 220 480" stroke-dasharray="500" stroke-dashoffset="500"/>
-                    
-                    <!-- Left lower curve -->
-                    <path id="line-left-lower" d="M 220 480 Q 350 530 520 540" stroke-dasharray="500" stroke-dashoffset="500"/>
-                    
-                    <!-- Bottom grille -->
-                    <path id="line-bottom" d="M 520 540 Q 780 550 1040 540" stroke-dasharray="800" stroke-dashoffset="800"/>
-                    
-                    <!-- Right lower curve -->
-                    <path id="line-right-lower" d="M 1040 540 Q 1210 530 1340 480" stroke-dasharray="500" stroke-dashoffset="500"/>
-                    
-                    <!-- Right DRL housing -->
-                    <path id="line-right-drl" d="M 1340 480 L 1360 420 Q 1380 380 1410 310 L 1430 280" stroke-dasharray="500" stroke-dashoffset="500"/>
-                    
-                    <!-- Center grille details -->
-                    <path id="line-center-1" d="M 480 370 Q 490 360 500 370" stroke-dasharray="100" stroke-dashoffset="100"/>
-                    <path id="line-center-2" d="M 700 340 L 860 340" stroke-dasharray="200" stroke-dashoffset="200"/>
-                    <path id="line-center-3" d="M 1060 370 Q 1070 360 1080 370" stroke-dasharray="100" stroke-dashoffset="100"/>
-                    
-                    <!-- Inner grille accents -->
-                    <path id="line-accent-left" d="M 380 340 Q 520 320 650 330" stroke-dasharray="400" stroke-dashoffset="400"/>
-                    <path id="line-accent-right" d="M 910 330 Q 1040 320 1180 340" stroke-dasharray="400" stroke-dashoffset="400"/>
-                </g>
-                
-                <!-- DRL lights (appear later) -->
-                <g id="drl-lights" opacity="0">
-                    <!-- Left DRL -->
-                    <rect x="150" y="300" width="40" height="140" rx="8" fill="white" opacity="0.9">
-                        <animate id="drl-left-glow" attributeName="opacity" values="0.9;1;0.9" dur="2s" repeatCount="indefinite" begin="indefinite"/>
-                    </rect>
-                    <rect x="160" y="310" width="20" height="120" rx="4" fill="#bbf7d0">
-                        <animate attributeName="fill" values="#bbf7d0;#ffffff;#bbf7d0" dur="2s" repeatCount="indefinite" begin="indefinite"/>
-                    </rect>
-                    
-                    <!-- Right DRL -->
-                    <rect x="1370" y="300" width="40" height="140" rx="8" fill="white" opacity="0.9">
-                        <animate id="drl-right-glow" attributeName="opacity" values="0.9;1;0.9" dur="2s" repeatCount="indefinite" begin="indefinite"/>
-                    </rect>
-                    <rect x="1380" y="310" width="20" height="120" rx="4" fill="#bbf7d0">
-                        <animate attributeName="fill" values="#bbf7d0;#ffffff;#bbf7d0" dur="2s" repeatCount="indefinite" begin="indefinite"/>
-                    </rect>
-                    
-                    <!-- Glow effects -->
-                    <ellipse cx="170" cy="370" rx="35" ry="85" fill="#bbf7d0" opacity="0.3" filter="blur(20px)"/>
-                    <ellipse cx="1390" cy="370" rx="35" ry="85" fill="#bbf7d0" opacity="0.3" filter="blur(20px)"/>
-                </g>
-                
-                <!-- Honda logo (appears last) -->
-                <g id="honda-logo" opacity="0">
-                    <!-- Outer circle -->
-                    <circle cx="780" cy="370" r="70" fill="none" stroke="white" stroke-width="6"/>
-                    <circle cx="780" cy="370" r="60" fill="none" stroke="white" stroke-width="3"/>
-                    
-                    <!-- H letter -->
-                    <path d="M 740 340 L 740 400 M 740 370 L 820 370 M 820 340 L 820 400" 
-                          stroke="white" stroke-width="12" stroke-linecap="round" fill="none"/>
-                    
-                    <!-- Inner H details -->
-                    <path d="M 745 345 L 745 395 M 815 345 L 815 395" 
-                          stroke="#bbf7d0" stroke-width="4" stroke-linecap="round" fill="none"/>
-                </g>
-            </svg>
+        <!-- Watch: 70vw in Portrait, 45vh in Landscape -->
+        <div id="intro-watch-container" class="relative portrait:w-[70vw] portrait:h-[70vw] landscape:w-[45vh] landscape:h-[45vh] transition-all duration-500 cursor-pointer group hover:scale-105 active:scale-95 z-20" onclick="triggerStartButton(event)">
             <div class="absolute -bottom-12 w-full text-center text-zinc-500 text-xs font-bold tracking-[0.3em] uppercase opacity-0 group-hover:opacity-100 transition-opacity">Tap to Unlock</div>
         </div>
         <!-- Start Button -->
@@ -161,6 +92,86 @@
                 <div class="portrait:w-[10vw] portrait:h-[1vw] landscape:w-[5vh] landscape:h-[0.5vh] bg-red-400 mt-2 rounded-full shadow-[0_0_10px_#f87171]"></div>
             </button>
             <div class="mt-8 text-zinc-600 portrait:text-[2.5vw] landscape:text-[1.2vh] font-bold tracking-widest uppercase animate-pulse">Tap background to cancel</div>
+        </div>
+    </div>
+
+    <!-- CAR SILHOUETTE ANIMATION OVERLAY -->
+    <div id="car-intro-overlay" class="fixed inset-0 z-[150] flex flex-col items-center justify-center pointer-events-none hidden-force w-full overflow-hidden bg-black">
+        <div class="relative portrait:w-[90vw] portrait:h-[50vw] landscape:w-[80vh] landscape:h-[45vh]">
+            <svg id="car-silhouette-svg" class="w-full h-full" viewBox="0 0 1600 800" preserveAspectRatio="xMidYMid meet">
+                <!-- Main grille outline paths matching the reference image -->
+                <g id="grille-lines" stroke="white" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <!-- Top wing-style bar -->
+                    <path id="line-top-outer" d="M 120 280 Q 150 250 220 240 L 680 230 L 920 230 L 1380 240 Q 1450 250 1480 280" stroke-dasharray="2200" stroke-dashoffset="2200"/>
+                    
+                    <!-- Left wing upper outline -->
+                    <path id="line-left-wing-top" d="M 160 320 Q 180 295 220 285" stroke-dasharray="100" stroke-dashoffset="100"/>
+                    <path id="line-left-wing-bottom" d="M 160 380 Q 180 360 220 350" stroke-dasharray="100" stroke-dashoffset="100"/>
+                    
+                    <!-- Left DRL housing outline -->
+                    <path id="line-left-drl-outer" d="M 160 320 L 160 380" stroke-dasharray="100" stroke-dashoffset="100"/>
+                    <path id="line-left-drl-inner" d="M 180 325 L 180 375" stroke-dasharray="100" stroke-dashoffset="100"/>
+                    
+                    <!-- Right wing upper outline -->
+                    <path id="line-right-wing-top" d="M 1380 285 Q 1420 295 1440 320" stroke-dasharray="100" stroke-dashoffset="100"/>
+                    <path id="line-right-wing-bottom" d="M 1380 350 Q 1420 360 1440 380" stroke-dasharray="100" stroke-dashoffset="100"/>
+                    
+                    <!-- Right DRL housing outline -->
+                    <path id="line-right-drl-outer" d="M 1440 320 L 1440 380" stroke-dasharray="100" stroke-dashoffset="100"/>
+                    <path id="line-right-drl-inner" d="M 1420 325 L 1420 375" stroke-dasharray="100" stroke-dashoffset="100"/>
+                    
+                    <!-- Main upper grille curve -->
+                    <path id="line-upper-grille" d="M 320 310 Q 500 290 800 285 Q 1100 290 1280 310" stroke-dasharray="1200" stroke-dashoffset="1200"/>
+                    
+                    <!-- Lower grille defining line -->
+                    <path id="line-lower-grille-top" d="M 380 420 Q 600 400 800 398 Q 1000 400 1220 420" stroke-dasharray="1100" stroke-dashoffset="1100"/>
+                    
+                    <!-- Left lower bumper accent -->
+                    <path id="line-left-accent-1" d="M 320 430 Q 420 415 520 420" stroke-dasharray="300" stroke-dashoffset="300"/>
+                    <path id="line-left-accent-2" d="M 280 470 Q 380 455 480 460" stroke-dasharray="300" stroke-dashoffset="300"/>
+                    
+                    <!-- Right lower bumper accent -->
+                    <path id="line-right-accent-1" d="M 1080 420 Q 1180 415 1280 430" stroke-dasharray="300" stroke-dashoffset="300"/>
+                    <path id="line-right-accent-2" d="M 1120 460 Q 1220 455 1320 470" stroke-dasharray="300" stroke-dashoffset="300"/>
+                    
+                    <!-- Bottom bumper curve -->
+                    <path id="line-bottom" d="M 400 530 Q 800 550 1200 530" stroke-dasharray="1000" stroke-dashoffset="1000"/>
+                    
+                    <!-- Left fog lamp area outline -->
+                    <path id="line-left-fog" d="M 420 450 Q 450 445 480 450 Q 450 470 420 465 Z" stroke-dasharray="150" stroke-dashoffset="150"/>
+                    
+                    <!-- Right fog lamp area outline -->
+                    <path id="line-right-fog" d="M 1120 450 Q 1150 445 1180 450 Q 1150 470 1120 465 Z" stroke-dasharray="150" stroke-dashoffset="150"/>
+                </g>
+                
+                <!-- DRL lights (appear later) -->
+                <g id="drl-lights" opacity="0">
+                    <!-- Left DRL filled -->
+                    <rect x="162" y="325" width="16" height="50" rx="2" fill="#bbf7d0" opacity="0.95">
+                        <animate id="drl-left-glow" attributeName="opacity" values="0.85;1;0.85" dur="2s" repeatCount="indefinite" begin="indefinite"/>
+                    </rect>
+                    
+                    <!-- Right DRL filled -->
+                    <rect x="1422" y="325" width="16" height="50" rx="2" fill="#bbf7d0" opacity="0.95">
+                        <animate id="drl-right-glow" attributeName="opacity" values="0.85;1;0.85" dur="2s" repeatCount="indefinite" begin="indefinite"/>
+                    </rect>
+                    
+                    <!-- Glow effects -->
+                    <ellipse cx="170" cy="350" rx="25" ry="40" fill="#bbf7d0" opacity="0.3" filter="blur(15px)"/>
+                    <ellipse cx="1430" cy="350" rx="25" ry="40" fill="#bbf7d0" opacity="0.3" filter="blur(15px)"/>
+                </g>
+                
+                <!-- Honda logo (appears last) -->
+                <g id="honda-logo" opacity="0">
+                    <!-- Badge outer shape -->
+                    <rect x="720" y="320" width="160" height="90" rx="12" fill="none" stroke="white" stroke-width="4"/>
+                    <rect x="728" y="328" width="144" height="74" rx="8" fill="none" stroke="white" stroke-width="2"/>
+                    
+                    <!-- H letter -->
+                    <path d="M 760 345 L 760 385 M 760 365 L 840 365 M 840 345 L 840 385" 
+                          stroke="white" stroke-width="10" stroke-linecap="round" fill="none"/>
+                </g>
+            </svg>
         </div>
     </div>
 
@@ -588,13 +599,13 @@
 
         function triggerStartButton(e) {
             e.stopPropagation();
-            const carContainer = document.getElementById('intro-car-container');
+            const watch = document.getElementById('intro-watch-container');
             const btn = document.getElementById('intro-start-btn');
-            if(carContainer) {
-                carContainer.style.opacity = '0';
-                carContainer.style.transform = 'scale(0.8)';
+            if(watch) {
+                watch.style.opacity = '0';
+                watch.style.transform = 'scale(0.8)';
                 setTimeout(() => {
-                    carContainer.classList.add('hidden');
+                    watch.classList.add('hidden');
                     if(btn) {
                         btn.classList.remove('hidden');
                         btn.classList.add('flex');
@@ -606,14 +617,14 @@
 
         function handleIntroBgClick(e) {
             const btn = document.getElementById('intro-start-btn');
-            const carContainer = document.getElementById('intro-car-container');
+            const watch = document.getElementById('intro-watch-container');
             if(btn && !btn.classList.contains('hidden')) {
                 if (!e.target.closest('#intro-start-btn button')) {
                     btn.classList.add('hidden');
                     btn.classList.remove('flex');
-                    if(carContainer) {
-                        carContainer.classList.remove('hidden');
-                        setTimeout(() => { carContainer.style.opacity = '1'; carContainer.style.transform = 'scale(1)'; }, 10);
+                    if(watch) {
+                        watch.classList.remove('hidden');
+                        setTimeout(() => { watch.style.opacity = '1'; watch.style.transform = 'scale(1)'; }, 10);
                     }
                 }
             }
@@ -651,8 +662,37 @@
             }
         }
 
-        function startCar() { setMode('eco'); }
-        function stopCar() { if(AppState.gpsActive) toggleGPS(); setMode('intro'); }
+        function startCar() { 
+            // Show car animation overlay
+            const carOverlay = document.getElementById('car-intro-overlay');
+            if(carOverlay) {
+                carOverlay.classList.remove('hidden-force');
+                carOverlay.style.opacity = '1';
+                animateCarIntro();
+                // Hide overlay and transition to eco after animation completes
+                setTimeout(() => {
+                    carOverlay.style.opacity = '0';
+                    setTimeout(() => carOverlay.classList.add('hidden-force'), 700);
+                }, 5500);
+            }
+            setMode('eco'); 
+        }
+        function stopCar() { 
+            if(AppState.gpsActive) toggleGPS(); 
+            // Show car animation overlay when stopping
+            const carOverlay = document.getElementById('car-intro-overlay');
+            if(carOverlay) {
+                carOverlay.classList.remove('hidden-force');
+                carOverlay.style.opacity = '1';
+                animateCarIntro();
+                // Hide overlay and return to intro after animation
+                setTimeout(() => {
+                    carOverlay.style.opacity = '0';
+                    setTimeout(() => carOverlay.classList.add('hidden-force'), 700);
+                }, 5500);
+            }
+            setMode('intro'); 
+        }
 
         async function requestWakeLock() { if ('wakeLock' in navigator) try { wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {} }
 
@@ -821,16 +861,10 @@
                 if(introView) { 
                     introView.classList.remove('hidden-force'); 
                     introView.style.opacity = '1'; 
-                    // Reset Intro Car
-                    const carContainer = document.getElementById('intro-car-container'); 
+                    // Reset Intro Watch
+                    const w = document.getElementById('intro-watch-container'); 
                     const b = document.getElementById('intro-start-btn');
-                    if(carContainer) { 
-                        carContainer.classList.remove('hidden'); 
-                        carContainer.style.opacity = '1'; 
-                        carContainer.style.transform = 'scale(1)'; 
-                        // Restart animation
-                        setTimeout(() => animateCarIntro(), 100);
-                    }
+                    if(w) { w.classList.remove('hidden'); w.style.opacity = '1'; w.style.transform = 'scale(1)'; }
                     if(b) { b.classList.add('hidden'); b.classList.remove('flex'); }
                 }
                 if(ecoView) ecoView.style.opacity = '0'; 
@@ -943,19 +977,37 @@
         }
 
         function animateCarIntro() {
+            // Reset all animations first
+            const allPaths = document.querySelectorAll('#grille-lines path');
+            allPaths.forEach(path => {
+                path.style.animation = 'none';
+                path.style.strokeDashoffset = path.getAttribute('stroke-dasharray');
+            });
+            const drlLights = document.getElementById('drl-lights');
+            const logo = document.getElementById('honda-logo');
+            if(drlLights) { drlLights.style.animation = 'none'; drlLights.style.opacity = '0'; }
+            if(logo) { logo.style.animation = 'none'; logo.style.opacity = '0'; }
+            
             // Animate drawing of grille lines in sequence
             const lines = [
-                { id: 'line-top', delay: 0, duration: 1.5 },
-                { id: 'line-left-drl', delay: 0.3, duration: 0.8 },
-                { id: 'line-right-drl', delay: 0.3, duration: 0.8 },
-                { id: 'line-left-lower', delay: 1.1, duration: 0.6 },
-                { id: 'line-right-lower', delay: 1.1, duration: 0.6 },
-                { id: 'line-bottom', delay: 1.7, duration: 1.0 },
-                { id: 'line-center-1', delay: 2.0, duration: 0.3 },
-                { id: 'line-center-2', delay: 2.1, duration: 0.4 },
-                { id: 'line-center-3', delay: 2.0, duration: 0.3 },
-                { id: 'line-accent-left', delay: 2.3, duration: 0.6 },
-                { id: 'line-accent-right', delay: 2.3, duration: 0.6 }
+                { id: 'line-top-outer', delay: 0, duration: 1.8 },
+                { id: 'line-left-wing-top', delay: 0.4, duration: 0.3 },
+                { id: 'line-left-wing-bottom', delay: 0.5, duration: 0.3 },
+                { id: 'line-left-drl-outer', delay: 0.6, duration: 0.2 },
+                { id: 'line-left-drl-inner', delay: 0.7, duration: 0.2 },
+                { id: 'line-right-wing-top', delay: 0.4, duration: 0.3 },
+                { id: 'line-right-wing-bottom', delay: 0.5, duration: 0.3 },
+                { id: 'line-right-drl-outer', delay: 0.6, duration: 0.2 },
+                { id: 'line-right-drl-inner', delay: 0.7, duration: 0.2 },
+                { id: 'line-upper-grille', delay: 1.0, duration: 1.2 },
+                { id: 'line-lower-grille-top', delay: 1.8, duration: 1.0 },
+                { id: 'line-left-accent-1', delay: 2.3, duration: 0.4 },
+                { id: 'line-left-accent-2', delay: 2.5, duration: 0.4 },
+                { id: 'line-right-accent-1', delay: 2.3, duration: 0.4 },
+                { id: 'line-right-accent-2', delay: 2.5, duration: 0.4 },
+                { id: 'line-bottom', delay: 2.8, duration: 0.8 },
+                { id: 'line-left-fog', delay: 3.0, duration: 0.3 },
+                { id: 'line-right-fog', delay: 3.0, duration: 0.3 }
             ];
             
             lines.forEach(line => {
@@ -969,7 +1021,6 @@
             
             // Show DRL lights after grille is drawn
             setTimeout(() => {
-                const drlLights = document.getElementById('drl-lights');
                 if (drlLights) {
                     drlLights.style.animation = 'fadeInScale 0.8s ease-out forwards';
                     // Start glow animations
@@ -978,27 +1029,26 @@
                     if (leftGlow) leftGlow.beginElement();
                     if (rightGlow) rightGlow.beginElement();
                 }
-            }, 3200);
+            }, 3800);
             
             // Show Honda logo last
             setTimeout(() => {
-                const logo = document.getElementById('honda-logo');
                 if (logo) {
                     logo.style.animation = 'fadeInScale 1.0s ease-out forwards';
                 }
-            }, 4000);
+            }, 4600);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            const introWatchContainer = document.getElementById('intro-watch-container');
             const ecoWatchContainer = document.getElementById('eco-watch-container');
+            if(introWatchContainer) introWatchContainer.innerHTML = getOmegaWatchSVG('intro');
             if(ecoWatchContainer) ecoWatchContainer.innerHTML = getOmegaWatchSVG('eco');
             setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}); }, 1000);
             setMode('intro');
             
-            // Start car intro animation
-            animateCarIntro();
-            
             function loop() {
+                if (AppState.mode === 'intro') updateWatchFace(0, 'intro');
                 if (AppState.mode === 'eco') updateWatchFace(AppState.smoothSpeed, 'eco');
                 if(AppState.gpsActive || AppState.swiping) if(AppState.gpsActive) updateDisplay(AppState.smoothSpeed);
                 requestAnimationFrame(loop);
