@@ -128,7 +128,6 @@
             </div>
 
             <!-- CENTER STAGE -->
-            <!-- Portrait: Flex Column, Large Widths. Landscape: Flex Row, Height-based sizes -->
             <div class="relative z-20 flex-1 flex flex-col landscape:flex-row items-center justify-center portrait:gap-8 landscape:gap-[4vw] px-4 pb-12 w-full h-full">
                 <!-- RPM -->
                 <div class="relative portrait:w-[65vw] portrait:h-[65vw] landscape:w-[35vh] landscape:h-[35vh] flex items-center justify-center portrait:order-2 landscape:order-1">
@@ -683,7 +682,8 @@
 
         function updateDisplay(targetSpeedKmh) {
             if(AppState.swiping) return;
-            if (Math.abs(targetSpeedKmh - AppState.smoothSpeed) > 0.5) { AppState.smoothSpeed = (targetSpeedKmh * 0.15) + (AppState.smoothSpeed * 0.85); } 
+            // Snappier smoothing
+            if (Math.abs(targetSpeedKmh - AppState.smoothSpeed) > 0.5) { AppState.smoothSpeed = (targetSpeedKmh * 0.7) + (AppState.smoothSpeed * 0.3); } 
             else { AppState.smoothSpeed = targetSpeedKmh; }
             if(AppState.smoothSpeed < 1) AppState.smoothSpeed = 0;
             const roundedSpeed = Math.round(AppState.smoothSpeed);
@@ -730,40 +730,130 @@
         function setMode(mode) {
             if (AppState.mode === mode && mode !== 'intro') return;
             AppState.mode = mode;
-            const introView = document.getElementById('view-intro'); const ecoView = document.getElementById('view-eco'); const sportView = document.getElementById('view-sport');
-            const intro = document.getElementById('sport-intro'); const introText = document.getElementById('intro-text'); const bgSport = document.getElementById('bg-sport-pattern');
+            const introView = document.getElementById('view-intro'); 
+            const ecoView = document.getElementById('view-eco'); 
+            const sportView = document.getElementById('view-sport');
+            const intro = document.getElementById('sport-intro'); 
+            const introText = document.getElementById('intro-text'); 
+            const bgSport = document.getElementById('bg-sport-pattern');
             
             if (mode === 'intro') {
-                if(introView) { introView.classList.remove('hidden-force'); introView.style.opacity = '1'; 
-                    const w = document.getElementById('intro-watch-container'); const b = document.getElementById('intro-start-btn');
+                if(introView) { 
+                    introView.classList.remove('hidden-force'); 
+                    introView.style.opacity = '1'; 
+                    // Reset Intro Watch
+                    const w = document.getElementById('intro-watch-container'); 
+                    const b = document.getElementById('intro-start-btn');
                     if(w) { w.classList.remove('hidden'); w.style.opacity = '1'; w.style.transform = 'scale(1)'; }
                     if(b) { b.classList.add('hidden'); b.classList.remove('flex'); }
                 }
-                if(ecoView) ecoView.style.opacity = '0'; if(sportView) sportView.style.opacity = '0';
+                if(ecoView) ecoView.style.opacity = '0'; 
+                if(sportView) sportView.style.opacity = '0';
             }
+            
             if (mode === 'eco') {
-                if(introView) { introView.style.opacity = '0'; setTimeout(() => introView.classList.add('hidden-force'), 700); }
-                if(sportView) { sportView.style.opacity = '0'; sportView.classList.add('pointer-events-none'); }
+                if(introView) { 
+                    introView.style.opacity = '0'; 
+                    setTimeout(() => introView.classList.add('hidden-force'), 700); 
+                }
+                if(sportView) { 
+                    sportView.style.opacity = '0'; 
+                    sportView.classList.add('pointer-events-none'); 
+                }
                 if(bgSport) bgSport.classList.remove('anim-bg-reveal');
+                
                 if(ecoView) {
-                    const wEco = document.getElementById('eco-watch-container'); const bEco = document.getElementById('eco-stop-btn');
-                    if(wEco) { const svg = wEco.querySelector('div'); if(svg) { svg.style.opacity = '1'; svg.style.transform = 'scale(1)'; } }
+                    const wEco = document.getElementById('eco-watch-container'); 
+                    const bEco = document.getElementById('eco-stop-btn');
+                    if(wEco) { 
+                        const svg = wEco.querySelector('div'); 
+                        if(svg) { svg.style.opacity = '1'; svg.style.transform = 'scale(1)'; } 
+                    }
                     if(bEco) { bEco.classList.add('hidden'); bEco.classList.remove('flex'); }
-                    ecoView.classList.remove('pointer-events-none'); ecoView.style.opacity = '1'; ecoView.style.transform = 'scale(1)'; ecoView.classList.add('anim-eco-enter'); ecoView.style.pointerEvents = 'auto';
-                    setTimeout(() => { ecoView.classList.remove('anim-eco-enter'); startNeedleSwipe(); }, 1000);
+                    
+                    ecoView.classList.remove('pointer-events-none'); 
+                    ecoView.style.opacity = '1'; 
+                    ecoView.style.transform = 'scale(1)'; 
+                    ecoView.classList.add('anim-eco-enter'); 
+                    ecoView.style.pointerEvents = 'auto';
+                    
+                    setTimeout(() => {
+                        ecoView.classList.remove('anim-eco-enter'); 
+                        startNeedleSwipe(); 
+                    }, 1000);
                 }
             }
+            
             if (mode === 'sport') {
-                if(ecoView) { ecoView.style.opacity = '0'; ecoView.style.pointerEvents = 'none'; }
-                if(intro) intro.classList.remove('hidden-force'); if(introText) introText.classList.add('anim-text-strobe');
-                if(sportView) { sportView.classList.remove('pointer-events-none'); sportView.style.opacity = '1'; }
-                document.getElementById('sport-rpm-group').style.opacity = '0'; document.getElementById('sport-speed-group').style.opacity = '0'; 
-                document.getElementById('sport-misc-group-1').style.opacity = '0'; document.getElementById('sport-misc-group-2').style.opacity = '0'; document.getElementById('sport-buttons').style.opacity = '0';
-                if(bgSport) { bgSport.style.opacity = '0.5'; bgSport.classList.remove('anim-bg-reveal'); bgSport.style.clipPath = 'circle(0% at 50% 50%)'; }
-                setTimeout(() => { if(introText) introText.classList.remove('anim-text-strobe'); if(intro) intro.classList.add('hidden-force'); document.getElementById('sport-rpm-group').style.opacity = '1'; startNeedleSwipe(); }, 800);
-                setTimeout(() => { document.getElementById('sport-speed-group').style.opacity = '1'; }, 1600);
-                setTimeout(() => { document.getElementById('sport-misc-group-1').style.opacity = '1'; document.getElementById('sport-misc-group-2').style.opacity = '1'; document.getElementById('sport-buttons').style.opacity = '1'; if(bgSport) { bgSport.style.clipPath = ''; bgSport.classList.add('anim-bg-reveal'); } }, 2100);
+                if(ecoView) { 
+                    ecoView.style.opacity = '0'; 
+                    ecoView.style.pointerEvents = 'none'; 
+                }
+                if(intro) intro.classList.remove('hidden-force'); 
+                if(introText) introText.classList.add('anim-text-strobe');
+                
+                if(sportView) { 
+                    sportView.classList.remove('pointer-events-none'); 
+                    sportView.style.opacity = '1'; 
+                }
+                
+                const rpmGroup = document.getElementById('sport-rpm-group');
+                const speedGroup = document.getElementById('sport-speed-group');
+                const misc1 = document.getElementById('sport-misc-group-1');
+                const misc2 = document.getElementById('sport-misc-group-2');
+                const btns = document.getElementById('sport-buttons');
+                
+                if(rpmGroup) rpmGroup.style.opacity = '0'; 
+                if(speedGroup) speedGroup.style.opacity = '0'; 
+                if(misc1) misc1.style.opacity = '0'; 
+                if(misc2) misc2.style.opacity = '0'; 
+                if(btns) btns.style.opacity = '0';
+                
+                if(bgSport) { 
+                    bgSport.style.opacity = '0.5'; 
+                    bgSport.classList.remove('anim-bg-reveal'); 
+                    bgSport.style.clipPath = 'circle(0% at 50% 50%)'; 
+                }
+
+                setTimeout(() => { 
+                    if(introText) introText.classList.remove('anim-text-strobe'); 
+                    if(intro) intro.classList.add('hidden-force'); 
+                    if(rpmGroup) rpmGroup.style.opacity = '1'; 
+                    startNeedleSwipe(); 
+                }, 800);
+
+                setTimeout(() => { if(speedGroup) speedGroup.style.opacity = '1'; }, 1600);
+
+                setTimeout(() => { 
+                    if(misc1) misc1.style.opacity = '1'; 
+                    if(misc2) misc2.style.opacity = '1'; 
+                    if(btns) btns.style.opacity = '1'; 
+                    if(bgSport) { 
+                        bgSport.style.clipPath = ''; 
+                        bgSport.classList.add('anim-bg-reveal'); 
+                    } 
+                }, 2100);
             }
+        }
+
+        // --- WEATHER & LOCATION (Stubs as provided) ---
+        async function updateWeather(lat, lon) {
+            // Already handled in handleSuccess for update cycle
+            // Keeping stub logic from original structure if needed
+            const now = Date.now();
+            const dist = getDistanceFromLatLonInKm(AppState.lastWeatherPos.lat, AppState.lastWeatherPos.lon, lat, lon);
+            if (dist < 1 && (now - AppState.lastWeatherUpdate) < 300000) return;
+            AppState.lastWeatherUpdate = now;
+            AppState.lastWeatherPos = { lat, lon };
+            try {
+                const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code`);
+                const wData = await wRes.json();
+                if(wData.current) {
+                    document.getElementById('weather-temp').innerText = `${Math.round(wData.current.temperature_2m)}°`;
+                    // ... icon logic ...
+                }
+            } catch(e) {}
+            // ... location fetch ...
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -783,4 +873,3 @@
         });
     </script>
 </body>
-</html>
