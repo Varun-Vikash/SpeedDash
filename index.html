@@ -973,8 +973,10 @@
                 if (drlLights) {
                     drlLights.style.animation = 'fadeInScale 0.8s ease-out forwards';
                     // Start glow animations
-                    const glowAnimations = document.querySelectorAll('#drl-lights animate');
-                    glowAnimations.forEach(anim => anim.beginElement());
+                    const leftGlow = document.getElementById('drl-left-glow');
+                    const rightGlow = document.getElementById('drl-right-glow');
+                    if (leftGlow) leftGlow.beginElement();
+                    if (rightGlow) rightGlow.beginElement();
                 }
             }, 3200);
             
