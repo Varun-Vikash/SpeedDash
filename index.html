@@ -4,35 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Jazz 1200 Ultimate</title>
-    <!-- External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
     
     <style>
-        /* --- CORE RESET & BASICS --- */
-        body { 
-            font-family: 'Rajdhani', sans-serif; 
-            background-color: #000; 
-            overflow: hidden; 
-            touch-action: none; 
-            user-select: none; 
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        /* --- VISIBILITY HELPERS --- */
+        /* --- CORE RESET --- */
+        body { font-family: 'Rajdhani', sans-serif; background-color: #000; overflow: hidden; touch-action: none; user-select: none; -webkit-tap-highlight-color: transparent; }
         .hidden-force { display: none !important; }
-        
-        /* --- ANIMATIONS --- */
         .gauge-transition { transition: stroke-dashoffset 0.1s linear; }
 
-        @keyframes introTextSequence { 
-            0% { color: white; } 10% { color: #dc2626; } 20% { color: white; } 
-            30% { color: white; } 40% { color: #dc2626; } 50% { color: white; } 100% { color: white; } 
+        /* --- INTRO ANIMATIONS --- */
+        
+        /* DRL Drawing Effect */
+        .drl-path {
+            fill: none;
+            stroke: #fff;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-dasharray: 300;
+            stroke-dashoffset: 300;
+            opacity: 0.3;
+            filter: drop-shadow(0 0 2px #fff);
+            transition: opacity 0.5s;
         }
-        .anim-text-strobe { animation: introTextSequence 0.8s steps(1) forwards; }
 
+        /* When "Active" (Car unlocked/Starting) */
+        .drl-active .drl-path {
+            animation: drawLight 3s ease-out forwards;
+            opacity: 1;
+            filter: drop-shadow(0 0 10px #fff);
+        }
+
+        @keyframes drawLight {
+            0% { stroke-dashoffset: 300; opacity: 0.3; }
+            20% { opacity: 1; }
+            100% { stroke-dashoffset: 0; opacity: 1; }
+        }
+
+        /* Silhouette Hover Glow */
+        #intro-silhouette-container:hover .drl-path {
+            opacity: 0.6;
+            filter: drop-shadow(0 0 5px #fff);
+        }
+
+        /* Start Button Pulse */
         @keyframes redPulse { 
             0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); } 
             70% { box-shadow: 0 0 0 2vmin rgba(220, 38, 38, 0); } 
@@ -40,27 +57,18 @@
         }
         .anim-pulse-red { animation: redPulse 1.5s infinite; }
 
-        @keyframes ecoEnter { 
-            0% { transform: translateY(50px) scale(0.9); opacity: 0; } 
-            100% { transform: translateY(0) scale(1); opacity: 1; } 
-        }
+        /* Dashboard Transitions */
+        @keyframes ecoEnter { 0% { transform: translateY(50px) scale(0.9); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
         .anim-eco-enter { animation: ecoEnter 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
 
-        /* Ignition Animation Fade */
-        .ignition-fade-in { animation: fadeIn 0.5s forwards; }
-        .ignition-fade-out { animation: fadeOut 0.5s forwards; }
-        
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-
-        /* Scanlines Overlay */
+        /* Scanlines */
         .scanlines {
             background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
             background-size: 100% 0.5vmin;
             pointer-events: none; z-index: 99999; opacity: 0.3;
         }
 
-        /* Specific Fonts & Backgrounds */
+        /* Fonts/Patterns */
         .font-fl5 { font-family: 'Orbitron', sans-serif; letter-spacing: -0.05em; }
         .bg-fl5-pattern { background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0l17.32 10v20L20 40 2.68 30V10z' fill-opacity='0.08' fill='%23333' stroke='%23444' stroke-width='1'/%3E%3C/svg%3E"); }
 
@@ -71,64 +79,46 @@
         .led.red.on { background: #ef4444; box-shadow: 0 0 15px #ef4444; }
         .led.blink { animation: flashWhite 0.1s infinite alternate; }
         @keyframes flashWhite { from { background: #ef4444; box-shadow: 0 0 15px #ef4444; } to { background: #ffffff; box-shadow: 0 0 20px #ffffff; } }
-
-        .g-dot-smooth { transition: transform 0.2s cubic-bezier(0.1, 0.7, 1.0, 0.1); }
-        .hand-smooth { transition: transform 0.1s cubic-bezier(0.4, 2.08, 0.55, 0.44); } 
-        .hand-linear { transition: transform 0.1s linear; }
     </style>
 </head>
 <body class="text-white h-screen w-full flex bg-zinc-950 relative overflow-hidden">
 
     <div class="absolute inset-0 scanlines pointer-events-none"></div>
-    
-    <!-- IGNITION ANIMATION OVERLAY (The SVG) -->
-    <div id="ignition-overlay" class="fixed inset-0 z-[11000] bg-black flex items-center justify-center hidden-force pointer-events-none">
-        <!-- The 2D Intro SVG -->
-        <img src="2dintro.svg" class="w-[80vmin] h-[80vmin] object-contain drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]" alt="Ignition Sequence">
-    </div>
 
-    <!-- VIEW 0: INTRO SCREEN (Force Visible in CSS) -->
+    <!-- VIEW 0: INTRO SCREEN -->
     <div id="view-intro" class="fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-black transition-opacity duration-700" style="display:flex; opacity:1;" onclick="handleIntroBgClick(event)">
         
-        <!-- STEP 1: Watch Container (Clickable) -->
-        <div id="intro-watch-container" class="relative w-[65vmin] h-[65vmin] transition-all duration-500 cursor-pointer group hover:scale-105 active:scale-95 z-20 flex items-center justify-center" onclick="triggerStartButton(event)">
-             <!-- Hardcoded Omega Watch SVG -->
-             <div class="w-full h-full rounded-full bg-zinc-900 shadow-2xl border-[0.4vmin] border-[#1a1a1a] relative overflow-hidden ring-[0.8vmin] ring-[#111]">
-                <svg class="w-full h-full" viewBox="0 0 200 200">
-                    <circle cx="100" cy="100" r="100" fill="#141414" />
-                    <path d="M100 100 m-98 0 a 98 98 0 1 0 196 0 a 98 98 0 1 0 -196 0" fill="none" stroke="#050505" stroke-width="20" />
-                    <g font-family="Arial" font-weight="bold" font-size="6" fill="#ccc" text-anchor="middle">
-                        <text x="100" y="12" transform="rotate(0 100 100)">60</text> <text x="135" y="20" transform="rotate(20 100 100) rotate(-20 135 20)">65</text>
-                        <text x="175" y="55" transform="rotate(0 100 100)">75</text> <text x="188" y="102" transform="rotate(0 100 100)">90</text>
-                        <text x="100" y="192" transform="rotate(0 100 100)">120</text> <text x="25" y="150" transform="rotate(0 100 100)">180</text>
-                        <text x="12" y="102" transform="rotate(0 100 100)">300</text> <text x="25" y="45" transform="rotate(0 100 100)">500</text>
-                    </g>
-                    <circle cx="100" cy="100" r="78" fill="#18181b" />
-                    <g stroke="#888" stroke-width="0.3"><circle cx="100" cy="100" r="76" fill="none" stroke="#555" stroke-width="0.5" /></g>
-                    <g>
-                        <rect x="97" y="28" width="2" height="12" fill="white" /> <rect x="101" y="28" width="2" height="12" fill="white" />
-                        <circle cx="98" cy="43" r="1" fill="#bbf7d0" /> <circle cx="102" cy="43" r="1" fill="#bbf7d0" />
-                        ${[30,60,90,120,150,180,210,240,270,300,330].map(deg => `<rect x="98.5" y="28" width="3" height="12" fill="white" transform="rotate(${deg} 100 100)" /><rect x="99" y="30" width="1" height="8" fill="#bbf7d0" transform="rotate(${deg} 100 100)" />`).join('')}
-                    </g>
-                    <text x="100" y="60" text-anchor="middle" fill="#ccc" font-family="serif" font-size="8" font-weight="bold">Ω</text>
-                    <text x="100" y="66" text-anchor="middle" fill="#ccc" font-family="Arial" font-size="4" font-weight="bold" letter-spacing="0.5">OMEGA</text>
-                    <text x="100" y="72" text-anchor="middle" fill="#ddd" font-family="Times New Roman" font-size="4" font-style="italic">Speedmaster</text>
-                    <text x="100" y="76" text-anchor="middle" fill="#ddd" font-family="Arial" font-size="3">PROFESSIONAL</text>
-                    <g transform="translate(62, 100)"><circle cx="0" cy="0" r="21" fill="#111" stroke="#333" stroke-width="0.2" /><line x1="0" y1="-18" x2="0" y2="-21" stroke="white" stroke-width="1" /><path id="intro-hand-sub-sec" d="M0 5 L0 -18" stroke="white" stroke-width="1" stroke-linecap="round" /></g>
-                    <g transform="translate(138, 100)"><circle cx="0" cy="0" r="21" fill="#111" stroke="#333" stroke-width="0.2" /><line x1="0" y1="-18" x2="0" y2="-21" stroke="white" stroke-width="1" /><path id="intro-hand-sub-min" d="M0 5 L0 -18" stroke="white" stroke-width="1" stroke-linecap="round" /></g>
-                    <g transform="translate(100, 138)"><circle cx="0" cy="0" r="21" fill="#111" stroke="#333" stroke-width="0.2" /><path id="intro-hand-sub-hour" d="M0 5 L0 -18" stroke="white" stroke-width="1" stroke-linecap="round" /></g>
-                    <g id="intro-hand-main-hour" class="hand-linear"><path d="M-2.5 0 L-1.5 -55 L0 -62 L1.5 -55 L2.5 0 Z" fill="white" /><rect x="-0.8" y="-50" width="1.6" height="40" fill="#bbf7d0" /></g>
-                    <g id="intro-hand-main-min" class="hand-linear"><path d="M-2 0 L-1.5 -75 L0 -82 L1.5 -75 L2 0 Z" fill="white" /><rect x="-0.8" y="-70" width="1.6" height="60" fill="#bbf7d0" /></g>
-                    <g id="intro-hand-chrono" class="hand-smooth"><path d="M-2 25 L0 30 L2 25 L0 0 Z" fill="white" /> <line x1="0" y1="25" x2="0" y2="-95" stroke="white" stroke-width="0.6" /> <path d="M-3 -70 L3 -70 L0 -85 Z" fill="white" /> <circle cx="0" cy="0" r="2.5" fill="white" /></g>
-                </svg>
-                <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none"></div>
-            </div>
-            <div class="absolute -bottom-12 w-full text-center text-zinc-500 text-[1.5vmin] font-bold tracking-[0.3em] uppercase opacity-0 group-hover:opacity-100 transition-opacity">Tap to Unlock</div>
+        <!-- STEP 1: HONDA JAZZ SILHOUETTE (SVG Embedded for Animation) -->
+        <div id="intro-silhouette-container" class="relative w-[80vmin] h-[40vmin] transition-all duration-500 cursor-pointer group z-20 flex items-center justify-center" onclick="triggerStartButton(event)">
+            <!-- INLINE SVG allows CSS animations to work properly -->
+            <svg class="w-full h-full" viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+                <!-- Grill Lines (Darker) -->
+                <path fill="none" stroke="#333" stroke-width="2" d="M 150 130 Q 300 160 450 130" />
+                <path fill="none" stroke="#333" stroke-width="2" d="M 160 145 Q 300 170 440 145" />
+                <path fill="none" stroke="#333" stroke-width="2" d="M 170 160 Q 300 180 430 160" />
+                <path fill="none" stroke="#333" stroke-width="2" d="M 140 180 Q 300 220 460 180" />
+                
+                <!-- Honda Logo -->
+                <g transform="translate(275, 125) scale(0.5)">
+                    <path fill="none" stroke="#555" stroke-width="4" d="M 10 10 L 10 90 L 30 90 L 30 60 L 70 60 L 70 90 L 90 90 L 90 10 L 70 10 L 70 40 L 30 40 L 30 10 Z" />
+                    <rect x="0" y="0" width="100" height="100" rx="20" fill="none" stroke="#555" stroke-width="4" />
+                </g>
+
+                <!-- DRLs (The Animation Target) -->
+                <g id="drl-group">
+                    <!-- Left DRL -->
+                    <path class="drl-path" d="M 20 110 Q 80 140 140 135 L 130 150 Q 60 160 20 110" />
+                    <!-- Right DRL -->
+                    <path class="drl-path" d="M 580 110 Q 520 140 460 135 L 470 150 Q 540 160 580 110" />
+                </g>
+            </svg>
+            
+            <div class="absolute -bottom-8 w-full text-center text-zinc-600 text-[1.5vmin] font-bold tracking-[0.3em] uppercase opacity-0 group-hover:opacity-100 transition-opacity">Tap to Wake</div>
         </div>
 
-        <!-- STEP 2: Start Button (Hidden initially) -->
+        <!-- STEP 2: START BUTTON -->
         <div id="intro-start-btn" class="hidden absolute flex-col items-center justify-center z-30">
-            <button onclick="startCar()" class="relative w-[35vmin] h-[35vmin] rounded-full bg-gradient-to-br from-red-600 to-red-900 border-4 border-zinc-800 shadow-[0_0_50px_rgba(220,38,38,0.5)] flex flex-col items-center justify-center group active:scale-95 transition-transform anim-pulse-red cursor-pointer">
+            <button onclick="startCar()" class="relative w-[30vmin] h-[30vmin] rounded-full bg-gradient-to-br from-red-600 to-red-900 border-4 border-zinc-800 shadow-[0_0_50px_rgba(220,38,38,0.5)] flex flex-col items-center justify-center group active:scale-95 transition-transform anim-pulse-red cursor-pointer">
                 <div class="absolute inset-0 rounded-full border border-white/20"></div>
                 <div class="absolute inset-1 rounded-full border border-black/30"></div>
                 <div class="text-white font-bold text-[2.5vmin] tracking-widest uppercase mb-[0.5vmin]">Engine</div>
@@ -412,18 +402,14 @@
         function updateShiftLights(rpm) {
             const leds = document.querySelectorAll('.led');
             leds.forEach(l => l.classList.remove('on', 'blink'));
-            
             if (rpm >= SHIFT_RPM_START) {
                 const activeCount = Math.floor((rpm - SHIFT_RPM_START) / 300);
-                for(let i=0; i <= Math.min(activeCount, 9); i++) {
-                    if(leds[i]) leds[i].classList.add('on');
-                }
+                for(let i=0; i <= Math.min(activeCount, 9); i++) { if(leds[i]) leds[i].classList.add('on'); }
                 if(rpm > 6800) leds.forEach(l => l.classList.add('blink'));
             }
         }
 
         function timerLapReset() {
-            const btn = document.getElementById('btn-lap');
             if (AppState.swRunning) {
                 const display = document.getElementById('stopwatch-display');
                 const last = document.getElementById('last-lap');
@@ -440,27 +426,15 @@
         function timerStartStop() {
             const btn = document.getElementById('btn-start');
             const lapBtn = document.getElementById('btn-lap');
-            
             if (!AppState.swRunning) {
                 AppState.swRunning = true;
                 AppState.swStartTime = Date.now() - AppState.swElapsed;
-                AppState.swInterval = setInterval(() => {
-                    AppState.swElapsed = Date.now() - AppState.swStartTime;
-                    formatTime(AppState.swElapsed);
-                }, 30);
-                
-                if(btn) {
-                    btn.innerText = "STOP";
-                    btn.className = "px-3 py-1 bg-red-900 hover:bg-red-700 portrait:text-[2.5vw] landscape:text-[1.2vh] font-bold text-red-300 rounded uppercase transition-colors";
-                }
+                AppState.swInterval = setInterval(() => { AppState.swElapsed = Date.now() - AppState.swStartTime; formatTime(AppState.swElapsed); }, 30);
+                if(btn) { btn.innerText = "STOP"; btn.className = "px-3 py-1 bg-red-900 hover:bg-red-700 portrait:text-[2.5vw] landscape:text-[1.2vh] font-bold text-red-300 rounded uppercase transition-colors"; }
                 if(lapBtn) lapBtn.innerText = "LAP";
             } else {
-                AppState.swRunning = false;
-                clearInterval(AppState.swInterval);
-                if(btn) {
-                    btn.innerText = "START";
-                    btn.className = "px-3 py-1 bg-emerald-900 hover:bg-emerald-700 portrait:text-[2.5vw] landscape:text-[1.2vh] font-bold text-emerald-300 rounded uppercase transition-colors";
-                }
+                AppState.swRunning = false; clearInterval(AppState.swInterval);
+                if(btn) { btn.innerText = "START"; btn.className = "px-3 py-1 bg-emerald-900 hover:bg-emerald-700 portrait:text-[2.5vw] landscape:text-[1.2vh] font-bold text-emerald-300 rounded uppercase transition-colors"; }
                 if(lapBtn) lapBtn.innerText = "RESET";
             }
         }
@@ -474,13 +448,7 @@
             AppState.autoArmed = false;
         }
 
-        function cancelZeroHundred() {
-            clearInterval(AppState.swInterval);
-            AppState.swRunning = false;
-            AppState.autoRunning = false;
-            AppState.autoArmed = false;
-            toggleTimerMode();
-        }
+        function cancelZeroHundred() { clearInterval(AppState.swInterval); AppState.swRunning = false; AppState.autoRunning = false; AppState.autoArmed = false; toggleTimerMode(); }
 
         function activateZeroHundred() {
             AppState.timerMode = 'auto';
@@ -488,13 +456,8 @@
             document.getElementById('manual-controls').classList.add('hidden');
             document.getElementById('btn-zero-hundred').classList.add('hidden'); 
             document.getElementById('auto-controls').classList.remove('hidden');
-            
-            clearInterval(AppState.swInterval);
-            AppState.swRunning = false;
-            AppState.autoRunning = false;
-            AppState.autoArmed = true; 
-            document.getElementById('stopwatch-display').innerText = "00:00.00";
-            updateDisplay(AppState.smoothSpeed); 
+            clearInterval(AppState.swInterval); AppState.swRunning = false; AppState.autoRunning = false; AppState.autoArmed = true; 
+            document.getElementById('stopwatch-display').innerText = "00:00.00"; updateDisplay(AppState.smoothSpeed); 
         }
 
         function startNeedleSwipe() {
@@ -502,7 +465,6 @@
             AppState.swiping = true;
             const duration = 1500;
             const startTime = Date.now();
-
             const ringRpm = document.getElementById('eco-ring-rpm');
             const ringSpeed = document.getElementById('eco-ring-speed');
             if(ringRpm) ringRpm.classList.remove('gauge-transition');
@@ -512,11 +474,9 @@
                 const now = Date.now();
                 const elapsed = now - startTime;
                 const progress = Math.min(elapsed / duration, 1);
-                
                 let val = 0;
                 if(progress < 0.5) val = progress * 2; else val = 2 - (progress * 2); 
-                val = val * (1 - Math.pow(val - 1, 2));
-                val = Math.max(0, val); 
+                val = val * (1 - Math.pow(val - 1, 2)); val = Math.max(0, val); 
 
                 const swipeRpm = val * 8000;
                 const rpmPct = swipeRpm / 7500; 
@@ -544,19 +504,12 @@
                 }
                 updateShiftLights(swipeRpm);
 
-                if(progress < 1) {
-                    requestAnimationFrame(swipeFrame);
-                } else {
+                if(progress < 1) { requestAnimationFrame(swipeFrame); } 
+                else {
                     AppState.swiping = false;
-                    const spd = document.getElementById('sport-speed');
-                    if(spd) spd.innerText = "0"; 
-                    
-                    const ecoSpd = document.getElementById('eco-speed-val');
-                    if(ecoSpd) ecoSpd.innerText = "0";
-                    
-                    if(ringRpm) ringRpm.classList.add('gauge-transition');
-                    if(ringSpeed) ringSpeed.classList.add('gauge-transition');
-
+                    const spd = document.getElementById('sport-speed'); if(spd) spd.innerText = "0"; 
+                    const ecoSpd = document.getElementById('eco-speed-val'); if(ecoSpd) ecoSpd.innerText = "0";
+                    if(ringRpm) ringRpm.classList.add('gauge-transition'); if(ringSpeed) ringSpeed.classList.add('gauge-transition');
                     updateDisplay(0); 
                 }
             }
@@ -565,36 +518,50 @@
 
         // --- START/STOP LOGIC ---
         function startCar() {
-            // 1. Hide Start Button and Watch Container
+            // 1. Hide Intro UI
             const introWatch = document.getElementById('intro-watch-container');
             const introBtn = document.getElementById('intro-start-btn');
             if(introWatch) introWatch.classList.add('hidden');
             if(introBtn) introBtn.classList.add('hidden');
 
-            // 2. Show Ignition Overlay (2D Intro)
-            const ignitionOverlay = document.getElementById('ignition-overlay');
-            if(ignitionOverlay) {
-                ignitionOverlay.classList.remove('hidden-force');
-                ignitionOverlay.classList.add('ignition-fade-in');
-            }
+            // 2. Trigger DRL Animation
+            const drlOverlay = document.getElementById('drl-overlay');
+            const leftLight = document.getElementById('drl-left');
+            const rightLight = document.getElementById('drl-right');
 
-            // 3. Wait 3 Seconds for Intro Animation
-            setTimeout(() => {
-                // Fade out Ignition Overlay
-                if(ignitionOverlay) {
-                    ignitionOverlay.classList.remove('ignition-fade-in');
-                    ignitionOverlay.classList.add('ignition-fade-out');
+            if(drlOverlay && leftLight && rightLight) {
+                drlOverlay.classList.remove('hidden-force');
+                drlOverlay.classList.add('drl-active');
+                
+                // Force repaint/trigger animation
+                void leftLight.offsetWidth; 
+
+                // Use class-based animation trigger for reliability
+                leftLight.classList.add('drl-anim-left');
+                rightLight.classList.add('drl-anim-right');
+
+                // 3. Transition to Dashboard
+                setTimeout(() => {
+                    // Start Eco Mode and trigger its swipe ONE TIME
+                    setMode('eco'); 
+                    
+                    if(!AppState.hasPerformedIntroSwipe) {
+                        AppState.hasPerformedIntroSwipe = true; // Mark intro swipe done
+                        startNeedleSwipe(); // This is the initial swipe
+                    }
+
                     setTimeout(() => {
-                        ignitionOverlay.classList.add('hidden-force');
-                        ignitionOverlay.classList.remove('ignition-fade-out');
-                    }, 500);
-                }
-
-                // 4. Transition to Dashboard and Swipe
+                        drlOverlay.classList.add('hidden-force');
+                        drlOverlay.classList.remove('drl-active');
+                        leftLight.classList.remove('drl-anim-left');
+                        rightLight.classList.remove('drl-anim-right');
+                    }, 500); 
+                }, 2500); // Wait for DRL flare
+            } else {
                 setMode('eco');
                 AppState.hasPerformedIntroSwipe = true;
                 startNeedleSwipe();
-            }, 3000);
+            }
         }
 
         function triggerStartButton(e) {
@@ -647,33 +614,8 @@
 
         function stopCar() { 
             if(AppState.gpsActive) toggleGPS(); 
-            
-            // 1. Hide Dashboard
-            const ecoView = document.getElementById('view-eco');
-            if(ecoView) ecoView.style.opacity = '0';
-
-            // 2. Show Ignition Overlay (Goodbye)
-            const ignitionOverlay = document.getElementById('ignition-overlay');
-            if(ignitionOverlay) {
-                ignitionOverlay.classList.remove('hidden-force');
-                ignitionOverlay.classList.add('ignition-fade-in');
-            }
-
-            // 3. Wait 3 Seconds
-            setTimeout(() => {
-                if(ignitionOverlay) {
-                    ignitionOverlay.classList.remove('ignition-fade-in');
-                    ignitionOverlay.classList.add('ignition-fade-out');
-                    setTimeout(() => {
-                        ignitionOverlay.classList.add('hidden-force');
-                        ignitionOverlay.classList.remove('ignition-fade-out');
-                    }, 500);
-                }
-                
-                // 4. Return to Intro
-                setMode('intro');
-                AppState.hasPerformedIntroSwipe = false;
-            }, 3000);
+            setMode('intro');
+            AppState.hasPerformedIntroSwipe = false; // Reset so next start swipes again
         }
 
         async function requestWakeLock() { if ('wakeLock' in navigator) try { wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {} }
@@ -831,108 +773,48 @@
         function setMode(mode) {
             if (AppState.mode === mode && mode !== 'intro') return;
             AppState.mode = mode;
-            const introView = document.getElementById('view-intro'); 
-            const ecoView = document.getElementById('view-eco'); 
-            const sportView = document.getElementById('view-sport');
-            const intro = document.getElementById('sport-intro'); 
-            const introText = document.getElementById('intro-text'); 
-            const bgSport = document.getElementById('bg-sport-pattern');
+            const introView = document.getElementById('view-intro'); const ecoView = document.getElementById('view-eco'); const sportView = document.getElementById('view-sport');
+            const intro = document.getElementById('sport-intro'); const introText = document.getElementById('intro-text'); const bgSport = document.getElementById('bg-sport-pattern');
             
             if (mode === 'intro') {
                 if(introView) { 
-                    introView.classList.remove('hidden-force'); 
-                    introView.style.opacity = '1'; 
-                    // Reset Intro Watch
-                    const w = document.getElementById('intro-watch-container'); 
-                    const b = document.getElementById('intro-start-btn');
+                    introView.classList.remove('hidden-force'); introView.style.opacity = '1'; 
+                    const w = document.getElementById('intro-watch-container'); const b = document.getElementById('intro-start-btn');
                     if(w) { w.classList.remove('hidden'); w.style.opacity = '1'; w.style.transform = 'scale(1)'; }
                     if(b) { b.classList.add('hidden'); b.classList.remove('flex'); }
                 }
-                if(ecoView) ecoView.style.opacity = '0'; 
-                if(sportView) sportView.style.opacity = '0';
+                if(ecoView) ecoView.style.opacity = '0'; if(sportView) sportView.style.opacity = '0';
             }
-            
             if (mode === 'eco') {
-                if(introView) { 
-                    introView.style.opacity = '0'; 
-                    setTimeout(() => introView.classList.add('hidden-force'), 700); 
-                }
-                if(sportView) { 
-                    sportView.style.opacity = '0'; 
-                    sportView.classList.add('pointer-events-none'); 
-                }
+                if(introView) { introView.style.opacity = '0'; setTimeout(() => introView.classList.add('hidden-force'), 700); }
+                if(sportView) { sportView.style.opacity = '0'; sportView.classList.add('pointer-events-none'); }
                 if(bgSport) bgSport.classList.remove('anim-bg-reveal');
-                
                 if(ecoView) {
-                    const wEco = document.getElementById('eco-watch-container'); 
-                    const bEco = document.getElementById('eco-stop-btn');
-                    if(wEco) { 
-                        const svg = wEco.querySelector('div'); 
-                        if(svg) { svg.style.opacity = '1'; svg.style.transform = 'scale(1)'; } 
-                    }
+                    const wEco = document.getElementById('eco-watch-container'); const bEco = document.getElementById('eco-stop-btn');
+                    if(wEco) { const svg = wEco.querySelector('div'); if(svg) { svg.style.opacity = '1'; svg.style.transform = 'scale(1)'; } }
                     if(bEco) { bEco.classList.add('hidden'); bEco.classList.remove('flex'); }
+                    ecoView.classList.remove('pointer-events-none'); ecoView.style.opacity = '1'; ecoView.style.transform = 'scale(1)'; ecoView.classList.add('anim-eco-enter'); ecoView.style.pointerEvents = 'auto';
                     
-                    ecoView.classList.remove('pointer-events-none'); 
-                    ecoView.style.opacity = '1'; 
-                    ecoView.style.transform = 'scale(1)'; 
-                    ecoView.classList.add('anim-eco-enter'); 
-                    ecoView.style.pointerEvents = 'auto';
-                    
-                    // ONLY trigger swipe if it's the first time entering Eco (i.e. starting the car)
-                    // AppState.hasPerformedIntroSwipe is set to true in startCar()
-                    // If user switches back from Sport, we do NOT want to swipe again.
+                    // No swipe here. Swipe logic is now handled in startCar() exclusively for intro.
                 }
             }
-            
             if (mode === 'sport') {
-                if(ecoView) { 
-                    ecoView.style.opacity = '0'; 
-                    ecoView.style.pointerEvents = 'none'; 
-                }
-                if(intro) intro.classList.remove('hidden-force'); 
-                if(introText) introText.classList.add('anim-text-strobe');
+                if(ecoView) { ecoView.style.opacity = '0'; ecoView.style.pointerEvents = 'none'; }
+                if(intro) intro.classList.remove('hidden-force'); if(introText) introText.classList.add('anim-text-strobe');
+                if(sportView) { sportView.classList.remove('pointer-events-none'); sportView.style.opacity = '1'; }
+                document.getElementById('sport-rpm-group').style.opacity = '0'; document.getElementById('sport-speed-group').style.opacity = '0'; 
+                document.getElementById('sport-misc-group-1').style.opacity = '0'; document.getElementById('sport-misc-group-2').style.opacity = '0'; document.getElementById('sport-buttons').style.opacity = '0';
+                if(bgSport) { bgSport.style.opacity = '0.5'; bgSport.classList.remove('anim-bg-reveal'); bgSport.style.clipPath = 'circle(0% at 50% 50%)'; }
                 
-                if(sportView) { 
-                    sportView.classList.remove('pointer-events-none'); 
-                    sportView.style.opacity = '1'; 
-                }
-                
-                const rpmGroup = document.getElementById('sport-rpm-group');
-                const speedGroup = document.getElementById('sport-speed-group');
-                const misc1 = document.getElementById('sport-misc-group-1');
-                const misc2 = document.getElementById('sport-misc-group-2');
-                const btns = document.getElementById('sport-buttons');
-                
-                if(rpmGroup) rpmGroup.style.opacity = '0'; 
-                if(speedGroup) speedGroup.style.opacity = '0'; 
-                if(misc1) misc1.style.opacity = '0'; 
-                if(misc2) misc2.style.opacity = '0'; 
-                if(btns) btns.style.opacity = '0';
-                
-                if(bgSport) { 
-                    bgSport.style.opacity = '0.5'; 
-                    bgSport.classList.remove('anim-bg-reveal'); 
-                    bgSport.style.clipPath = 'circle(0% at 50% 50%)'; 
-                }
-
+                // Always trigger Sport swipe on entry
                 setTimeout(() => { 
                     if(introText) introText.classList.remove('anim-text-strobe'); 
                     if(intro) intro.classList.add('hidden-force'); 
-                    if(rpmGroup) rpmGroup.style.opacity = '1'; 
-                    startNeedleSwipe(); // Always trigger Sport Swipe
+                    document.getElementById('sport-rpm-group').style.opacity = '1'; 
+                    startNeedleSwipe(); // Trigger Sport Swipe Every Time
                 }, 800);
-
-                setTimeout(() => { if(speedGroup) speedGroup.style.opacity = '1'; }, 1600);
-
-                setTimeout(() => { 
-                    if(misc1) misc1.style.opacity = '1'; 
-                    if(misc2) misc2.style.opacity = '1'; 
-                    if(btns) btns.style.opacity = '1'; 
-                    if(bgSport) { 
-                        bgSport.style.clipPath = ''; 
-                        bgSport.classList.add('anim-bg-reveal'); 
-                    } 
-                }, 2100);
+                setTimeout(() => { document.getElementById('sport-speed-group').style.opacity = '1'; }, 1600);
+                setTimeout(() => { document.getElementById('sport-misc-group-1').style.opacity = '1'; document.getElementById('sport-misc-group-2').style.opacity = '1'; document.getElementById('sport-buttons').style.opacity = '1'; if(bgSport) { bgSport.style.clipPath = ''; bgSport.classList.add('anim-bg-reveal'); } }, 2100);
             }
         }
 
