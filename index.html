@@ -9,6 +9,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         /* --- CORE RESET & BASICS --- */
@@ -41,10 +42,10 @@
         .anim-pulse-red { animation: redPulse 1.5s infinite; }
 
         @keyframes ecoEnter { 
-            0% { transform: translateY(20px) scale(0.98); opacity: 0; } 
+            0% { transform: translateY(50px) scale(0.9); opacity: 0; } 
             100% { transform: translateY(0) scale(1); opacity: 1; } 
         }
-        .anim-eco-enter { animation: ecoEnter 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        .anim-eco-enter { animation: ecoEnter 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
 
         /* Scanlines Overlay */
         .scanlines {
@@ -55,6 +56,7 @@
 
         /* Specific Fonts & Backgrounds */
         .font-fl5 { font-family: 'Orbitron', sans-serif; letter-spacing: -0.05em; }
+        .font-inter { font-family: 'Inter', sans-serif; }
         .bg-fl5-pattern { background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0l17.32 10v20L20 40 2.68 30V10z' fill-opacity='0.08' fill='%23333' stroke='%23444' stroke-width='1'/%3E%3C/svg%3E"); }
 
         /* LEDs */
@@ -68,6 +70,34 @@
         .g-dot-smooth { transition: transform 0.2s cubic-bezier(0.1, 0.7, 1.0, 0.1); }
         .hand-smooth { transition: transform 0.1s cubic-bezier(0.4, 2.08, 0.55, 0.44); } 
         .hand-linear { transition: transform 0.1s linear; }
+
+        /* --- MAP STYLES --- */
+        .map-bg {
+            background-color: #121212;
+            background-image: 
+                linear-gradient(rgba(50, 50, 50, 0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(50, 50, 50, 0.3) 1px, transparent 1px);
+            background-size: 8vmin 8vmin;
+            transform: perspective(600px) rotateX(40deg) scale(1.5);
+            transform-origin: center 80%;
+            position: absolute;
+            inset: -50%;
+            width: 200%;
+            height: 200%;
+        }
+        .map-route {
+            position: absolute;
+            left: 50%; top: 0; bottom: 50%;
+            width: 1.5vmin;
+            background: #3b82f6;
+            box-shadow: 0 0 20px #3b82f6;
+            border-radius: 99px;
+            transform: perspective(600px) rotateX(40deg);
+            transform-origin: center bottom;
+        }
+        .map-nav-icon {
+            filter: drop-shadow(0 0 10px #3b82f6);
+        }
     </style>
 </head>
 <body class="text-white h-screen w-full flex bg-zinc-950 relative overflow-hidden">
@@ -129,7 +159,7 @@
             <div class="absolute -bottom-12 w-full text-center text-zinc-500 text-[1.5vmin] font-bold tracking-[0.3em] uppercase opacity-0 group-hover:opacity-100 transition-opacity">Tap to Unlock</div>
         </div>
 
-        <!-- Start Button (Hidden initially) -->
+        <!-- Start Button -->
         <div id="intro-start-btn" class="hidden absolute flex-col items-center justify-center z-30">
             <button onclick="startCar()" class="relative w-[35vmin] h-[35vmin] rounded-full bg-gradient-to-br from-red-600 to-red-900 border-4 border-zinc-800 shadow-[0_0_50px_rgba(220,38,38,0.5)] flex flex-col items-center justify-center group active:scale-95 transition-transform anim-pulse-red cursor-pointer">
                 <div class="absolute inset-0 rounded-full border border-white/20"></div>
@@ -151,28 +181,118 @@
         </div>
     </div>
 
+    <!-- VIEW 3: NAV MODE (Dark Map Style) -->
+    <div id="view-nav" class="absolute inset-0 z-50 bg-[#0f0f13] flex flex-col opacity-0 pointer-events-none transition-opacity duration-300 font-inter">
+        
+        <!-- Background Map -->
+        <div class="absolute inset-0 overflow-hidden">
+             <div class="map-bg"></div>
+             <!-- Blue Route Line -->
+             <div class="map-route"></div>
+             <!-- Vignette -->
+             <div class="absolute inset-0 bg-gradient-to-t from-[#0f0f13] via-transparent to-[#0f0f13] opacity-80"></div>
+             <div class="absolute inset-0 bg-gradient-to-r from-[#0f0f13] via-transparent to-[#0f0f13] opacity-60"></div>
+        </div>
+
+        <!-- Top Bar -->
+        <div class="relative z-10 flex justify-between items-start p-[3vmin]">
+            <div class="flex items-center gap-[2vmin]">
+                <button onclick="setMode('eco')" class="bg-zinc-800/80 backdrop-blur rounded-full p-[1vmin] text-white hover:bg-zinc-700"><i data-lucide="x" class="w-[3vmin] h-[3vmin]"></i></button>
+            </div>
+            <!-- Notifications / Status -->
+             <div class="flex items-center gap-[2vmin]">
+                 <div class="bg-black/60 backdrop-blur px-[2vmin] py-[1vmin] rounded-full border border-zinc-800 flex items-center gap-[1vmin]">
+                     <i data-lucide="volume-2" class="text-gray-400 w-[2vmin]"></i>
+                     <span class="text-white text-[1.5vmin]">50%</span>
+                 </div>
+             </div>
+        </div>
+
+        <!-- Main HUD Layer -->
+        <div class="relative z-10 flex-1 flex flex-col justify-center px-[5vmin]">
+            
+            <div class="flex items-center justify-between w-full h-full">
+                <!-- Left: Big Speed -->
+                <div class="flex flex-col">
+                    <div class="flex items-baseline">
+                        <span id="nav-speed-val" class="text-[25vmin] font-bold text-white leading-none tracking-tighter">0</span>
+                        <span class="text-[4vmin] font-medium text-gray-400 ml-[2vmin]">km/h</span>
+                    </div>
+                </div>
+
+                <!-- Center: Navigation Arrow (Floating) -->
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div class="bg-blue-500 rounded-full p-[1vmin] border-[0.5vmin] border-white shadow-[0_0_20px_#3b82f6] map-nav-icon">
+                        <i data-lucide="navigation" class="w-[6vmin] h-[6vmin] text-white fill-current transform -rotate-45"></i>
+                    </div>
+                </div>
+
+                <!-- Right: Stats -->
+                <div class="flex flex-col gap-[3vmin] items-end">
+                    <!-- Fuel -->
+                    <div class="flex flex-col items-end">
+                        <div class="flex items-center gap-[1vmin] mb-[0.5vmin]">
+                            <i data-lucide="fuel" class="text-white w-[2.5vmin]"></i>
+                            <span class="text-white text-[2vmin] font-bold">82%</span>
+                        </div>
+                        <div class="w-[20vmin] h-[1vmin] bg-gray-700 rounded-full overflow-hidden">
+                            <div class="h-full bg-white w-[82%] shadow-[0_0_10px_white]"></div>
+                        </div>
+                    </div>
+                    <!-- Turn Info -->
+                    <div class="flex flex-col items-end mt-[2vmin]">
+                        <div class="flex items-center gap-[1vmin] mb-[0.5vmin]">
+                            <i data-lucide="corner-up-right" class="text-white w-[3vmin]"></i>
+                            <span class="text-white text-[2.5vmin] font-bold">6km</span>
+                        </div>
+                         <div class="text-gray-400 text-[1.8vmin]">Queen Street</div>
+                        <div class="w-[20vmin] h-[1vmin] bg-gray-700 rounded-full overflow-hidden mt-[0.5vmin]">
+                            <div class="h-full bg-white w-[30%] shadow-[0_0_10px_white]"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Pill -->
+        <div class="relative z-10 flex justify-center pb-[5vmin]">
+            <div class="bg-[#2A2A2A]/90 backdrop-blur px-[4vmin] py-[1.5vmin] rounded-[2vmin] flex items-center gap-[4vmin] border border-zinc-800">
+                <div class="flex flex-col items-center">
+                    <span class="text-white text-[2.5vmin] font-bold">25</span>
+                    <span class="text-gray-400 text-[1.2vmin]">min</span>
+                </div>
+                 <div class="flex flex-col items-center">
+                    <span class="text-white text-[2.5vmin] font-bold">10:37h</span>
+                    <span class="text-gray-400 text-[1.2vmin]">Scotland</span>
+                </div>
+                 <div class="flex flex-col items-center">
+                    <span class="text-white text-[2.5vmin] font-bold">6</span>
+                    <span class="text-gray-400 text-[1.2vmin]">Km</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
     <!-- VIEW 1: ECO DASHBOARD -->
     <div id="view-eco" class="absolute inset-0 flex flex-col landscape:flex-row z-10 transition-all duration-300 bg-zinc-950 opacity-0 pointer-events-none" onclick="handleEcoBgClick(event)">
         <!-- SIDEBAR -->
         <div class="portrait:fixed portrait:bottom-0 portrait:w-full portrait:h-[12vh] landscape:static landscape:w-[8vw] landscape:h-full bg-zinc-950 portrait:border-t landscape:border-r border-zinc-900 flex portrait:flex-row landscape:flex-col items-center portrait:justify-around landscape:justify-between portrait:py-2 landscape:py-6 z-50 shadow-2xl shrink-0">
             <div class="landscape:space-y-10 portrait:flex portrait:gap-8 landscape:flex-col landscape:items-center">
                 <div class="p-3 bg-zinc-900 rounded-xl border border-zinc-800"><div class="text-[4vmin] font-black tracking-tighter italic text-zinc-500">H</div></div>
-                <i data-lucide="map-pin" class="text-zinc-500 w-[5vmin] h-[5vmin]"></i>
-                <i data-lucide="gauge" class="text-white w-[5vmin] h-[5vmin]"></i>
+                <!-- Map Button triggers Nav Mode -->
+                <button onclick="setMode('nav')" class="text-zinc-500 hover:text-blue-500 transition-colors"><i data-lucide="map-pin" class="w-[5vmin] h-[5vmin] md:w-[3vmin] md:h-[3vmin]"></i></button>
+                <i data-lucide="gauge" class="text-white w-[5vmin] h-[5vmin] md:w-[3vmin] md:h-[3vmin]"></i>
                 <div class="portrait:w-px portrait:h-8 landscape:w-10 landscape:h-px bg-zinc-800"></div>
-                <i data-lucide="settings-2" class="text-zinc-500 w-[5vmin] h-[5vmin]"></i>
+                <i data-lucide="settings-2" class="text-zinc-500 w-[5vmin] h-[5vmin] md:w-[3vmin] md:h-[3vmin]"></i>
             </div>
             <div id="clock" class="text-xs text-zinc-600 font-bold font-mono portrait:hidden landscape:block">12:00</div>
         </div>
 
-        <!-- MAIN CONTENT -->
         <div class="flex-1 relative overflow-hidden flex flex-col portrait:mb-[12vh]">
             <div class="relative z-30 flex justify-between items-start p-4 md:p-6">
                 <div class="flex flex-col">
-                    <div class="flex items-center gap-2 text-zinc-500 mb-1">
-                        <i data-lucide="map-pin" class="w-[3vmin] h-[3vmin]"></i>
-                        <span id="weather-location" class="text-[2vmin] uppercase tracking-widest font-bold text-zinc-400 truncate max-w-[200px]">...</span>
-                    </div>
+                    <div class="flex items-center gap-2 text-zinc-500 mb-1"><i data-lucide="map-pin" class="w-[3vmin] h-[3vmin]"></i><span id="weather-location" class="text-[2vmin] uppercase tracking-widest font-bold text-zinc-400 truncate max-w-[200px]">...</span></div>
                     <div class="flex items-center gap-4">
                         <div class="flex items-center gap-2"><i id="weather-icon" data-lucide="cloud" class="w-[4vmin] h-[4vmin] text-zinc-400"></i><span id="weather-temp" class="text-[4vmin] font-bold text-white leading-none">--°</span></div>
                         <div class="w-px h-6 bg-zinc-800"></div>
@@ -344,7 +464,7 @@
             autoRunning: false,
             lastWeatherUpdate: 0,
             lastWeatherPos: { lat: 0, lon: 0 },
-            hasPerformedIntroSwipe: false // Replaces ecoInitialized
+            hasPerformedIntroSwipe: false 
         };
         
         const SHIFT_RPM_START = 4000;
@@ -415,18 +535,14 @@
         function updateShiftLights(rpm) {
             const leds = document.querySelectorAll('.led');
             leds.forEach(l => l.classList.remove('on', 'blink'));
-            
             if (rpm >= SHIFT_RPM_START) {
                 const activeCount = Math.floor((rpm - SHIFT_RPM_START) / 300);
-                for(let i=0; i <= Math.min(activeCount, 9); i++) {
-                    if(leds[i]) leds[i].classList.add('on');
-                }
+                for(let i=0; i <= Math.min(activeCount, 9); i++) { if(leds[i]) leds[i].classList.add('on'); }
                 if(rpm > 6800) leds.forEach(l => l.classList.add('blink'));
             }
         }
 
         function timerLapReset() {
-            const btn = document.getElementById('btn-lap');
             if (AppState.swRunning) {
                 const display = document.getElementById('stopwatch-display');
                 const last = document.getElementById('last-lap');
@@ -443,27 +559,15 @@
         function timerStartStop() {
             const btn = document.getElementById('btn-start');
             const lapBtn = document.getElementById('btn-lap');
-            
             if (!AppState.swRunning) {
                 AppState.swRunning = true;
                 AppState.swStartTime = Date.now() - AppState.swElapsed;
-                AppState.swInterval = setInterval(() => {
-                    AppState.swElapsed = Date.now() - AppState.swStartTime;
-                    formatTime(AppState.swElapsed);
-                }, 30);
-                
-                if(btn) {
-                    btn.innerText = "STOP";
-                    btn.className = "px-3 py-1 bg-red-900 hover:bg-red-700 portrait:text-[2.5vw] landscape:text-[1.2vh] font-bold text-red-300 rounded uppercase transition-colors";
-                }
+                AppState.swInterval = setInterval(() => { AppState.swElapsed = Date.now() - AppState.swStartTime; formatTime(AppState.swElapsed); }, 30);
+                if(btn) { btn.innerText = "STOP"; btn.className = "px-3 py-1 bg-red-900 hover:bg-red-700 portrait:text-[2.5vw] landscape:text-[1.2vh] font-bold text-red-300 rounded uppercase transition-colors"; }
                 if(lapBtn) lapBtn.innerText = "LAP";
             } else {
-                AppState.swRunning = false;
-                clearInterval(AppState.swInterval);
-                if(btn) {
-                    btn.innerText = "START";
-                    btn.className = "px-3 py-1 bg-emerald-900 hover:bg-emerald-700 portrait:text-[2.5vw] landscape:text-[1.2vh] font-bold text-emerald-300 rounded uppercase transition-colors";
-                }
+                AppState.swRunning = false; clearInterval(AppState.swInterval);
+                if(btn) { btn.innerText = "START"; btn.className = "px-3 py-1 bg-emerald-900 hover:bg-emerald-700 portrait:text-[2.5vw] landscape:text-[1.2vh] font-bold text-emerald-300 rounded uppercase transition-colors"; }
                 if(lapBtn) lapBtn.innerText = "RESET";
             }
         }
@@ -477,13 +581,7 @@
             AppState.autoArmed = false;
         }
 
-        function cancelZeroHundred() {
-            clearInterval(AppState.swInterval);
-            AppState.swRunning = false;
-            AppState.autoRunning = false;
-            AppState.autoArmed = false;
-            toggleTimerMode();
-        }
+        function cancelZeroHundred() { clearInterval(AppState.swInterval); AppState.swRunning = false; AppState.autoRunning = false; AppState.autoArmed = false; toggleTimerMode(); }
 
         function activateZeroHundred() {
             AppState.timerMode = 'auto';
@@ -491,13 +589,8 @@
             document.getElementById('manual-controls').classList.add('hidden');
             document.getElementById('btn-zero-hundred').classList.add('hidden'); 
             document.getElementById('auto-controls').classList.remove('hidden');
-            
-            clearInterval(AppState.swInterval);
-            AppState.swRunning = false;
-            AppState.autoRunning = false;
-            AppState.autoArmed = true; 
-            document.getElementById('stopwatch-display').innerText = "00:00.00";
-            updateDisplay(AppState.smoothSpeed); 
+            clearInterval(AppState.swInterval); AppState.swRunning = false; AppState.autoRunning = false; AppState.autoArmed = true; 
+            document.getElementById('stopwatch-display').innerText = "00:00.00"; updateDisplay(AppState.smoothSpeed); 
         }
 
         function startNeedleSwipe() {
@@ -505,7 +598,6 @@
             AppState.swiping = true;
             const duration = 1500;
             const startTime = Date.now();
-
             const ringRpm = document.getElementById('eco-ring-rpm');
             const ringSpeed = document.getElementById('eco-ring-speed');
             if(ringRpm) ringRpm.classList.remove('gauge-transition');
@@ -515,11 +607,9 @@
                 const now = Date.now();
                 const elapsed = now - startTime;
                 const progress = Math.min(elapsed / duration, 1);
-                
                 let val = 0;
                 if(progress < 0.5) val = progress * 2; else val = 2 - (progress * 2); 
-                val = val * (1 - Math.pow(val - 1, 2));
-                val = Math.max(0, val); 
+                val = val * (1 - Math.pow(val - 1, 2)); val = Math.max(0, val); 
 
                 const swipeRpm = val * 8000;
                 const rpmPct = swipeRpm / 7500; 
@@ -547,34 +637,27 @@
                 }
                 updateShiftLights(swipeRpm);
 
-                if(progress < 1) {
-                    requestAnimationFrame(swipeFrame);
-                } else {
+                if(progress < 1) { requestAnimationFrame(swipeFrame); } 
+                else {
                     AppState.swiping = false;
-                    const spd = document.getElementById('sport-speed');
-                    if(spd) spd.innerText = "0"; 
-                    
-                    const ecoSpd = document.getElementById('eco-speed-val');
-                    if(ecoSpd) ecoSpd.innerText = "0";
-                    
-                    if(ringRpm) ringRpm.classList.add('gauge-transition');
-                    if(ringSpeed) ringSpeed.classList.add('gauge-transition');
-
+                    const spd = document.getElementById('sport-speed'); if(spd) spd.innerText = "0"; 
+                    const ecoSpd = document.getElementById('eco-speed-val'); if(ecoSpd) ecoSpd.innerText = "0";
+                    if(ringRpm) ringRpm.classList.add('gauge-transition'); if(ringSpeed) ringSpeed.classList.add('gauge-transition');
                     updateDisplay(0); 
                 }
             }
             requestAnimationFrame(swipeFrame);
         }
 
-        // --- NEW START SEQUENCE FUNCTION ---
+        // --- START/STOP LOGIC ---
         function startCar() {
-            // 1. Hide Intro UI Immediately
+            // 1. Hide Intro UI
             const introWatch = document.getElementById('intro-watch-container');
             const introBtn = document.getElementById('intro-start-btn');
             if(introWatch) introWatch.classList.add('hidden');
             if(introBtn) introBtn.classList.add('hidden');
 
-            // 2. IMMEDIATELY START DASHBOARD (No black screen delay)
+            // 2. Transition to Dashboard
             setMode('eco'); 
             
             // 3. Trigger initial swipe if first time
@@ -589,15 +672,10 @@
             const watch = document.getElementById('intro-watch-container');
             const btn = document.getElementById('intro-start-btn');
             if(watch) {
-                watch.style.opacity = '0';
-                watch.style.transform = 'scale(0.8)';
+                watch.style.opacity = '0'; watch.style.transform = 'scale(0.8)';
                 setTimeout(() => {
                     watch.classList.add('hidden');
-                    if(btn) {
-                        btn.classList.remove('hidden');
-                        btn.classList.add('flex');
-                        btn.animate([{ transform: 'scale(0.5)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], { duration: 400 });
-                    }
+                    if(btn) { btn.classList.remove('hidden'); btn.classList.add('flex'); btn.animate([{ transform: 'scale(0.5)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], { duration: 400 }); }
                 }, 300);
             }
         }
@@ -607,12 +685,8 @@
             const watch = document.getElementById('intro-watch-container');
             if(btn && !btn.classList.contains('hidden')) {
                 if (!e.target.closest('#intro-start-btn button')) {
-                    btn.classList.add('hidden');
-                    btn.classList.remove('flex');
-                    if(watch) {
-                        watch.classList.remove('hidden');
-                        setTimeout(() => { watch.style.opacity = '1'; watch.style.transform = 'scale(1)'; }, 10);
-                    }
+                    btn.classList.add('hidden'); btn.classList.remove('flex');
+                    if(watch) { watch.classList.remove('hidden'); setTimeout(() => { watch.style.opacity = '1'; watch.style.transform = 'scale(1)'; }, 10); }
                 }
             }
         }
@@ -625,11 +699,7 @@
                 const svg = watch.querySelector('div');
                 if(svg) { svg.style.transition = 'all 0.3s'; svg.style.opacity = '0'; svg.style.transform = 'scale(0.8)'; }
                 setTimeout(() => {
-                    if(btn) {
-                        btn.classList.remove('hidden');
-                        btn.classList.add('flex');
-                        btn.animate([{ transform: 'scale(0.5)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], { duration: 400 });
-                    }
+                    if(btn) { btn.classList.remove('hidden'); btn.classList.add('flex'); btn.animate([{ transform: 'scale(0.5)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], { duration: 400 }); }
                 }, 300);
             }
         }
@@ -639,17 +709,13 @@
             const watch = document.getElementById('eco-watch-container');
             if(btn && !btn.classList.contains('hidden')) {
                 if (!e.target.closest('#eco-stop-btn button')) {
-                    btn.classList.add('hidden');
-                    btn.classList.remove('flex');
-                    if(watch) {
-                        const svg = watch.querySelector('div');
-                        if(svg) { svg.style.opacity = '1'; svg.style.transform = 'scale(1)'; }
-                    }
+                    btn.classList.add('hidden'); btn.classList.remove('flex');
+                    if(watch) { const svg = watch.querySelector('div'); if(svg) { svg.style.opacity = '1'; svg.style.transform = 'scale(1)'; } }
                 }
             }
         }
 
-        function stopCar() { if(AppState.gpsActive) toggleGPS(); setMode('intro'); }
+        function stopCar() { if(AppState.gpsActive) toggleGPS(); setMode('intro'); AppState.hasPerformedIntroSwipe = false; }
 
         async function requestWakeLock() { if ('wakeLock' in navigator) try { wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {} }
 
@@ -673,37 +739,36 @@
                 if (wakeLock) wakeLock.release(); wakeLock = null;
                 AppState.gpsActive = false;
                 AppState.positionBuffer = []; 
-                dotEco.className = "w-[1vmin] h-[1vmin] rounded-full bg-zinc-600"; txtEco.innerText = "GPS PAUSED"; btnEco.innerHTML = '<i data-lucide="satellite" class="w-[1.5vmin] h-[1.5vmin]"></i> Enable GPS';
-                if(dotSport) dotSport.className = "w-[1vmin] h-[1vmin] rounded-full bg-zinc-600"; 
+                dotEco.className = "w-[1.5vmin] h-[1.5vmin] md:w-[1vmin] md:h-[1vmin] rounded-full bg-zinc-600"; txtEco.innerText = "GPS PAUSED"; btnEco.innerHTML = '<i data-lucide="satellite" class="w-[1.5vmin] h-[1.5vmin]"></i> Enable GPS';
+                if(dotSport) dotSport.className = "w-[1.5vmin] h-[1.5vmin] md:w-[1vmin] md:h-[1vmin] rounded-full bg-zinc-600"; 
                 if(btnSportText) btnSportText.innerText = "GPS";
                 const dbg = document.getElementById('debug-calc'); if(dbg) dbg.innerText = `MODE: ${AppState.speedSource}`;
                 updateDisplay(0);
             } else {
                 if (!("geolocation" in navigator)) { alert("GPS not supported."); return; }
                 requestWakeLock();
-                dotEco.className = "w-[1vmin] h-[1vmin] rounded-full bg-yellow-500 animate-pulse"; txtEco.innerText = "SEARCHING..."; btnEco.innerHTML = '<i data-lucide="satellite" class="w-[1.5vmin] h-[1.5vmin]"></i> Stop GPS';
-                dotSport.className = "w-[1vmin] h-[1vmin] rounded-full bg-yellow-500 animate-pulse"; 
+                dotEco.className = "w-[1.5vmin] h-[1.5vmin] md:w-[1vmin] md:h-[1vmin] rounded-full bg-yellow-500 animate-pulse"; txtEco.innerText = "SEARCHING..."; btnEco.innerHTML = '<i data-lucide="satellite" class="w-[1.5vmin] h-[1.5vmin]"></i> Stop GPS';
+                dotSport.className = "w-[1.5vmin] h-[1.5vmin] md:w-[1vmin] md:h-[1vmin] rounded-full bg-yellow-500 animate-pulse"; 
                 if(btnSportText) btnSportText.innerText = "SEARCH";
                 
                 AppState.gpsActive = true;
                 AppState.positionBuffer = []; 
                 
-                // FASTER POLLING FOR iOS
                 const opts = { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 };
                 AppState.watchId = navigator.geolocation.watchPosition(handleSuccess, (e) => console.log(e), opts);
                 if (AppState.speedSource === 'IOS (POLL)') {
                     AppState.pollIntervalId = setInterval(() => {
                         navigator.geolocation.getCurrentPosition(handleSuccess, (e)=>{}, opts);
-                    }, 250); // Increased polling frequency to 4Hz
+                    }, 1000);
                 }
                 lucide.createIcons();
             }
         }
 
         function handleSuccess(position) {
-            document.getElementById('eco-status-dot').className = "w-[1vmin] h-[1vmin] rounded-full bg-emerald-500 animate-pulse";
+            document.getElementById('eco-status-dot').className = "w-[1.5vmin] h-[1.5vmin] md:w-[1vmin] md:h-[1vmin] rounded-full bg-emerald-500 animate-pulse";
             document.getElementById('eco-status-text').innerText = "GPS LOCKED";
-            const sportDot = document.getElementById('sport-gps-dot'); if(sportDot) sportDot.className = "w-[1vmin] h-[1vmin] rounded-full bg-emerald-500 animate-pulse";
+            const sportDot = document.getElementById('sport-gps-dot'); if(sportDot) sportDot.className = "w-[1.5vmin] h-[1.5vmin] md:w-[1vmin] md:h-[1vmin] rounded-full bg-emerald-500 animate-pulse";
             const sportTxt = document.getElementById('sport-gps-text'); if(sportTxt) sportTxt.innerText = "LOCKED";
 
             const fixTime = position.timestamp; const lat = position.coords.latitude; const lon = position.coords.longitude;
@@ -721,9 +786,7 @@
                 const distKm = getDistanceFromLatLonInKm(pOld.lat, pOld.lon, pNew.lat, pNew.lon);
                 const distM = distKm * 1000; debugDist = distM;
                 const timeDiff = (pNew.time - pOld.time) / 1000;
-                
-                // Immediate speed calculation with no noise gate
-                if (timeDiff > 0.05) {
+                if (timeDiff > 0.1) {
                     const rawSpeed = distM / timeDiff; return rawSpeed; 
                 }
                 return 0;
@@ -732,8 +795,7 @@
             if (AppState.speedSource === 'ANDROID') { finalSpeed = speedMps || 0; debugTag = "AND"; } 
             else if (AppState.speedSource.startsWith('IOS')) { finalSpeed = calculateSpeedFromBuffer(); debugTag = "IOS"; } 
             else {
-                // AUTO Logic: Trust non-zero native speed instantly
-                if (speedMps !== null && speedMps > 0) { finalSpeed = speedMps; debugTag = "NAT"; } 
+                if (speedMps !== null && speedMps >= 0) { finalSpeed = speedMps; debugTag = "NAT"; } 
                 else { finalSpeed = calculateSpeedFromBuffer(); debugTag = "CALC"; }
             }
 
@@ -763,11 +825,21 @@
 
         function updateDisplay(targetSpeedKmh) {
             if(AppState.swiping) return;
-            // Aggressive smoothing (95% new value) for instant feel
-            if (Math.abs(targetSpeedKmh - AppState.smoothSpeed) > 0.5) { AppState.smoothSpeed = (targetSpeedKmh * 0.95) + (AppState.smoothSpeed * 0.05); } 
+            if (Math.abs(targetSpeedKmh - AppState.smoothSpeed) > 0.5) { AppState.smoothSpeed = (targetSpeedKmh * 0.7) + (AppState.smoothSpeed * 0.3); } 
             else { AppState.smoothSpeed = targetSpeedKmh; }
             if(AppState.smoothSpeed < 1) AppState.smoothSpeed = 0;
             const roundedSpeed = Math.round(AppState.smoothSpeed);
+
+            if (AppState.mode === 'nav') {
+                const navSpeed = document.getElementById('nav-speed-val');
+                if(navSpeed) navSpeed.innerText = roundedSpeed;
+                const navRing = document.getElementById('nav-ring-speed');
+                if(navRing) {
+                     const circumference = 534; const arcLength = circumference * 0.75; const baseOffset = circumference * 0.25;
+                     const speedOffset = baseOffset + (arcLength - (Math.min(roundedSpeed, 200) / 200) * arcLength);
+                     navRing.style.strokeDashoffset = speedOffset;
+                }
+            }
 
             if (AppState.timerMode === 'auto') {
                 if (roundedSpeed < 2 && !AppState.autoRunning) {
@@ -811,12 +883,8 @@
         function setMode(mode) {
             if (AppState.mode === mode && mode !== 'intro') return;
             AppState.mode = mode;
-            const introView = document.getElementById('view-intro'); 
-            const ecoView = document.getElementById('view-eco'); 
-            const sportView = document.getElementById('view-sport');
-            const intro = document.getElementById('sport-intro'); 
-            const introText = document.getElementById('intro-text'); 
-            const bgSport = document.getElementById('bg-sport-pattern');
+            const introView = document.getElementById('view-intro'); const ecoView = document.getElementById('view-eco'); const sportView = document.getElementById('view-sport');
+            const intro = document.getElementById('sport-intro'); const introText = document.getElementById('intro-text'); const bgSport = document.getElementById('bg-sport-pattern');
             
             if (mode === 'intro') {
                 if(introView) { 
@@ -830,19 +898,24 @@
                 }
                 if(ecoView) ecoView.style.opacity = '0'; 
                 if(sportView) sportView.style.opacity = '0';
+                // Reset to Nav Mode if applicable, or hide it
+                const navView = document.getElementById('view-nav');
+                if(navView) { navView.style.opacity = '0'; navView.classList.add('pointer-events-none'); }
             }
             
             if (mode === 'eco') {
                 if(introView) { 
                     introView.style.opacity = '0'; 
-                    setTimeout(() => introView.classList.add('hidden-force'), 300); // Faster fade out
+                    setTimeout(() => introView.classList.add('hidden-force'), 700); 
                 }
                 if(sportView) { 
                     sportView.style.opacity = '0'; 
                     sportView.classList.add('pointer-events-none'); 
                 }
                 if(bgSport) bgSport.classList.remove('anim-bg-reveal');
-                
+                const navView = document.getElementById('view-nav');
+                if(navView) { navView.style.opacity = '0'; navView.classList.add('pointer-events-none'); }
+
                 if(ecoView) {
                     const wEco = document.getElementById('eco-watch-container'); 
                     const bEco = document.getElementById('eco-stop-btn');
@@ -858,7 +931,14 @@
                     ecoView.classList.add('anim-eco-enter'); 
                     ecoView.style.pointerEvents = 'auto';
                     
-                    // No need to delay if we want instant start
+                    // ONLY swipe if initial start
+                    if (!AppState.hasPerformedIntroSwipe) {
+                        setTimeout(() => {
+                            ecoView.classList.remove('anim-eco-enter'); 
+                            startNeedleSwipe(); 
+                            AppState.hasPerformedIntroSwipe = true;
+                        }, 500);
+                    }
                 }
             }
             
@@ -874,7 +954,9 @@
                     sportView.classList.remove('pointer-events-none'); 
                     sportView.style.opacity = '1'; 
                 }
-                
+                const navView = document.getElementById('view-nav');
+                if(navView) { navView.style.opacity = '0'; navView.classList.add('pointer-events-none'); }
+
                 const rpmGroup = document.getElementById('sport-rpm-group');
                 const speedGroup = document.getElementById('sport-speed-group');
                 const misc1 = document.getElementById('sport-misc-group-1');
@@ -912,26 +994,35 @@
                     } 
                 }, 2100);
             }
-        }
 
-        // --- WEATHER & LOCATION (Stubs as provided) ---
-        async function updateWeather(lat, lon) {
-            // Already handled in handleSuccess for update cycle
-            // Keeping stub logic from original structure if needed
-            const now = Date.now();
-            const dist = getDistanceFromLatLonInKm(AppState.lastWeatherPos.lat, AppState.lastWeatherPos.lon, lat, lon);
-            if (dist < 1 && (now - AppState.lastWeatherUpdate) < 300000) return;
-            AppState.lastWeatherUpdate = now;
-            AppState.lastWeatherPos = { lat, lon };
-            try {
-                const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code`);
-                const wData = await wRes.json();
-                if(wData.current) {
-                    document.getElementById('weather-temp').innerText = `${Math.round(wData.current.temperature_2m)}°`;
-                    // ... icon logic ...
-                }
-            } catch(e) {}
-            // ... location fetch ...
+            if (mode === 'nav') {
+                 if(introView) { introView.style.opacity = '0'; introView.classList.add('hidden-force'); }
+                 if(ecoView) { ecoView.style.opacity = '0'; ecoView.classList.add('pointer-events-none'); }
+                 if(sportView) { sportView.style.opacity = '0'; sportView.classList.add('pointer-events-none'); }
+                 const navView = document.getElementById('view-nav');
+                 if(navView) {
+                     navView.classList.remove('hidden-force');
+                     navView.classList.remove('pointer-events-none');
+                     navView.style.opacity = '1';
+                 }
+            }
+        }
+        
+        // Helper function for Watch UI updates
+        function safeSetTransform(id, transform) { const el = document.getElementById(id); if(el) el.setAttribute('transform', transform); }
+
+        function updateWatchFace(speedKmh, prefix) {
+            const now = new Date();
+            const h = now.getHours(); const m = now.getMinutes(); const s = now.getSeconds(); const ms = now.getMilliseconds();
+            safeSetTransform(`${prefix}-hand-main-hour`, `translate(100, 100) rotate(${((h % 12) * 30) + (m * 0.5)})`);
+            safeSetTransform(`${prefix}-hand-main-min`, `translate(100, 100) rotate(${(m * 6) + (s * 0.1)})`);
+            safeSetTransform(`${prefix}-hand-sub-sec`, `rotate(${(s * 6) + (ms * 0.006)})`);
+            safeSetTransform(`${prefix}-hand-sub-min`, `rotate(${(m % 30) * 12})`);
+            safeSetTransform(`${prefix}-hand-sub-hour`, `rotate(${((h % 12) * 30) + (m * 0.5)})`);
+            if (prefix === 'eco') {
+                let chronoDeg = speedKmh * 2.25; if (chronoDeg > 360) chronoDeg = 360 + (speedKmh % 10); 
+                safeSetTransform(`${prefix}-hand-chrono`, `translate(100, 100) rotate(${chronoDeg})`);
+            } else { safeSetTransform(`${prefix}-hand-chrono`, `translate(100, 100) rotate(0)`); }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
