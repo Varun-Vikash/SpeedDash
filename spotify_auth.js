@@ -1,55 +1,69 @@
 // SPOTIFY AUTHENTICATION SERVICE
 // ------------------------------------------------------
-// This file handles the OAuth 2.0 Implicit Grant flow.
-// It redirects the user to Spotify to login, and handles the
-// access token returned in the URL hash.
 
 const SPOTIFY_CONFIG = {
-    clientId: '852950465a424a9fb4f2cb105a5089a5', // Your Client ID
-    redirectUri: window.location.href.split('#')[0], // Dynamically grabs current page URL (e.g., http://127.0.0.1:5500/index.html)
+    // Trimming ensures no copy-paste whitespace errors
+    clientId: '852950465a424a9fb4f2cb105a5089a5'.trim(), 
+    
+    // Generates: "https://speeddash.vercel.app/" (Stripping hash/query)
+    redirectUri: window.location.origin + window.location.pathname, 
+    
     authEndpoint: 'https://accounts.spotify.com/authorize',
     scopes: [
         'user-read-currently-playing',
         'user-read-playback-state',
-        'user-modify-playback-state' // Needed for Play/Pause/Skip
+        'user-modify-playback-state'
     ]
 };
 
 const SpotifyAuth = {
-    // 1. Call this when the user clicks the music widget to connect
     login() {
-        const url = `${SPOTIFY_CONFIG.authEndpoint}?client_id=${SPOTIFY_CONFIG.clientId}&redirect_uri=${encodeURIComponent(SPOTIFY_CONFIG.redirectUri)}&scope=${encodeURIComponent(SPOTIFY_CONFIG.scopes.join(' '))}&response_type=token&show_dialog=true`;
-        window.location.href = url;
+        // Construct URL manually to ensure parameter order and encoding
+        const url = new URL(SPOTIFY_CONFIG.authEndpoint);
+        url.searchParams.append('client_id', SPOTIFY_CONFIG.clientId);
+        url.searchParams.append('redirect_uri', SPOTIFY_CONFIG.redirectUri);
+        url.searchParams.append('scope', SPOTIFY_CONFIG.scopes.join(' '));
+        url.searchParams.append('response_type', 'token'); // Implicit Grant
+        url.searchParams.append('show_dialog', 'true');
+
+        console.log("Redirecting to Spotify:", url.toString());
+        window.location.href = url.toString();
     },
 
-    // 2. Call this on page load to check if we just returned from Spotify
     getToken() {
         const hash = window.location.hash.substring(1);
         const params = new URLSearchParams(hash);
         const accessToken = params.get('access_token');
+        const error = params.get('error');
+
+        if (error) {
+            console.error("Spotify Auth Error:", error);
+            alert("Spotify Connection Failed: " + error);
+            // Clean URL
+            window.history.pushState("", document.title, window.location.pathname);
+            return null;
+        }
         
         if (accessToken) {
-            // Store token in session storage so it persists on refresh
+            console.log("Token Received:", accessToken.substring(0, 10) + "...");
             sessionStorage.setItem('spotify_token', accessToken);
-            // Clean the URL so the ugly token doesn't stay in the address bar
-            window.history.pushState("", document.title, window.location.pathname + window.location.search);
+            // Clean URL
+            window.history.pushState("", document.title, window.location.pathname);
             return accessToken;
         }
         
         return sessionStorage.getItem('spotify_token');
     },
 
-    // 3. Helper to check if we are connected
     isConnected() {
-        return !!this.getToken();
+        return !!sessionStorage.getItem('spotify_token');
     },
 
-    // 4. Logout (Clear token)
     logout() {
         sessionStorage.removeItem('spotify_token');
         window.location.reload();
     }
 };
 
-// Expose to global window scope so index.html can access it
+// Expose to global window
 window.SpotifyAuth = SpotifyAuth;
