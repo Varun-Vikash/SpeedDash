@@ -1,34 +1,61 @@
+// SPOTIFY AUTHENTICATION SERVICE
+// ------------------------------------------------------
+
+const SPOTIFY_CONFIG = {
+    clientId: '852950465a424a9fb4f2cb105a5089a5',
+    redirectUri: 'https://speeddash.vercel.app/', // Make sure this EXACTLY matches Spotify Dashboard
+    authEndpoint: 'https://accounts.spotify.com/authorize',
+    scopes: [
+        'user-read-currently-playing',
+        'user-read-playback-state',
+        'user-modify-playback-state'
+    ]
+};
+
 const SpotifyAuth = {
-    async login() {
-        // Generate code verifier
-        const verifier = this.generateCodeVerifier();
-        sessionStorage.setItem('code_verifier', verifier);
-        
-        // Generate code challenge
-        const challenge = await this.generateCodeChallenge(verifier);
-        
+    login() {
         const url = new URL(SPOTIFY_CONFIG.authEndpoint);
         url.searchParams.append('client_id', SPOTIFY_CONFIG.clientId);
         url.searchParams.append('redirect_uri', SPOTIFY_CONFIG.redirectUri);
         url.searchParams.append('scope', SPOTIFY_CONFIG.scopes.join(' '));
-        url.searchParams.append('response_type', 'code'); // Not 'token'
-        url.searchParams.append('code_challenge_method', 'S256');
-        url.searchParams.append('code_challenge', challenge);
-        
+        url.searchParams.append('response_type', 'token');
+        url.searchParams.append('show_dialog', 'true');
+
+        console.log("Redirecting to Spotify:", url.toString());
         window.location.href = url.toString();
     },
-    
-    generateCodeVerifier() {
-        const array = new Uint8Array(32);
-        crypto.getRandomValues(array);
-        return btoa(String.fromCharCode(...array))
-            .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+
+    getToken() {
+        const hash = window.location.hash.substring(1);
+        const params = new URLSearchParams(hash);
+        const accessToken = params.get('access_token');
+        const error = params.get('error');
+
+        if (error) {
+            console.error("Spotify Auth Error:", error);
+            alert("Spotify Connection Failed: " + error);
+            window.history.pushState("", document.title, window.location.pathname);
+            return null;
+        }
+        
+        if (accessToken) {
+            console.log("Token Received:", accessToken.substring(0, 10) + "...");
+            sessionStorage.setItem('spotify_token', accessToken);
+            window.history.pushState("", document.title, window.location.pathname);
+            return accessToken;
+        }
+        
+        return sessionStorage.getItem('spotify_token');
     },
-    
-    async generateCodeChallenge(verifier) {
-        const data = new TextEncoder().encode(verifier);
-        const hash = await crypto.subtle.digest('SHA-256', data);
-        return btoa(String.fromCharCode(...new Uint8Array(hash)))
-            .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+
+    isConnected() {
+        return !!sessionStorage.getItem('spotify_token');
+    },
+
+    logout() {
+        sessionStorage.removeItem('spotify_token');
+        window.location.reload();
     }
 };
+
+window.SpotifyAuth = SpotifyAuth;
