@@ -7,6 +7,8 @@
     <!-- External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Spotify Authentication Logic -->
+    <script src="spotify_auth.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
@@ -87,53 +89,6 @@
         .g-dot-smooth { transition: transform 0.2s cubic-bezier(0.1, 0.7, 1.0, 0.1); }
         .hand-smooth { transition: transform 0.1s cubic-bezier(0.4, 2.08, 0.55, 0.44); } 
         .hand-linear { transition: transform 0.1s linear; }
-
-        /* --- MAP STYLES --- */
-        .map-wrapper {
-            position: absolute; inset: 0; overflow: hidden;
-            background-color: #1a1a1a;
-        }
-        .map-layer {
-            position: absolute;
-            top: -50%; left: -50%; width: 200%; height: 200%;
-            /* Tiled dark map texture */
-            background-image: url('https://a.basemaps.cartocdn.com/dark_all/12/2048/1360.png'); 
-            background-size: 80vmin 80vmin; /* Size of one tile */
-            background-repeat: repeat;
-            transform: perspective(600px) rotateX(40deg) scale(1.5);
-            transform-origin: center 80%;
-            /* Position animation handled by JS */
-        }
-        .map-route-line {
-            position: absolute;
-            left: 50%; top: 0; bottom: 50%;
-            width: 1.5vmin;
-            background: #3b82f6;
-            box-shadow: 0 0 25px #3b82f6;
-            border-radius: 99px;
-            transform: perspective(600px) rotateX(40deg);
-            transform-origin: center bottom;
-            z-index: 5;
-        }
-        .map-vignette {
-            position: absolute; inset: 0;
-            background: radial-gradient(circle at center 60%, transparent 40%, #000 100%);
-            pointer-events: none; z-index: 6;
-        }
-        .map-hud-overlay {
-            position: absolute; inset: 0; z-index: 10;
-            display: flex; flex-direction: column;
-            padding: 3vmin;
-        }
-        /* Custom Progress Bars for Map Mode */
-        .bar-container {
-            width: 18vmin; height: 1.2vmin;
-            background: rgba(255,255,255,0.2);
-            border-radius: 99px;
-            overflow: hidden;
-            backdrop-filter: blur(4px);
-        }
-        .bar-fill { height: 100%; border-radius: 99px; box-shadow: 0 0 10px rgba(255,255,255,0.8); }
 
         /* SPOTIFY WIDGET */
         .spotify-card {
@@ -239,56 +194,14 @@
         </div>
     </div>
 
-    <!-- VIEW 3: NAV MODE (Working Map) -->
-    <div id="view-nav" class="absolute inset-0 z-50 bg-[#000] flex flex-col opacity-0 pointer-events-none transition-opacity duration-300 font-rounded">
-        <div class="map-wrapper">
-             <div id="map-layer" class="map-layer"></div>
-             <div class="map-route-line"></div>
-             <div class="map-vignette"></div>
-             <div class="absolute inset-0 flex items-center justify-center z-[7]" style="top: 10%;">
-                <div class="bg-[#3b82f6] rounded-full p-[0.8vmin] shadow-[0_0_20px_#3b82f6] border-[0.3vmin] border-white">
-                    <i data-lucide="navigation" class="w-[4vmin] h-[4vmin] text-white fill-current transform -rotate-45"></i>
-                </div>
-             </div>
-        </div>
-        <div class="map-hud-overlay">
-            <div class="flex justify-between items-start">
-                 <button onclick="setMode('eco')" class="bg-black/50 backdrop-blur rounded-full p-[1vmin] text-white/70 hover:bg-black hover:text-white transition-colors"><i data-lucide="x" class="w-[3vmin] h-[3vmin]"></i></button>
-            </div>
-            <div class="flex items-end justify-between w-full h-full pb-[2vmin]">
-                <div class="flex flex-col ml-[2vmin] mb-[5vmin]">
-                    <div id="nav-speed-val" class="text-[28vmin] font-extrabold text-white leading-[0.8] tracking-tighter drop-shadow-lg font-rounded">0</div>
-                    <div class="text-[4vmin] font-semibold text-gray-400 ml-[1vmin] font-rounded">km/h</div>
-                </div>
-                <div class="absolute bottom-[4vmin] left-1/2 transform -translate-x-1/2 bg-[#1c1c1e]/90 backdrop-blur-md px-[4vmin] py-[1.5vmin] rounded-[2.5vmin] flex items-center gap-[4vmin] shadow-2xl border border-white/10 font-rounded">
-                     <div class="flex flex-col items-center"><span class="text-white text-[2.5vmin] font-bold">25</span><span class="text-gray-400 text-[1.2vmin] font-medium">min</span></div>
-                     <div class="flex flex-col items-center"><span class="text-white text-[2.5vmin] font-bold">10:37h</span><span class="text-gray-400 text-[1.2vmin] font-medium">Scotland</span></div>
-                     <div class="flex flex-col items-center"><span class="text-white text-[2.5vmin] font-bold">6</span><span class="text-gray-400 text-[1.2vmin] font-medium">Km</span></div>
-                </div>
-                <div class="flex flex-col gap-[3vmin] items-end mr-[2vmin] mb-[5vmin]">
-                    <div class="flex flex-col items-end">
-                         <div class="flex items-center gap-[1vmin] mb-[0.5vmin]"><i data-lucide="fuel" class="text-white w-[2.5vmin] fill-current"></i></div>
-                        <div class="bar-container"><div class="bar-fill bg-white w-[82%]"></div></div>
-                         <span class="text-white text-[1.8vmin] font-bold mt-[0.5vmin] font-rounded">82%</span>
-                    </div>
-                    <div class="flex flex-col items-end mt-[2vmin]">
-                         <div class="flex items-center gap-[1vmin] mb-[0.5vmin]"><i data-lucide="corner-up-right" class="text-white w-[3vmin]"></i></div>
-                         <div class="text-white text-[2vmin] font-bold font-rounded">Queen Street</div>
-                        <div class="bar-container mt-[0.5vmin]"><div class="bar-fill bg-white w-[30%]"></div></div>
-                         <span class="text-white text-[1.8vmin] font-bold mt-[0.5vmin] font-rounded">6km</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- VIEW 1: ECO DASHBOARD -->
     <div id="view-eco" class="absolute inset-0 flex flex-col landscape:flex-row z-10 transition-all duration-500 bg-zinc-950 opacity-0 pointer-events-none" onclick="handleEcoBgClick(event)">
         <!-- SIDEBAR -->
         <div class="portrait:fixed portrait:bottom-0 portrait:w-full portrait:h-[12vh] landscape:static landscape:w-[8vw] landscape:h-full bg-zinc-950 portrait:border-t landscape:border-r border-zinc-900 flex portrait:flex-row landscape:flex-col items-center portrait:justify-around landscape:justify-between portrait:py-2 landscape:py-6 z-50 shadow-2xl shrink-0">
             <div class="landscape:space-y-10 portrait:flex portrait:gap-8 landscape:flex-col landscape:items-center">
                 <div class="p-3 bg-zinc-900 rounded-xl border border-zinc-800"><div class="text-[4vmin] font-black tracking-tighter italic text-zinc-500">H</div></div>
-                <button onclick="setMode('nav')" class="text-zinc-500 hover:text-blue-500 transition-colors"><i data-lucide="map-pin" class="w-[5vmin] h-[5vmin] md:w-[3vmin] md:h-[3vmin]"></i></button>
+                <!-- Static Map Pin Icon (Functionality Removed) -->
+                <i data-lucide="map-pin" class="text-zinc-500 w-[5vmin] h-[5vmin] md:w-[3vmin] md:h-[3vmin]"></i>
                 <i data-lucide="gauge" class="text-white w-[5vmin] h-[5vmin] md:w-[3vmin] md:h-[3vmin]"></i>
                 <div class="portrait:w-px portrait:h-8 landscape:w-10 landscape:h-px bg-zinc-800"></div>
                 <i data-lucide="settings-2" class="text-zinc-500 w-[5vmin] h-[5vmin] md:w-[3vmin] md:h-[3vmin]"></i>
@@ -469,49 +382,6 @@
                         <div class="absolute h-full w-[1px] bg-zinc-800"></div>
                         <div id="g-dot" class="w-3 h-3 bg-yellow-400 rounded-full shadow-[0_0_10px_#facc15] g-dot-smooth relative z-10"></div>
                         <span class="absolute bottom-2 text-[10px] text-zinc-500 font-bold">PEAK G</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- VIEW 3: NAV MODE (Working Map) -->
-    <div id="view-nav" class="absolute inset-0 z-50 bg-[#000] flex flex-col opacity-0 pointer-events-none transition-opacity duration-300 font-rounded">
-        <div class="map-wrapper">
-             <div id="map-layer" class="map-layer"></div>
-             <div class="map-route-line"></div>
-             <div class="map-vignette"></div>
-             <div class="absolute inset-0 flex items-center justify-center z-[7]" style="top: 10%;">
-                <div class="bg-[#3b82f6] rounded-full p-[0.8vmin] shadow-[0_0_20px_#3b82f6] border-[0.3vmin] border-white">
-                    <i data-lucide="navigation" class="w-[4vmin] h-[4vmin] text-white fill-current transform -rotate-45"></i>
-                </div>
-             </div>
-        </div>
-        <div class="map-hud-overlay">
-            <div class="flex justify-between items-start">
-                 <button onclick="setMode('eco')" class="bg-black/50 backdrop-blur rounded-full p-[1vmin] text-white/70 hover:bg-black hover:text-white transition-colors"><i data-lucide="x" class="w-[3vmin] h-[3vmin]"></i></button>
-            </div>
-            <div class="flex items-end justify-between w-full h-full pb-[2vmin]">
-                <div class="flex flex-col ml-[2vmin] mb-[5vmin]">
-                    <div id="nav-speed-val" class="text-[28vmin] font-extrabold text-white leading-[0.8] tracking-tighter drop-shadow-lg font-rounded">0</div>
-                    <div class="text-[4vmin] font-semibold text-gray-400 ml-[1vmin] font-rounded">km/h</div>
-                </div>
-                <div class="absolute bottom-[4vmin] left-1/2 transform -translate-x-1/2 bg-[#1c1c1e]/90 backdrop-blur-md px-[4vmin] py-[1.5vmin] rounded-[2.5vmin] flex items-center gap-[4vmin] shadow-2xl border border-white/10 font-rounded">
-                     <div class="flex flex-col items-center"><span class="text-white text-[2.5vmin] font-bold">25</span><span class="text-gray-400 text-[1.2vmin] font-medium">min</span></div>
-                     <div class="flex flex-col items-center"><span class="text-white text-[2.5vmin] font-bold">10:37h</span><span class="text-gray-400 text-[1.2vmin] font-medium">Scotland</span></div>
-                     <div class="flex flex-col items-center"><span class="text-white text-[2.5vmin] font-bold">6</span><span class="text-gray-400 text-[1.2vmin] font-medium">Km</span></div>
-                </div>
-                <div class="flex flex-col gap-[3vmin] items-end mr-[2vmin] mb-[5vmin]">
-                    <div class="flex flex-col items-end">
-                         <div class="flex items-center gap-[1vmin] mb-[0.5vmin]"><i data-lucide="fuel" class="text-white w-[2.5vmin] fill-current"></i></div>
-                        <div class="bar-container"><div class="bar-fill bg-white w-[82%]"></div></div>
-                         <span class="text-white text-[1.8vmin] font-bold mt-[0.5vmin] font-rounded">82%</span>
-                    </div>
-                    <div class="flex flex-col items-end mt-[2vmin]">
-                         <div class="flex items-center gap-[1vmin] mb-[0.5vmin]"><i data-lucide="corner-up-right" class="text-white w-[3vmin]"></i></div>
-                         <div class="text-white text-[2vmin] font-bold font-rounded">Queen Street</div>
-                        <div class="bar-container mt-[0.5vmin]"><div class="bar-fill bg-white w-[30%]"></div></div>
-                         <span class="text-white text-[1.8vmin] font-bold mt-[0.5vmin] font-rounded">6km</span>
                     </div>
                 </div>
             </div>
@@ -1052,17 +922,6 @@
             if(AppState.smoothSpeed < 1) AppState.smoothSpeed = 0;
             const roundedSpeed = Math.round(AppState.smoothSpeed);
 
-            if (AppState.mode === 'nav') {
-                const navSpeed = document.getElementById('nav-speed-val');
-                if(navSpeed) navSpeed.innerText = roundedSpeed;
-                const navRing = document.getElementById('nav-ring-speed');
-                if(navRing) {
-                     const circumference = 534; const arcLength = circumference * 0.75; const baseOffset = circumference * 0.25;
-                     const speedOffset = baseOffset + (arcLength - (Math.min(roundedSpeed, 200) / 200) * arcLength);
-                     navRing.style.strokeDashoffset = speedOffset;
-                }
-            }
-
             if (AppState.timerMode === 'auto') {
                 if (roundedSpeed < 2 && !AppState.autoRunning) {
                     AppState.autoArmed = true; document.getElementById('auto-status').innerHTML = "READY<br>LAUNCH"; document.getElementById('auto-status').className = "mt-2 portrait:text-[2.5vw] landscape:text-[1.2vh] font-bold text-emerald-500 animate-pulse text-right leading-tight";
@@ -1140,9 +999,6 @@
                 }
                 if(ecoView) ecoView.style.opacity = '0'; 
                 if(sportView) sportView.style.opacity = '0';
-                // Reset to Nav Mode if applicable, or hide it
-                const navView = document.getElementById('view-nav');
-                if(navView) { navView.style.opacity = '0'; navView.classList.add('pointer-events-none'); }
             }
             
             if (mode === 'eco') {
@@ -1155,8 +1011,6 @@
                     sportView.classList.add('pointer-events-none'); 
                 }
                 if(bgSport) bgSport.classList.remove('anim-bg-reveal');
-                const navView = document.getElementById('view-nav');
-                if(navView) { navView.style.opacity = '0'; navView.classList.add('pointer-events-none'); }
 
                 if(ecoView) {
                     const wEco = document.getElementById('eco-watch-container'); 
@@ -1196,8 +1050,6 @@
                     sportView.classList.remove('pointer-events-none'); 
                     sportView.style.opacity = '1'; 
                 }
-                const navView = document.getElementById('view-nav');
-                if(navView) { navView.style.opacity = '0'; navView.classList.add('pointer-events-none'); }
 
                 const rpmGroup = document.getElementById('sport-rpm-group');
                 const speedGroup = document.getElementById('sport-speed-group');
@@ -1235,18 +1087,6 @@
                         bgSport.classList.add('anim-bg-reveal'); 
                     } 
                 }, 2100);
-            }
-
-            if (mode === 'nav') {
-                 if(introView) { introView.style.opacity = '0'; introView.classList.add('hidden-force'); }
-                 if(ecoView) { ecoView.style.opacity = '0'; ecoView.classList.add('pointer-events-none'); }
-                 if(sportView) { sportView.style.opacity = '0'; sportView.classList.add('pointer-events-none'); }
-                 const navView = document.getElementById('view-nav');
-                 if(navView) {
-                     navView.classList.remove('hidden-force');
-                     navView.classList.remove('pointer-events-none');
-                     navView.style.opacity = '1';
-                 }
             }
         }
 
