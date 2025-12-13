@@ -52,6 +52,20 @@
         }
         .anim-eco-enter { animation: ecoEnter 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
 
+        /* DRL ANIMATION */
+        .drl-container { position: fixed; inset: 0; z-index: 9000; background: black; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; }
+        .drl-active { animation: drlContainerFade 2.5s forwards; }
+        @keyframes drlContainerFade { 0% { opacity: 1; } 80% { opacity: 1; background: black; } 100% { opacity: 0; background: transparent; } }
+        .drl-lamp { width: 0; height: 2vmin; background: #fff; border-radius: 999px; position: absolute; opacity: 0; box-shadow: 0 0 2vmin 0.5vmin rgba(200, 230, 255, 0.5); }
+        .drl-left { right: 52%; transform: skewX(45deg); transform-origin: right center; }
+        .drl-right { left: 52%; transform: skewX(-45deg); transform-origin: left center; }
+        
+        .drl-anim-left { animation: drlSwipeLeft 2s cubic-bezier(0.1, 0.8, 0.2, 1) forwards; }
+        .drl-anim-right { animation: drlSwipeRight 2s cubic-bezier(0.1, 0.8, 0.2, 1) forwards; }
+
+        @keyframes drlSwipeLeft { 0% { width: 0; opacity: 0; } 20% { width: 35vw; opacity: 1; box-shadow: 0 0 2vmin 0.5vmin rgba(200, 230, 255, 0.5); } 50% { width: 35vw; opacity: 1; box-shadow: 0 0 8vmin 2vmin rgba(255, 255, 255, 0.9); background: #fff; } 90% { width: 35vw; opacity: 0; } 100% { width: 35vw; opacity: 0; } }
+        @keyframes drlSwipeRight { 0% { width: 0; opacity: 0; } 20% { width: 35vw; opacity: 1; box-shadow: 0 0 2vmin 0.5vmin rgba(200, 230, 255, 0.5); } 50% { width: 35vw; opacity: 1; box-shadow: 0 0 8vmin 2vmin rgba(255, 255, 255, 0.9); background: #fff; } 90% { width: 35vw; opacity: 0; } 100% { width: 35vw; opacity: 0; } }
+
         /* Scanlines Overlay */
         .scanlines {
             background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
@@ -62,7 +76,6 @@
         /* Specific Fonts & Backgrounds */
         .font-fl5 { font-family: 'Orbitron', sans-serif; letter-spacing: -0.05em; }
         .bg-fl5-pattern { background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0l17.32 10v20L20 40 2.68 30V10z' fill-opacity='0.08' fill='%23333' stroke='%23444' stroke-width='1'/%3E%3C/svg%3E"); }
-        .font-rounded { font-family: 'M PLUS Rounded 1c', sans-serif; }
 
         /* LEDs */
         .led { width: 100%; height: 100%; background: #333; skew-x: -20deg; border-radius: 2px; transition: background 0.05s, box-shadow 0.05s; }
@@ -86,6 +99,7 @@
         }
         .spotify-card:active { transform: scale(0.98); }
         .album-art-spin { animation: spinArt 10s linear infinite; }
+        .album-art-paused { animation-play-state: paused; }
         @keyframes spinArt { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         
         .music-bar {
@@ -95,6 +109,7 @@
             width: 0%;
             transition: width 0.1s linear;
         }
+        /* Style for when we are connected to Spotify */
         .spotify-connected { border-color: #1db954; box-shadow: 0 0 10px rgba(29, 185, 84, 0.3); }
     </style>
 </head>
@@ -238,6 +253,7 @@
                     <div id="spotify-widget" class="spotify-card w-[22vmin] h-[8vmin] rounded-[1.5vmin] flex items-center p-[1vmin] gap-[1.5vmin] z-50 cursor-pointer overflow-hidden relative mt-[1vmin]">
                          <!-- Album Art (Click to Login) -->
                          <div id="sp-album-art" class="w-[6vmin] h-[6vmin] rounded-[1vmin] bg-zinc-800 flex items-center justify-center shrink-0 relative overflow-hidden transition-all hover:scale-105" title="Click to Connect Spotify">
+                             <img id="sp-image" src="" class="absolute inset-0 w-full h-full object-cover hidden">
                              <div class="absolute inset-0 bg-gradient-to-tr from-green-800 to-black opacity-60"></div>
                              <i data-lucide="music" class="w-[3vmin] h-[3vmin] text-green-500 album-art-spin z-10"></i>
                          </div>
@@ -395,16 +411,10 @@
             lastWeatherPos: { lat: 0, lon: 0 },
             hasPerformedIntroSwipe: false,
             
-            // SPOTIFY STATE
-            spotifyTracks: [
-                { title: "Starboy", artist: "The Weeknd" },
-                { title: "Midnight City", artist: "M83" },
-                { title: "Nightcall", artist: "Kavinsky" },
-                { title: "Blinding Lights", artist: "The Weeknd" }
-            ],
-            currentTrackIndex: 0,
-            isPlaying: true,
-            trackProgress: 0
+            // SPOTIFY STATE (Real API Integration Variables)
+            spotifyPollingInterval: null,
+            isPlaying: false,
+            currentTrack: null
         };
         
         const SHIFT_RPM_START = 4000;
@@ -414,75 +424,90 @@
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         if(isIOS) AppState.speedSource = 'IOS (POLL)';
 
-        // --- SPOTIFY FUNCTIONS ---
-        function initSpotifyWidget() {
-            // Check if we have a token from spotify_auth.js
-            if (window.SpotifyAuth && window.SpotifyAuth.isConnected()) {
-                document.getElementById('sp-track').innerText = "Connected";
-                document.getElementById('sp-artist').innerText = "Fetching...";
-                // In a real app, we would fetch current playback here.
-                // For this demo, we unlock the simulated controls.
-                AppState.isPlaying = true;
-                const widget = document.getElementById('spotify-widget');
-                if(widget) widget.classList.add('spotify-connected');
+        // --- SPOTIFY UI UPDATES ---
+        async function updateSpotifyUI() {
+            if (!window.SpotifyAuth || !window.SpotifyAuth.isConnected()) {
+                 // Not Connected UI State handled in HTML default
+                 return;
             }
+
+            const data = await window.SpotifyAuth.fetchNowPlaying();
             
-            // Attach event listeners manually to be safe
-            const btnArt = document.getElementById('sp-album-art');
-            if(btnArt && window.SpotifyAuth) {
-                btnArt.onclick = (e) => {
+            // UI Elements
+            const container = document.getElementById('spotify-widget');
+            const trackEl = document.getElementById('sp-track');
+            const artistEl = document.getElementById('sp-artist');
+            const artEl = document.getElementById('sp-album-art');
+            const bgArt = document.querySelector('#sp-album-art div'); // Gradient overlay
+            const imgArt = document.getElementById('sp-image');
+            const playIcon = document.getElementById('sp-play-icon');
+            const bar = document.getElementById('sp-bar');
+
+            if (data && data.item) {
+                // We have data
+                AppState.isPlaying = data.is_playing;
+                trackEl.innerText = data.item.name;
+                artistEl.innerText = data.item.artists.map(a => a.name).join(', ');
+                
+                // Update Art
+                const artUrl = data.item.album.images[0]?.url;
+                if(artUrl) {
+                    imgArt.src = artUrl;
+                    imgArt.classList.remove('hidden');
+                }
+
+                // Update Play/Pause Icon
+                if(playIcon) {
+                    playIcon.setAttribute('data-lucide', data.is_playing ? 'pause' : 'play');
+                    lucide.createIcons();
+                }
+
+                // Update Progress Bar
+                if(data.item.duration_ms > 0) {
+                    const pct = (data.progress_ms / data.item.duration_ms) * 100;
+                    bar.style.width = `${pct}%`;
+                }
+
+                container.classList.add('spotify-connected');
+            } else {
+                // Connected but nothing playing
+                trackEl.innerText = "Spotify Connected";
+                artistEl.innerText = "Play music on device";
+            }
+        }
+
+        // Initialize and Start Polling
+        function initSpotifyWidget() {
+            // Check auth on load
+            if (window.SpotifyAuth && window.SpotifyAuth.isConnected()) {
+                document.getElementById('sp-track').innerText = "Connecting...";
+                updateSpotifyUI(); // Fetch immediately
+                
+                // Poll every 3 seconds to update UI
+                if(!AppState.spotifyPollingInterval) {
+                    AppState.spotifyPollingInterval = setInterval(updateSpotifyUI, 3000);
+                }
+            }
+
+            // Bind Click Events
+            const btnPrev = document.getElementById('btn-prev');
+            const btnPlay = document.getElementById('btn-play');
+            const btnNext = document.getElementById('btn-next');
+            const artContainer = document.getElementById('sp-album-art');
+
+            if(btnPrev) btnPrev.onclick = (e) => { e.stopPropagation(); window.SpotifyAuth.previous(); setTimeout(updateSpotifyUI, 500); };
+            if(btnPlay) btnPlay.onclick = (e) => { e.stopPropagation(); window.SpotifyAuth.playPause(AppState.isPlaying); setTimeout(updateSpotifyUI, 500); };
+            if(btnNext) btnNext.onclick = (e) => { e.stopPropagation(); window.SpotifyAuth.next(); setTimeout(updateSpotifyUI, 500); };
+            
+            // Click Album Art to Login
+            if(artContainer) {
+                artContainer.onclick = (e) => {
                     e.stopPropagation();
-                    window.SpotifyAuth.login();
+                    if(!window.SpotifyAuth.isConnected()) {
+                        window.SpotifyAuth.login();
+                    }
                 };
             }
-            
-            document.getElementById('btn-prev').onclick = (e) => spotifyPrev(e);
-            document.getElementById('btn-play').onclick = (e) => spotifyPlayPause(e);
-            document.getElementById('btn-next').onclick = (e) => spotifyNext(e);
-        }
-
-        function updateSpotify() {
-            if(!AppState.isPlaying) return;
-            AppState.trackProgress += 1; // 1% per tick (simulated)
-            if(AppState.trackProgress > 100) {
-                AppState.trackProgress = 0;
-                spotifyNext(null); // Auto next
-            }
-            const bar = document.getElementById('sp-bar');
-            if(bar) bar.style.width = `${AppState.trackProgress}%`;
-        }
-
-        function spotifyPlayPause(e) {
-            if(e) e.stopPropagation();
-            AppState.isPlaying = !AppState.isPlaying;
-            const icon = document.getElementById('sp-play-icon');
-            if(icon) {
-                icon.setAttribute('data-lucide', AppState.isPlaying ? 'pause' : 'play');
-                lucide.createIcons();
-            }
-        }
-
-        function spotifyNext(e) {
-            if(e) e.stopPropagation();
-            AppState.currentTrackIndex = (AppState.currentTrackIndex + 1) % AppState.spotifyTracks.length;
-            updateTrackUI();
-        }
-
-        function spotifyPrev(e) {
-            if(e) e.stopPropagation();
-            AppState.currentTrackIndex = (AppState.currentTrackIndex - 1 + AppState.spotifyTracks.length) % AppState.spotifyTracks.length;
-            updateTrackUI();
-        }
-
-        function updateTrackUI() {
-            const track = AppState.spotifyTracks[AppState.currentTrackIndex];
-            const trkEl = document.getElementById('sp-track');
-            const artEl = document.getElementById('sp-artist');
-            if(trkEl) trkEl.innerText = track.title;
-            if(artEl) artEl.innerText = track.artist;
-            AppState.trackProgress = 0;
-            const bar = document.getElementById('sp-bar');
-            if(bar) bar.style.width = '0%';
         }
 
         function toggleSpeedSource(e) {
@@ -524,12 +549,12 @@
                     <text x="100" y="66" text-anchor="middle" fill="#ccc" font-family="Arial" font-size="4" font-weight="bold" letter-spacing="0.5">OMEGA</text>
                     <text x="100" y="72" text-anchor="middle" fill="#ddd" font-family="Times New Roman" font-size="4" font-style="italic">Speedmaster</text>
                     <text x="100" y="76" text-anchor="middle" fill="#ddd" font-family="Arial" font-size="3">PROFESSIONAL</text>
-                    <g transform="translate(62, 100)"><circle cx="0" cy="0" r="21" fill="#111" stroke="#333" stroke-width="0.2" /><line x1="0" y1="-18" x2="0" y2="-21" stroke="white" stroke-width="1" /><path id="${p}-hand-sub-sec" d="M0 5 L0 -18" stroke="white" stroke-width="1" stroke-linecap="round" /></g>
-                    <g transform="translate(138, 100)"><circle cx="0" cy="0" r="21" fill="#111" stroke="#333" stroke-width="0.2" /><line x1="0" y1="-18" x2="0" y2="-21" stroke="white" stroke-width="1" /><path id="${p}-hand-sub-min" d="M0 5 L0 -18" stroke="white" stroke-width="1" stroke-linecap="round" /></g>
-                    <g transform="translate(100, 138)"><circle cx="0" cy="0" r="21" fill="#111" stroke="#333" stroke-width="0.2" /><path id="${p}-hand-sub-hour" d="M0 5 L0 -18" stroke="white" stroke-width="1" stroke-linecap="round" /></g>
-                    <g id="${p}-hand-main-hour" class="hand-linear"><path d="M-2.5 0 L-1.5 -55 L0 -62 L1.5 -55 L2.5 0 Z" fill="white" /><rect x="-0.8" y="-50" width="1.6" height="40" fill="#bbf7d0" /></g>
-                    <g id="${p}-hand-main-min" class="hand-linear"><path d="M-2 0 L-1.5 -75 L0 -82 L1.5 -75 L2 0 Z" fill="white" /><rect x="-0.8" y="-70" width="1.6" height="60" fill="#bbf7d0" /></g>
-                    <g id="${p}-hand-chrono" class="hand-smooth"><path d="M-2 25 L0 30 L2 25 L0 0 Z" fill="white" /> <line x1="0" y1="25" x2="0" y2="-95" stroke="white" stroke-width="0.6" /> <path d="M-3 -70 L3 -70 L0 -85 Z" fill="white" /> <circle cx="0" cy="0" r="2.5" fill="white" /></g>
+                    <g transform="translate(62, 100)"><circle cx="0" cy="0" r="21" fill="#111" stroke="#333" stroke-width="0.2" /><line x1="0" y1="-18" x2="0" y2="-21" stroke="white" stroke-width="1" /><path id="intro-hand-sub-sec" d="M0 5 L0 -18" stroke="white" stroke-width="1" stroke-linecap="round" /></g>
+                    <g transform="translate(138, 100)"><circle cx="0" cy="0" r="21" fill="#111" stroke="#333" stroke-width="0.2" /><line x1="0" y1="-18" x2="0" y2="-21" stroke="white" stroke-width="1" /><path id="intro-hand-sub-min" d="M0 5 L0 -18" stroke="white" stroke-width="1" stroke-linecap="round" /></g>
+                    <g transform="translate(100, 138)"><circle cx="0" cy="0" r="21" fill="#111" stroke="#333" stroke-width="0.2" /><path id="intro-hand-sub-hour" d="M0 5 L0 -18" stroke="white" stroke-width="1" stroke-linecap="round" /></g>
+                    <g id="intro-hand-main-hour" class="hand-linear"><path d="M-2.5 0 L-1.5 -55 L0 -62 L1.5 -55 L2.5 0 Z" fill="white" /><rect x="-0.8" y="-50" width="1.6" height="40" fill="#bbf7d0" /></g>
+                    <g id="intro-hand-main-min" class="hand-linear"><path d="M-2 0 L-1.5 -75 L0 -82 L1.5 -75 L2 0 Z" fill="white" /><rect x="-0.8" y="-70" width="1.6" height="60" fill="#bbf7d0" /></g>
+                    <g id="intro-hand-chrono" class="hand-smooth"><path d="M-2 25 L0 30 L2 25 L0 0 Z" fill="white" /> <line x1="0" y1="25" x2="0" y2="-95" stroke="white" stroke-width="0.6" /> <path d="M-3 -70 L3 -70 L0 -85 Z" fill="white" /> <circle cx="0" cy="0" r="2.5" fill="white" /></g>
                 </svg>
                 <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none"></div>
             </div>`;
@@ -1117,7 +1142,8 @@
                 if (AppState.mode === 'intro') updateWatchFace(0, 'intro');
                 if (AppState.mode === 'eco') {
                     updateWatchFace(AppState.smoothSpeed, 'eco');
-                    updateSpotify(); // Run Spotify Progress
+                    // Add Spotify Update to Main Loop
+                    if (typeof updateSpotify === 'function') updateSpotify(); 
                 }
                 if(AppState.gpsActive || AppState.swiping) if(AppState.gpsActive) updateDisplay(AppState.smoothSpeed);
                 requestAnimationFrame(loop);
