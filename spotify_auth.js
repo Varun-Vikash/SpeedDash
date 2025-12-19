@@ -3,8 +3,15 @@
 
 const SPOTIFY_CONFIG = {
     clientId: '852950465a424a9fb4f2cb105a5089a5'.trim(), 
-    // Uses the current page root as redirect. Ensure this EXACT URL is in Spotify Dashboard.
-    redirectUri: window.location.origin + window.location.pathname, 
+    // Uses the current page URL as redirect. Ensure this EXACT URL is in Spotify Dashboard.
+    // Using href without hash/search to ensure consistent redirect URL
+    get redirectUri() {
+        const url = new URL(window.location.href);
+        // Remove hash and search params to get clean URL
+        url.hash = '';
+        url.search = '';
+        return url.toString();
+    },
     authEndpoint: 'https://accounts.spotify.com/authorize',
     scopes: [
         'user-read-currently-playing',
@@ -16,9 +23,12 @@ const SPOTIFY_CONFIG = {
 const SpotifyAuth = {
     // 1. Login Redirect
     login() {
+        const redirectUri = SPOTIFY_CONFIG.redirectUri;
+        console.log("Spotify Login - Redirect URI:", redirectUri);
+        
         const url = new URL(SPOTIFY_CONFIG.authEndpoint);
         url.searchParams.append('client_id', SPOTIFY_CONFIG.clientId);
-        url.searchParams.append('redirect_uri', SPOTIFY_CONFIG.redirectUri);
+        url.searchParams.append('redirect_uri', redirectUri);
         url.searchParams.append('scope', SPOTIFY_CONFIG.scopes.join(' '));
         url.searchParams.append('response_type', 'token'); 
         url.searchParams.append('show_dialog', 'false');
@@ -35,19 +45,44 @@ const SpotifyAuth = {
         const accessToken = params.get('access_token');
         
         if (accessToken) {
+            console.log("Spotify token found in URL, saving to session storage");
             // Save to storage
             sessionStorage.setItem('spotify_token', accessToken);
-            // Expire logic could go here, but keeping it simple
-            window.history.pushState("", document.title, window.location.pathname); // Clean URL
+            const expiresIn = params.get('expires_in');
+            if (expiresIn) {
+                const expiresAt = Date.now() + (parseInt(expiresIn) * 1000);
+                sessionStorage.setItem('spotify_token_expires', expiresAt.toString());
+            }
+            // Clean URL
+            window.history.replaceState(null, '', window.location.pathname);
             return accessToken;
         }
         
-        // Fallback to storage
-        return sessionStorage.getItem('spotify_token');
+        // Fallback to storage (check if not expired)
+        const storedToken = sessionStorage.getItem('spotify_token');
+        if (storedToken) {
+            const expiresAt = sessionStorage.getItem('spotify_token_expires');
+            if (expiresAt && Date.now() > parseInt(expiresAt)) {
+                console.log("Spotify token expired, clearing storage");
+                sessionStorage.removeItem('spotify_token');
+                sessionStorage.removeItem('spotify_token_expires');
+                return null;
+            }
+            return storedToken;
+        }
+        
+        return null;
     },
 
     isConnected() {
         return !!this.getToken();
+    },
+
+    // Logout / Clear Token
+    logout() {
+        sessionStorage.removeItem('spotify_token');
+        sessionStorage.removeItem('spotify_token_expires');
+        console.log("Spotify token cleared");
     },
 
     // 3. API Calls
@@ -60,17 +95,26 @@ const SpotifyAuth = {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
-            if (res.status === 204 || res.status > 400) return null; // No content or error
+            if (res.status === 204) {
+                // No content - nothing playing
+                return null;
+            }
+            
+            if (res.status === 401) {
+                // Token expired or invalid
+                console.log("Spotify token invalid, clearing...");
+                this.logout();
+                return null;
+            }
+            
+            if (res.status > 400) {
+                console.error("Spotify API error:", res.status, res.statusText);
+                return null;
+            }
 
             const data = await res.json();
-            return {
-                name: data.item.name,
-                artist: data.item.artists.map(a => a.name).join(', '),
-                image: data.item.album.images[0]?.url,
-                progress: data.progress_ms,
-                duration: data.item.duration_ms,
-                isPlaying: data.is_playing
-            };
+            // Return the full API response structure that updateSpotifyUI expects
+            return data;
         } catch (e) {
             console.error("Spotify Fetch Error", e);
             return null;
@@ -78,35 +122,55 @@ const SpotifyAuth = {
     },
 
     async next() {
-        await this._post('next');
+        try {
+            await this._post('next');
+        } catch (e) {
+            console.error("Spotify next error:", e);
+        }
     },
 
     async previous() {
-        await this._post('previous');
+        try {
+            await this._post('previous');
+        } catch (e) {
+            console.error("Spotify previous error:", e);
+        }
     },
 
     async playPause(currentState) {
-        // currentState is boolean (true = playing)
-        const endpoint = currentState ? 'pause' : 'play';
-        await this._put(endpoint);
+        try {
+            // currentState is boolean (true = playing)
+            const endpoint = currentState ? 'pause' : 'play';
+            await this._put(endpoint);
+        } catch (e) {
+            console.error("Spotify playPause error:", e);
+        }
     },
 
     async _post(endpoint) {
         const token = this.getToken();
         if(!token) return;
-        await fetch(`https://api.spotify.com/v1/me/player/${endpoint}`, {
+        const res = await fetch(`https://api.spotify.com/v1/me/player/${endpoint}`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` }
         });
+        if (res.status === 401) {
+            this.logout();
+        }
+        return res;
     },
 
     async _put(endpoint) {
         const token = this.getToken();
         if(!token) return;
-        await fetch(`https://api.spotify.com/v1/me/player/${endpoint}`, {
+        const res = await fetch(`https://api.spotify.com/v1/me/player/${endpoint}`, {
             method: 'PUT',
             headers: { 'Authorization': `Bearer ${token}` }
         });
+        if (res.status === 401) {
+            this.logout();
+        }
+        return res;
     }
 };
 

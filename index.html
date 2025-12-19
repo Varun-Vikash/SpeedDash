@@ -1117,23 +1117,27 @@
             if(introWatchContainer) introWatchContainer.innerHTML = getOmegaWatchSVG('intro');
             if(ecoWatchContainer) ecoWatchContainer.innerHTML = getOmegaWatchSVG('eco');
             
-            // --- Check for Spotify Auth Return ---
-            // If we are returning from Spotify login with a token, skip intro
-            if (window.SpotifyAuth) {
-                const token = window.SpotifyAuth.getToken();
-                if (token) {
-                    setMode('eco'); // Skip straight to Dashboard
-                    // Initialize Spotify
-                    initSpotifyWidget();
-                    return; // Stop further execution of intro loop
-                }
-            }
-            
+            // Setup clock update interval
             setInterval(() => { 
                 const clock = document.getElementById('clock');
                 if(clock) clock.innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}); 
             }, 1000);
-            setMode('intro');
+            
+            // --- Check for Spotify Auth Return ---
+            // If we are returning from Spotify login with a token, skip intro
+            let hasSpotifyToken = false;
+            if (window.SpotifyAuth) {
+                const token = window.SpotifyAuth.getToken();
+                if (token) {
+                    hasSpotifyToken = true;
+                    setMode('eco'); // Skip straight to Dashboard
+                }
+            }
+            
+            // Set initial mode if no token
+            if (!hasSpotifyToken) {
+                setMode('intro');
+            }
             
             // Initialize widget on load (will show "Connect" if not logged in)
             initSpotifyWidget();
