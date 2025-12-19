@@ -4,7 +4,7 @@
 const SPOTIFY_CONFIG = {
     clientId: '852950465a424a9fb4f2cb105a5089a5'.trim(), 
     // Uses the current page URL as redirect. Ensure this EXACT URL is in Spotify Dashboard.
-    // Using href without hash/search to ensure consistent redirect URL
+    // Using a getter to ensure we always use the current URL state (only called during login)
     get redirectUri() {
         const url = new URL(window.location.href);
         // Remove hash and search params to get clean URL
@@ -62,7 +62,7 @@ const SpotifyAuth = {
         const storedToken = sessionStorage.getItem('spotify_token');
         if (storedToken) {
             const expiresAt = sessionStorage.getItem('spotify_token_expires');
-            if (expiresAt && Date.now() > parseInt(expiresAt)) {
+            if (expiresAt && Date.now() > parseInt(expiresAt, 10)) {
                 console.log("Spotify token expired, clearing storage");
                 sessionStorage.removeItem('spotify_token');
                 sessionStorage.removeItem('spotify_token_expires');

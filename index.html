@@ -482,8 +482,11 @@
 
         // Initialize and Start Polling
         function initSpotifyWidget() {
+            // Helper function to check Spotify connection
+            const isSpotifyConnected = () => window.SpotifyAuth && window.SpotifyAuth.isConnected();
+            
             // Check auth on load
-            if (window.SpotifyAuth && window.SpotifyAuth.isConnected()) {
+            if (isSpotifyConnected()) {
                 document.getElementById('sp-track').innerText = "Connecting...";
                 updateSpotifyUI(); // Fetch immediately
                 
@@ -501,21 +504,21 @@
 
             if(btnPrev) btnPrev.onclick = (e) => { 
                 e.stopPropagation(); 
-                if (window.SpotifyAuth && window.SpotifyAuth.isConnected()) {
+                if (isSpotifyConnected()) {
                     window.SpotifyAuth.previous(); 
                     setTimeout(updateSpotifyUI, 500); 
                 }
             };
             if(btnPlay) btnPlay.onclick = (e) => { 
                 e.stopPropagation(); 
-                if (window.SpotifyAuth && window.SpotifyAuth.isConnected()) {
+                if (isSpotifyConnected()) {
                     window.SpotifyAuth.playPause(AppState.isPlaying); 
                     setTimeout(updateSpotifyUI, 500); 
                 }
             };
             if(btnNext) btnNext.onclick = (e) => { 
                 e.stopPropagation(); 
-                if (window.SpotifyAuth && window.SpotifyAuth.isConnected()) {
+                if (isSpotifyConnected()) {
                     window.SpotifyAuth.next(); 
                     setTimeout(updateSpotifyUI, 500); 
                 }
@@ -525,7 +528,7 @@
             if(artContainer) {
                 artContainer.onclick = (e) => {
                     e.stopPropagation();
-                    if(!window.SpotifyAuth.isConnected()) {
+                    if(!isSpotifyConnected()) {
                         window.SpotifyAuth.login();
                     }
                 };
@@ -1145,19 +1148,14 @@
                 if(clock) clock.innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}); 
             }, 1000);
             
+            // Helper function to check Spotify connection
+            const isSpotifyConnected = () => window.SpotifyAuth && window.SpotifyAuth.isConnected();
+            
             // --- Check for Spotify Auth Return ---
             // If we are returning from Spotify login with a token, skip intro
-            let hasSpotifyToken = false;
-            if (window.SpotifyAuth) {
-                const token = window.SpotifyAuth.getToken();
-                if (token) {
-                    hasSpotifyToken = true;
-                    setMode('eco'); // Skip straight to Dashboard
-                }
-            }
-            
-            // Set initial mode if no token
-            if (!hasSpotifyToken) {
+            if (isSpotifyConnected()) {
+                setMode('eco'); // Skip straight to Dashboard
+            } else {
                 setMode('intro');
             }
             
