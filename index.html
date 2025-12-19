@@ -426,23 +426,25 @@
 
         // --- SPOTIFY UI UPDATES ---
         async function updateSpotifyUI() {
+            const container = document.getElementById('spotify-widget');
+            const trackEl = document.getElementById('sp-track');
+            const artistEl = document.getElementById('sp-artist');
+            const imgArt = document.getElementById('sp-image');
+            const playIcon = document.getElementById('sp-play-icon');
+            const bar = document.getElementById('sp-bar');
+            
             if (!window.SpotifyAuth || !window.SpotifyAuth.isConnected()) {
-                 // Not Connected UI State handled in HTML default
+                 // Not Connected UI State - reset to default
+                 if (container) container.classList.remove('spotify-connected');
+                 if (trackEl) trackEl.innerText = "Connect Spotify";
+                 if (artistEl) artistEl.innerText = "Tap icon to login";
+                 if (imgArt) imgArt.classList.add('hidden');
+                 if (bar) bar.style.width = '0%';
                  return;
             }
 
             const data = await window.SpotifyAuth.fetchNowPlaying();
             
-            // UI Elements
-            const container = document.getElementById('spotify-widget');
-            const trackEl = document.getElementById('sp-track');
-            const artistEl = document.getElementById('sp-artist');
-            const artEl = document.getElementById('sp-album-art');
-            const bgArt = document.querySelector('#sp-album-art div'); // Gradient overlay
-            const imgArt = document.getElementById('sp-image');
-            const playIcon = document.getElementById('sp-play-icon');
-            const bar = document.getElementById('sp-bar');
-
             if (data && data.item) {
                 // We have data
                 AppState.isPlaying = data.is_playing;
@@ -473,6 +475,8 @@
                 // Connected but nothing playing
                 trackEl.innerText = "Spotify Connected";
                 artistEl.innerText = "Play music on device";
+                if (bar) bar.style.width = '0%';
+                container.classList.add('spotify-connected');
             }
         }
 
@@ -495,9 +499,27 @@
             const btnNext = document.getElementById('btn-next');
             const artContainer = document.getElementById('sp-album-art');
 
-            if(btnPrev) btnPrev.onclick = (e) => { e.stopPropagation(); window.SpotifyAuth.previous(); setTimeout(updateSpotifyUI, 500); };
-            if(btnPlay) btnPlay.onclick = (e) => { e.stopPropagation(); window.SpotifyAuth.playPause(AppState.isPlaying); setTimeout(updateSpotifyUI, 500); };
-            if(btnNext) btnNext.onclick = (e) => { e.stopPropagation(); window.SpotifyAuth.next(); setTimeout(updateSpotifyUI, 500); };
+            if(btnPrev) btnPrev.onclick = (e) => { 
+                e.stopPropagation(); 
+                if (window.SpotifyAuth && window.SpotifyAuth.isConnected()) {
+                    window.SpotifyAuth.previous(); 
+                    setTimeout(updateSpotifyUI, 500); 
+                }
+            };
+            if(btnPlay) btnPlay.onclick = (e) => { 
+                e.stopPropagation(); 
+                if (window.SpotifyAuth && window.SpotifyAuth.isConnected()) {
+                    window.SpotifyAuth.playPause(AppState.isPlaying); 
+                    setTimeout(updateSpotifyUI, 500); 
+                }
+            };
+            if(btnNext) btnNext.onclick = (e) => { 
+                e.stopPropagation(); 
+                if (window.SpotifyAuth && window.SpotifyAuth.isConnected()) {
+                    window.SpotifyAuth.next(); 
+                    setTimeout(updateSpotifyUI, 500); 
+                }
+            };
             
             // Click Album Art to Login
             if(artContainer) {
