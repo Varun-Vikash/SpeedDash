@@ -11,10 +11,10 @@ SpeedDash is a customizable, interactive speedometer dashboard application. It f
 ## Screenshots
 
 ### Intro Screen
-![Intro Screen](2dintro.gif)
+![Intro Screen](Resources/2dintro.gif)
 
 ### Normal Speedometer
-![Normal Speedometer](normal_speedometer.png)
+![Normal Speedometer](Resources/normal_speedometer.png)
 
 ### Sport Mode
-![Sport Mode](sport_mode.png)
+![Sport Mode](Resources/sport_mode.png)
