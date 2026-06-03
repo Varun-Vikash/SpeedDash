@@ -1,0 +1,25 @@
+# Android / Gradle build artifacts
+*.iml
+.gradle/
+**/build/
+.cxx/
+.externalNativeBuild/
+.DS_Store
+local.properties
+
+# Kotlin compiler cache
+.kotlin/
+
+# IDE - user-specific / machine-specific files
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+.idea/deploymentTargetSelector.xml
+.idea/deviceManager.xml
+.idea/emulatorDisplays.xml
+
+# Captures
+captures/
